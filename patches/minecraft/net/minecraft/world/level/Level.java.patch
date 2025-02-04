@@ -158,7 +158,7 @@
                      T t = p_261885_.tryCast(enderdragonpart);
                      if (t != null && p_261688_.test(t)) {
                          p_262071_.add(t);
-@@ -932,16 +_,15 @@
+@@ -932,17 +_,16 @@
      public abstract Scoreboard getScoreboard();
  
      public void updateNeighbourForOutputSignal(BlockPos p_46718_, Block p_46719_) {
@@ -175,10 +175,12 @@
                      blockpos = blockpos.relative(direction);
                      blockstate = this.getBlockState(blockpos);
 -                    if (blockstate.is(Blocks.COMPARATOR)) {
+-                        this.neighborChanged(blockstate, blockpos, p_46719_, null, false);
 +                    if (blockstate.getWeakChanges(this, blockpos)) {
-                         this.neighborChanged(blockstate, blockpos, p_46719_, null, false);
++                        blockstate.onNeighborChange(this, blockpos, p_46718_);
                      }
                  }
+             }
 @@ -1044,6 +_,20 @@
      }
  
