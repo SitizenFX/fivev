@@ -24,6 +24,35 @@
                  this.write(chunkpos, completablefuture::join).handle((p_358676_, p_358677_) -> {
                      if (p_358677_ != null) {
                          this.level.getServer().reportChunkSaveFailure(p_358677_, this.storageInfo(), chunkpos);
+@@ -934,10 +_,27 @@
+     void forEachSpawnCandidateChunk(Consumer<ChunkHolder> p_364582_) {
+         LongIterator longiterator = this.distanceManager.getSpawnCandidateChunks();
+ 
++        // FORGE: separated forEach logic into its own method
++        this.forEachChunk(longiterator, this::anyPlayerCloseEnoughForSpawningInternal, p_364582_);
++    }
++
++    /** FORGE: grab forced chunks, use forEachChunk to avoid duplicate logic */
++    void forEachForcedChunk(Consumer<ChunkHolder> callback) {
++        LongIterator longiterator = this.distanceManager.forcedTickets.keySet().iterator();
++        this.forEachChunk(longiterator, pos -> true, callback);
++    }
++
++    /** FORGE: check if there are any forced chunks */
++    boolean hasForcedChunks() {
++        return !this.distanceManager.forcedTickets.isEmpty();
++    }
++
++    /** FORGE: commonize logic between forEachSpawnCandidateChunk and forEachForcedChunk */
++    private void forEachChunk(LongIterator longiterator, java.util.function.Predicate<ChunkPos> filter, Consumer<ChunkHolder> p_364582_) {
+         while (longiterator.hasNext()) {
+             long i = longiterator.nextLong();
+             ChunkHolder chunkholder = this.visibleChunkMap.get(i);
+-            if (chunkholder != null && this.anyPlayerCloseEnoughForSpawningInternal(chunkholder.getPos())) {
++            if (chunkholder != null && filter.test(chunkholder.getPos())) {
+                 p_364582_.accept(chunkholder);
+             }
+         }
 @@ -1102,7 +_,7 @@
      }
  

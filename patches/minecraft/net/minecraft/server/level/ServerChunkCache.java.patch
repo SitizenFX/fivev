@@ -11,6 +11,34 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
+@@ -368,9 +_,25 @@
+     }
+ 
+     private void collectTickingChunks(List<LevelChunk> p_368970_) {
+-        this.chunkMap.forEachSpawnCandidateChunk(p_358696_ -> {
++        // FORGE: If there are no forced chunks, just do the vanilla logic
++        if (!this.chunkMap.hasForcedChunks()) {
++            this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(p_368970_, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
++            return;
++        }
++
++        // FORGE: We have forced chunks? Ok, use a linked hash set to preserve order
++        Set<LevelChunk> set = new java.util.LinkedHashSet<>();
++        this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(set, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
++        this.chunkMap.forEachForcedChunk(this.getChunkCollector(set, chunk -> true));
++        p_368970_.addAll(set);
++    }
++
++    /** FORGE: Isolate chunk collection callback */
++    private Consumer<ChunkHolder> getChunkCollector(java.util.Collection<LevelChunk> p_368970_, java.util.function.Predicate<LevelChunk> predicate) {
++        return (p_358696_ -> {
+             LevelChunk levelchunk = p_358696_.getTickingChunk();
+-            if (levelchunk != null && this.level.isNaturalSpawningAllowed(p_358696_.getPos())) {
++            // FORGE: Use custom predicate instead of only checking isNaturalSpawningAllowed
++            if (levelchunk != null && predicate.test(levelchunk)) {
+                 p_368970_.add(levelchunk);
+             }
+         });
 @@ -466,11 +_,19 @@
      }
  
