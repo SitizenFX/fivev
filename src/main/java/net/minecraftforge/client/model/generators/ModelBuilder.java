@@ -65,6 +65,7 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     protected final ExistingFileHelper existingFileHelper;
 
     protected String renderType = null;
+    protected String renderTypeFast = null;
     protected boolean ambientOcclusion = true;
     protected GuiLight guiLight = null;
 
@@ -154,12 +155,17 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     }
 
     /**
-     * Set the render type for this model.
+     * Set the render type for this model. Any render types to be used must be registered via
+     * {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent RegisterNamedRenderTypesEvent}.
+     * <p>
+     * Consider using {@linkplain #renderType(String, String)} if you need to set a render type for
+     * {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}.
      *
-     * @param renderType the render type. Must be registered via
-     *                   {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent}
+     * @param renderType the render type
      * @return this builder
-     * @throws NullPointerException  if {@code renderType} is {@code null}
+     *
+     * @throws NullPointerException if {@code renderType} is {@code null}
+     * @see #renderType(String, String)
      */
     public T renderType(String renderType) {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
@@ -167,16 +173,55 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     }
 
     /**
-     * Set the render type for this model.
+     * Set the render types for this model. Any render types to be used must be registered via
+     * {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent RegisterNamedRenderTypesEvent}.
      *
-     * @param renderType the render type. Must be registered via
-     *                   {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent}
+     * @param renderType     the render type for {@linkplain net.minecraft.client.GraphicsStatus#FANCY fancy graphics}
+     * @param renderTypeFast the render type for {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}
      * @return this builder
-     * @throws NullPointerException  if {@code renderType} is {@code null}
+     *
+     * @throws NullPointerException if {@code renderType} is {@code null}
+     */
+    public T renderType(String renderType, String renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        return renderType(ResourceLocation.parse(renderType), ResourceLocation.parse(renderTypeFast));
+    }
+
+    /**
+     * Set the render type for this model. Any render types to be used must be registered via
+     * {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent RegisterNamedRenderTypesEvent}.
+     * <p>
+     * Consider using {@linkplain #renderType(ResourceLocation, ResourceLocation)} if you need to set a render type for
+     * {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}.
+     *
+     * @param renderType the render type
+     * @return this builder
+     *
+     * @throws NullPointerException if {@code renderType} is {@code null}
+     * @see #renderType(ResourceLocation, ResourceLocation)
      */
     public T renderType(ResourceLocation renderType) {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         this.renderType = renderType.toString();
+        this.renderTypeFast = null;
+        return self();
+    }
+
+    /**
+     * Set the render types for this model. Any render types to be used must be registered via
+     * {@link net.minecraftforge.client.event.RegisterNamedRenderTypesEvent RegisterNamedRenderTypesEvent}.
+     *
+     * @param renderType     the render type for {@linkplain net.minecraft.client.GraphicsStatus#FANCY fancy graphics}
+     * @param renderTypeFast the render type for {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}
+     * @return this builder
+     *
+     * @throws NullPointerException if {@code renderType} is {@code null}
+     */
+    public T renderType(ResourceLocation renderType, ResourceLocation renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        Preconditions.checkNotNull(renderTypeFast, "Fast graphics render type must not be null");
+        this.renderType = renderType.toString();
+        this.renderTypeFast = renderType.toString();
         return self();
     }
 
