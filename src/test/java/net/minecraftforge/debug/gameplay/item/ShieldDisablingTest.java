@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) Forge Development LLC and contributors
+ * SPDX-License-Identifier: LGPL-2.1-only
+ */
+
 package net.minecraftforge.debug.gameplay.item;
 
 import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -64,7 +72,14 @@ public final class ShieldDisablingTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        player.hurtServer(helper.getLevel(), enemy.damageSources().mobAttack(enemy), 5.0F);
+        var attack = helper.registryLookup(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MOB_ATTACK);
+        var damage = new DamageSource(attack, enemy) {
+            @Override
+            public boolean scalesWithDifficulty() {
+                return false;
+            }
+        };
+        player.hurtServer(helper.getLevel(), damage, 5.0F);
 
         // shield on cooldown?
         helper.assertTrue(player.getCooldowns().isOnCooldown(shield), "shield should be on cooldown");
