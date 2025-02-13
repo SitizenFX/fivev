@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -610,5 +611,13 @@ public interface IForgeItem {
      */
     default boolean canGrindstoneRepair(ItemStack stack) {
         return false;
+    }
+
+    /**
+     * @return The Default Capability Provider for this item, if any, accounting for the given itemstack.
+     */
+    @Nullable
+    default ICapabilityProvider getCapabilityProvider(ItemStack stack) {
+        return null;
     }
 }
