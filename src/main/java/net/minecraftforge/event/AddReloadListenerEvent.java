@@ -6,7 +6,10 @@
 package net.minecraftforge.event;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -29,10 +32,31 @@ import java.util.concurrent.Executor;
 public class AddReloadListenerEvent extends Event {
     private final List<PreparableReloadListener> listeners = new ArrayList<>();
     private final ReloadableServerResources serverResources;
+
+    private final HolderLookup.Provider registries;
+    @Deprecated(forRemoval = true, since = "1.21.4")
     private final RegistryAccess registryAccess;
 
-    public AddReloadListenerEvent(ReloadableServerResources serverResources, RegistryAccess registryAccess) {
+    /** @deprecated Does not provide additional context. Use {@link #AddReloadListenerEvent(ReloadableServerResources, HolderLookup.Provider, RegistryAccess)} instead. */
+    @Deprecated(forRemoval = true, since = "1.21.4")
+    public AddReloadListenerEvent(
+        ReloadableServerResources serverResources,
+        RegistryAccess registryAccess
+    ) {
+        this(
+            serverResources,
+            registryAccess,
+            registryAccess
+        );
+    }
+
+    public AddReloadListenerEvent(
+        ReloadableServerResources serverResources,
+        HolderLookup.Provider registries,
+        @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess
+    ) {
         this.serverResources = serverResources;
+        this.registries = registries;
         this.registryAccess = registryAccess;
     }
 
@@ -63,20 +87,26 @@ public class AddReloadListenerEvent extends Event {
     }
 
     /**
+     * @return A holder lookup provider containing the registries with updated tags.
+     *
+     * @see net.minecraft.server.ReloadableServerRegistries.LoadResult#lookupWithUpdatedTags()
+     */
+    public HolderLookup.Provider getRegistries() {
+        return registries;
+    }
+
+    /**
      * Provides access to the loaded registries associated with these server resources.
      * All built-in and dynamic registries are loaded and frozen by this point.
      * @return The RegistryAccess context for the currently active reload.
+     * @deprecated Does not contain updated tags. Use {@link #getRegistries()} instead.
      */
+    @Deprecated(forRemoval = true, since = "1.21.4")
     public RegistryAccess getRegistryAccess() {
         return registryAccess;
     }
 
-    private static class WrappedStateAwareListener implements PreparableReloadListener {
-        private final PreparableReloadListener wrapped;
-
-        private WrappedStateAwareListener(final PreparableReloadListener wrapped) {
-            this.wrapped = wrapped;
-        }
+    private record WrappedStateAwareListener(PreparableReloadListener wrapped) implements PreparableReloadListener {
 
         @Override
         public CompletableFuture<Void> reload(final PreparationBarrier stage, final ResourceManager resourceManager, final Executor backgroundExecutor, final Executor gameExecutor) {
@@ -84,6 +114,11 @@ public class AddReloadListenerEvent extends Event {
                 return wrapped.reload(stage, resourceManager, backgroundExecutor, gameExecutor);
             else
                 return CompletableFuture.completedFuture(null);
+        }
+
+        @Override
+        public String getName() {
+            return wrapped.getName();
         }
     }
 }
