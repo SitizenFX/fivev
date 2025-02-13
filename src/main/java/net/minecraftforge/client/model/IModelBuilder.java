@@ -32,6 +32,18 @@ public interface IModelBuilder<T extends IModelBuilder<T>> {
         return new Simple(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms, particle, renderTypes);
     }
 
+    static IModelBuilder<?> of(
+        boolean hasAmbientOcclusion,
+        boolean usesBlockLight,
+        boolean isGui3d,
+        ItemTransforms transforms,
+        TextureAtlasSprite particle,
+        RenderTypeGroup renderTypes,
+        RenderTypeGroup renderTypesFast
+    ){
+        return new Simple(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms, particle, renderTypes, renderTypesFast);
+    }
+
     /**
      * Creates a new model builder that collects quads to the provided list, returning
      * {@linkplain EmptyModel#BAKED an empty model} if you call {@link #build()}.
@@ -49,12 +61,20 @@ public interface IModelBuilder<T extends IModelBuilder<T>> {
     class Simple implements IModelBuilder<Simple> {
         private final SimpleBakedModel.Builder builder;
         private final RenderTypeGroup renderTypes;
+        private final RenderTypeGroup renderTypesFast;
 
         private Simple(boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
                        ItemTransforms transforms, TextureAtlasSprite particle, RenderTypeGroup renderTypes
         ) {
+            this(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms, particle, renderTypes, RenderTypeGroup.EMPTY);
+        }
+
+        private Simple(boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
+                       ItemTransforms transforms, TextureAtlasSprite particle, RenderTypeGroup renderTypes, RenderTypeGroup renderTypesFast
+        ) {
             this.builder = new SimpleBakedModel.Builder(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms).particle(particle);
             this.renderTypes = renderTypes;
+            this.renderTypesFast = renderTypesFast;
         }
 
         @Override
