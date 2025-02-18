@@ -5,6 +5,9 @@
 
 package net.minecraftforge.common.extensions;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,6 +33,8 @@ import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /*
  * Extension added to ItemStack that bounces to ItemSack sensitive Item methods. Typically this is just for convince.
@@ -396,6 +401,25 @@ public interface IForgeItemStack {
     @NotNull
     default AABB getSweepHitBox(@NotNull Player player, @NotNull Entity target) {
         return self().getItem().getSweepHitBox(self(), player, target);
+    }
+
+    /**
+     * Called when this item is to be damaged, such as use a tool being used or a shield blocking damage. The damage
+     * parameter has not yet been processed, so enchantments are not taken into account.
+     *
+     * @param damage   The amount of damage the item will take before processing
+     * @param random   The random used where the damage is taking place (typically from the level)
+     * @param player   The player holding the item
+     * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
+     *                 break an item)
+     * @return The amount of damage the item should take
+     *
+     * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable}, this method will not be
+     * called.
+     * @see IForgeItem#damageItem(ItemStack, int, RandomSource, ServerPlayer, Runnable)
+     */
+    default int damageItem(int damage, RandomSource random, @Nullable ServerPlayer player, Runnable onBroken) {
+        return self().getItem().damageItem(self(), damage, random, player, onBroken);
     }
 
     /**

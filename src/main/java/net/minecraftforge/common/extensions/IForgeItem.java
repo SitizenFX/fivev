@@ -7,6 +7,9 @@ package net.minecraftforge.common.extensions;
 
 import java.util.function.Consumer;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.*;
@@ -520,6 +523,25 @@ public interface IForgeItem {
      * @param horse the horse wearing this armor
      */
     default void onHorseArmorTick(ItemStack stack, Level level, Mob horse) { }
+
+    /**
+     * Called when this item is to be damaged, such as use a tool being used or a shield blocking damage. The damage
+     * parameter has not yet been processed, so enchantments are not taken into account.
+     *
+     * @param stack    The processed amount of damage the item will take
+     * @param damage   The amount of damage the item will take before processing
+     * @param random   The random used where the damage is taking place (typically from the level)
+     * @param player   The player holding the item
+     * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
+     *                 break an item)
+     * @return The amount of damage the item should take, after processing
+     *
+     * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable}, this method will not be
+     * called.
+     */
+    default int damageItem(ItemStack stack, int damage, RandomSource random, @Nullable ServerPlayer player, Runnable onBroken) {
+        return damage;
+    }
 
     /**
      * Called when an item entity for this stack is destroyed. Note: The {@link ItemStack} can be retrieved from the item entity.
