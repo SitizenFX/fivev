@@ -16,6 +16,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.authlib.GameProfile;
@@ -119,6 +124,10 @@ public interface IForgeGameTestHelper {
     }
 
     default ServerPlayer makeMockServerPlayer() {
+        return makeMockServerPlayer(true);
+    }
+
+    default ServerPlayer makeMockServerPlayer(boolean creative) {
         var level = self().getLevel();
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-mock-player"), false);
         var player = new ServerPlayer(level.getServer(), level, cookie.gameProfile(), cookie.clientInformation()) {
@@ -127,7 +136,7 @@ public interface IForgeGameTestHelper {
             }
 
             public boolean isCreative() {
-                return true;
+                return creative;
             }
         };
         var connection = new Connection(PacketFlow.SERVERBOUND);
@@ -183,6 +192,32 @@ public interface IForgeGameTestHelper {
                 if (self().getBlockState(pos).is(Blocks.AIR))
                     self().setBlock(pos, block);
             }
+        }
+    }
+
+    default void setAndAssertBlock(int x, int y, int z, Block block) {
+        this.setAndAssertBlock(x, y, z, block.defaultBlockState());
+    }
+
+    default void setAndAssertBlock(int x, int y, int z, BlockState state) {
+        this.setAndAssertBlock(new BlockPos(x, y, z), state);
+    }
+
+    default void setAndAssertBlock(BlockPos pos, Block block) {
+        this.setAndAssertBlock(pos, block.defaultBlockState());
+    }
+
+    default void setAndAssertBlock(BlockPos pos, BlockState state) {
+        this.assertTrue(
+                this.self().getLevel().setBlock(this.self().absolutePos(pos), state, Block.UPDATE_ALL),
+                () -> "Failed to set block at pos %s : %s".formatted(pos, state.getBlock())
+        );
+    }
+
+    default void removeAllItemEntitiesInRange(BlockPos pos, double range) {
+        BlockPos blockpos = this.self().absolutePos(pos);
+        for (ItemEntity itemEntity : this.self().getLevel().getEntities(EntityType.ITEM, new AABB(blockpos).inflate(range), Entity::isAlive)) {
+            itemEntity.remove(Entity.RemovalReason.DISCARDED);
         }
     }
 
