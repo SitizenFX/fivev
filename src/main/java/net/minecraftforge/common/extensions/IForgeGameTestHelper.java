@@ -19,6 +19,7 @@ import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
@@ -82,7 +83,11 @@ public interface IForgeGameTestHelper {
             throw new GameTestAssertException("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, Arrays.toString(expected), Arrays.toString(actual)));
     }
 
-    default <E> Registry<E> registryLookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
+    default <E> Registry<E> registry(ResourceKey<? extends Registry<? extends E>> registryKey) {
+        return this.self().getLevel().registryAccess().registryOrThrow(registryKey);
+    }
+
+    default <E> HolderLookup.RegistryLookup<E> registryLookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
         return this.self().getLevel().registryAccess().lookupOrThrow(registryKey);
     }
 
@@ -99,6 +104,7 @@ public interface IForgeGameTestHelper {
             }
         };
         var connection = new Connection(PacketFlow.SERVERBOUND);
+        @SuppressWarnings("unused") // Constructor has side effects
         var channel = new EmbeddedChannel(connection);
         var server = level.getServer();
 

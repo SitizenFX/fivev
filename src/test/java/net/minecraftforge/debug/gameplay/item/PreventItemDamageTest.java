@@ -85,7 +85,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        var attack = helper.registryLookup(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.MOB_ATTACK);
+        var attack = helper.registry(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.MOB_ATTACK);
         var damage = new DamageSource(attack, enemy) {
             @Override
             public boolean scalesWithDifficulty() {
