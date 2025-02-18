@@ -33,6 +33,15 @@
              if (player != null && interactionresult.indicateItemUse()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
+@@ -425,6 +_,8 @@
+     public void hurtAndBreak(int p_220158_, ServerLevel p_342197_, @Nullable ServerPlayer p_220160_, Consumer<Item> p_343361_) {
+         if (this.isDamageableItem()) {
+             if (p_220160_ == null || !p_220160_.hasInfiniteMaterials()) {
++                // FORGE: modify the base damage based on the item's impl of IForgeItem.damageItem
++                p_220158_ = this.damageItem(p_220158_, p_342197_, p_220160_, p_343361_);
+                 if (p_220158_ > 0) {
+                     p_220158_ = EnchantmentHelper.processDurabilityChange(p_342197_, this, p_220158_);
+                     if (p_220158_ <= 0) {
 @@ -453,7 +_,13 @@
                  p_41623_,
                  serverlevel,
@@ -41,7 +50,7 @@
 +                p_341563_ -> {
 +                    if (p_41624_ instanceof Player player) {
 +                        net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, this, p_335324_);
-+                        player.stopUsingItem(); // Forge: fix MC-168573
++                        if (player.getUseItem() == this) player.stopUsingItem(); // Forge: fix MC-168573
 +                    }
 +                    p_41624_.onEquippedItemBroken(p_341563_, p_335324_);
 +                }
