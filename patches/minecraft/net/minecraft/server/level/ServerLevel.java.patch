@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -204,10 +_,12 @@
+@@ -200,10 +_,12 @@
      @Nullable
      private EndDragonFight dragonFight;
      final Int2ObjectMap<EnderDragonPart> dragonParts = new Int2ObjectOpenHashMap<>();
@@ -13,20 +13,26 @@
  
      public ServerLevel(
          MinecraftServer p_214999_,
-@@ -290,6 +_,12 @@
+@@ -286,6 +_,18 @@
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
-         this.randomSequences = Objects.requireNonNullElseGet(p_288977_, () -> this.getDataStorage().computeIfAbsent(RandomSequences.factory(i), "random_sequences"));
+         this.randomSequences = Objects.requireNonNullElseGet(p_288977_, () -> this.getDataStorage().computeIfAbsent(RandomSequences.TYPE));
 +        this.initCapabilities();
 +    }
 +
 +    protected void initCapabilities() {
 +        this.gatherCapabilities();
-+        capabilityData = net.minecraftforge.common.util.LevelCapabilityData.compute(this.getDataStorage(), getCapabilities());
++        capabilityData = this.getDataStorage().computeIfAbsent(net.minecraftforge.common.util.LevelCapabilityData.TYPE);
++    }
++
++    /** Forge: Internal method only for out capability storage system */
++    @org.jetbrains.annotations.ApiStatus.Internal
++    public @org.jetbrains.annotations.Nullable net.minecraftforge.common.capabilities.CapabilityDispatcher getCapabilityDispatcher() {
++        return getCapabilities();
      }
  
      @Deprecated
-@@ -331,8 +_,8 @@
+@@ -327,8 +_,8 @@
          int i = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
          if (this.sleepStatus.areEnoughSleeping(i) && this.sleepStatus.areEnoughDeepSleeping(i, this.players)) {
              if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
@@ -37,17 +43,7 @@
              }
  
              this.wakeUpAllPlayers();
-@@ -370,7 +_,8 @@
- 
-         this.handlingTick = false;
-         profilerfiller.pop();
--        boolean flag1 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
-+        // Forge: Replace vanilla's has forced chunk check with forge's that checks both the vanilla and forge added ones
-+        boolean flag1 = !this.players.isEmpty() || net.minecraftforge.common.world.ForgeChunkManager.hasForcedChunks(this);
-         if (flag1) {
-             this.resetEmptyTime();
-         }
-@@ -399,6 +_,7 @@
+@@ -395,6 +_,7 @@
                                  p_358707_.stopRiding();
                              }
  
@@ -55,7 +51,7 @@
                              profilerfiller.push("tick");
                              this.guardEntityTick(this::tickNonPassenger, p_358707_);
                              profilerfiller.pop();
-@@ -526,6 +_,7 @@
+@@ -530,6 +_,7 @@
          BlockPos blockpos = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, p_300602_);
          BlockPos blockpos1 = blockpos.below();
          Biome biome = this.getBiome(blockpos).value();
@@ -63,7 +59,7 @@
          if (biome.shouldFreeze(this, blockpos1)) {
              this.setBlockAndUpdate(blockpos1, Blocks.ICE.defaultBlockState());
          }
-@@ -701,8 +_,8 @@
+@@ -705,8 +_,8 @@
                  this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_RAINING, 0.0F));
              }
  
@@ -74,7 +70,7 @@
          }
      }
  
-@@ -739,6 +_,7 @@
+@@ -743,6 +_,7 @@
          p_8648_.tickCount++;
          profilerfiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(p_8648_.getType()).toString());
          profilerfiller.incrementCounter("tickNonPassenger");
@@ -82,7 +78,7 @@
          p_8648_.tick();
          profilerfiller.pop();
  
-@@ -756,6 +_,7 @@
+@@ -760,6 +_,7 @@
              ProfilerFiller profilerfiller = Profiler.get();
              profilerfiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(p_8664_.getType()).toString());
              profilerfiller.incrementCounter("tickPassenger");
@@ -90,7 +86,7 @@
              p_8664_.rideTick();
              profilerfiller.pop();
  
-@@ -788,6 +_,7 @@
+@@ -792,6 +_,7 @@
              } else {
                  this.entityManager.autoSave();
              }
@@ -98,15 +94,15 @@
          }
      }
  
-@@ -882,6 +_,7 @@
+@@ -886,6 +_,7 @@
      }
  
      private void addPlayer(ServerPlayer p_8854_) {
 +        if (net.minecraftforge.event.ForgeEventFactory.onEntityJoinLevel(p_8854_, this)) return;
-         Entity entity = this.getEntities().get(p_8854_.getUUID());
+         Entity entity = this.getEntity(p_8854_.getUUID());
          if (entity != null) {
              LOGGER.warn("Force-added player with duplicate UUID {}", p_8854_.getUUID());
-@@ -889,7 +_,8 @@
+@@ -893,7 +_,8 @@
              this.removePlayerImmediately((ServerPlayer)entity, Entity.RemovalReason.DISCARDED);
          }
  
@@ -116,7 +112,7 @@
      }
  
      private boolean addEntity(Entity p_8873_) {
-@@ -897,7 +_,12 @@
+@@ -901,7 +_,12 @@
              LOGGER.warn("Tried to add entity {} but it was marked as removed already", EntityType.getKey(p_8873_.getType()));
              return false;
          } else {
@@ -130,24 +126,11 @@
          }
      }
  
-@@ -945,6 +_,12 @@
-         float p_263390_,
-         long p_263403_
+@@ -949,6 +_,12 @@
+         float p_263520_,
+         long p_263490_
      ) {
-+        var event = net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtPosition(this, p_263393_, p_263369_, p_263354_, p_263412_, p_263338_, p_263352_, p_263390_);
-+        if (event.isCanceled() || event.getSound() == null) return;
-+        p_263412_ = event.getSound();
-+        p_263338_ = event.getSource();
-+        p_263352_ = event.getNewVolume();
-+        p_263390_ = event.getNewPitch();
-         this.server
-             .getPlayerList()
-             .broadcast(
-@@ -962,6 +_,12 @@
-     public void playSeededSound(
-         @Nullable Player p_263545_, Entity p_263544_, Holder<SoundEvent> p_263491_, SoundSource p_263542_, float p_263530_, float p_263520_, long p_263490_
-     ) {
-+        var event = net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtEntity(p_263544_, p_263491_, p_263542_, p_263530_, p_263520_);
++        var event = net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtPosition(this, p_393402_, p_397340_, p_394643_, p_263491_, p_263542_, p_263530_, p_263520_);
 +        if (event.isCanceled() || event.getSound() == null) return;
 +        p_263491_ = event.getSound();
 +        p_263542_ = event.getSource();
@@ -156,7 +139,20 @@
          this.server
              .getPlayerList()
              .broadcast(
-@@ -1020,6 +_,7 @@
+@@ -966,6 +_,12 @@
+     public void playSeededSound(
+         @Nullable Entity p_392657_, Entity p_394285_, Holder<SoundEvent> p_263412_, SoundSource p_263338_, float p_263352_, float p_263390_, long p_263403_
+     ) {
++        var event = net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtEntity(p_394285_, p_263412_, p_263338_, p_263352_, p_263390_);
++        if (event.isCanceled() || event.getSound() == null) return;
++        p_263412_ = event.getSound();
++        p_263338_ = event.getSource();
++        p_263352_ = event.getNewVolume();
++        p_263390_ = event.getNewPitch();
+         this.server
+             .getPlayerList()
+             .broadcast(
+@@ -1024,6 +_,7 @@
  
      @Override
      public void gameEvent(Holder<GameEvent> p_334475_, Vec3 p_215042_, GameEvent.Context p_215043_) {
@@ -164,7 +160,7 @@
          this.gameEventDispatcher.post(p_334475_, p_215042_, p_215043_);
      }
  
-@@ -1058,16 +_,24 @@
+@@ -1062,16 +_,24 @@
  
      @Override
      public void updateNeighborsAt(BlockPos p_215045_, Block p_215046_) {
@@ -189,7 +185,7 @@
          this.neighborUpdater.updateNeighborsAtExceptFromFacing(p_215052_, p_215053_, p_215054_, p_370072_);
      }
  
-@@ -1113,12 +_,14 @@
+@@ -1117,12 +_,14 @@
          Explosion.BlockInteraction explosion$blockinteraction = switch (p_255827_) {
              case NONE -> Explosion.BlockInteraction.KEEP;
              case BLOCK -> this.getDestroyType(GameRules.RULE_BLOCK_EXPLOSION_DROP_DECAY);
@@ -205,7 +201,7 @@
          serverexplosion.explode();
          ParticleOptions particleoptions = serverexplosion.isSmall() ? p_310962_ : p_310322_;
  
-@@ -1714,6 +_,11 @@
+@@ -1698,6 +_,11 @@
          return this.chunkSource.getGenerator().getSeaLevel();
      }
  
@@ -217,7 +213,7 @@
      final class EntityCallbacks implements LevelCallback<Entity> {
          public void onCreated(Entity p_143355_) {
          }
-@@ -1754,6 +_,12 @@
+@@ -1738,6 +_,12 @@
                  }
              }
  
@@ -230,7 +226,7 @@
              p_143371_.updateDynamicGameEventListener(DynamicGameEventListener::add);
          }
  
-@@ -1781,7 +_,16 @@
+@@ -1765,7 +_,16 @@
                  }
              }
  

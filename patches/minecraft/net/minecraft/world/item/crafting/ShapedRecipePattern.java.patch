@@ -8,7 +8,7 @@
 +        return this.data;
 +    }
 +
-     public static record Data(Map<Character, Ingredient> key, List<String> pattern) {
+     public record Data(Map<Character, Ingredient> key, List<String> pattern) {
          private static final Codec<List<String>> PATTERN_CODEC = Codec.STRING.listOf().comapFlatMap(p_311191_ -> {
 -            if (p_311191_.size() > 3) {
 -                return DataResult.error(() -> "Invalid pattern: too many rows, 3 is maximum");

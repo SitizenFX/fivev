@@ -70,7 +70,7 @@
     {
         "class": "net/minecraft/world/entity/npc/CatSpawner",
         "methods": [
-            "spawnCat(Lnet/minecraft/core/BlockPos;Lnet/minecraft/server/level/ServerLevel;)I"
+            "spawnCat(Lnet/minecraft/core/BlockPos;Lnet/minecraft/server/level/ServerLevel;Z)V"
         ]
     },
     {
@@ -82,7 +82,7 @@
     {
         "class": "net/minecraft/world/entity/raid/Raid",
         "methods": [
-            "joinRaid(ILnet/minecraft/world/entity/raid/Raider;Lnet/minecraft/core/BlockPos;Z)V"
+            "joinRaid(Lnet/minecraft/server/level/ServerLevel;ILnet/minecraft/world/entity/raid/Raider;Lnet/minecraft/core/BlockPos;Z)V"
         ]
     },
     {
@@ -107,7 +107,7 @@
     {
         "class": "net/minecraft/world/level/levelgen/PhantomSpawner",
         "methods": [
-            "tick(Lnet/minecraft/server/level/ServerLevel;ZZ)I"
+            "tick(Lnet/minecraft/server/level/ServerLevel;ZZ)V"
         ]
     },
     {

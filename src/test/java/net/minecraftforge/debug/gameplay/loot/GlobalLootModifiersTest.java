@@ -10,15 +10,16 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.advancements.critereon.DataComponentMatchers;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicates;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.Block;
@@ -28,7 +29,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.registries.RegistryPatchGenerator;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -67,6 +67,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.DeferredRegister;
@@ -135,7 +136,7 @@ public class GlobalLootModifiersTest extends BaseTestMod {
     }
 
     // Tests the Enchantment condition, as well as the ability to completely override the returned values.
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void smellting(GameTestHelper helper) {
         var player = helper.makeMockServerPlayer();
         var center = new BlockPos(1, 1, 1);
@@ -162,7 +163,7 @@ public class GlobalLootModifiersTest extends BaseTestMod {
     }
 
     // Tests the table name condition by duplicating the drops for our test block, but not for anything else.
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void condition_table_name(GameTestHelper helper) {
         var center = new BlockPos(1, 1, 1);
         var player = helper.makeMockServerPlayer();
@@ -181,7 +182,7 @@ public class GlobalLootModifiersTest extends BaseTestMod {
     }
 
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void silk_reentrant(GameTestHelper helper) {
         var center = new BlockPos(1, 1, 1);
         var player = helper.makeMockServerPlayer();
@@ -218,11 +219,14 @@ public class GlobalLootModifiersTest extends BaseTestMod {
                 new LootItemCondition[]{
                     MatchTool.toolMatches(
                         ItemPredicate.Builder.item()
-                            .withSubPredicate(
-                                ItemSubPredicates.ENCHANTMENTS,
-                                ItemEnchantmentsPredicate.enchantments(List.of(
-                                    new EnchantmentPredicate(smelt, MinMaxBounds.Ints.atLeast(1))
-                                ))
+                            .withComponents(
+                                DataComponentMatchers.Builder.components()
+                                    .partial(
+                                        DataComponentPredicates.ENCHANTMENTS,
+                                        EnchantmentsPredicate.enchantments(List.of(
+                                            new EnchantmentPredicate(smelt, MinMaxBounds.Ints.atLeast(1))
+                                        ))
+                                    ).build()
                             )
                     ).build()
                 })

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/GameRenderer.java
 +++ b/net/minecraft/client/renderer/GameRenderer.java
-@@ -158,6 +_,10 @@
+@@ -168,6 +_,10 @@
              this.setPostEffect(ResourceLocation.withDefaultNamespace("spider"));
          } else if (p_109107_ instanceof EnderMan) {
              this.setPostEffect(ResourceLocation.withDefaultNamespace("invert"));
@@ -11,21 +11,21 @@
          }
      }
  
-@@ -171,8 +_,13 @@
+@@ -181,7 +_,13 @@
          if (!(f < 1.0F)) {
              PostChain postchain = this.minecraft.getShaderManager().getPostChain(BLUR_POST_CHAIN_ID, LevelTargetBundle.MAIN_TARGETS);
              if (postchain != null) {
-+                boolean wasBlendEnabled = RenderSystem.isBlendEnabled();
++                // TODO: [Forge][Rendering] Check if this blend management is needed anymnore with the new render pipeline changes
++                boolean wasBlendEnabled = com.mojang.blaze3d.opengl.GlStateManager._isBlendEnabled();
 +                if (wasBlendEnabled)
-+                    RenderSystem.disableBlend();
-                 postchain.setUniform("Radius", f);
-                 postchain.process(this.minecraft.getMainRenderTarget(), this.resourcePool);
++                    com.mojang.blaze3d.opengl.GlStateManager._disableBlend();
+                 postchain.process(this.minecraft.getMainRenderTarget(), this.resourcePool, p_389358_ -> p_389358_.setUniform("Radius", f));
 +                if (wasBlendEnabled)
-+                    RenderSystem.enableBlend();
++                    com.mojang.blaze3d.opengl.GlStateManager._enableBlend();
              }
          }
      }
-@@ -312,7 +_,7 @@
+@@ -347,7 +_,7 @@
                  f *= Mth.lerp(f2, 1.0F, 0.85714287F);
              }
  
@@ -34,13 +34,12 @@
          }
      }
  
-@@ -470,12 +_,12 @@
-                     (float)((double)window.getHeight() / window.getGuiScale()),
-                     0.0F,
-                     1000.0F,
--                    21000.0F
-+                    net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane()
-                 );
+@@ -490,11 +_,11 @@
+             RenderTarget rendertarget = this.minecraft.getMainRenderTarget();
+             RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(rendertarget.getDepthTexture(), 1.0);
+             Matrix4f matrix4f = new Matrix4f()
+-                .setOrtho(0.0F, (float)(window.getWidth() / window.getGuiScale()), (float)(window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, 21000.0F);
++                .setOrtho(0.0F, (float)(window.getWidth() / window.getGuiScale()), (float)(window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
              RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC);
              Matrix4fStack matrix4fstack = RenderSystem.getModelViewStack();
              matrix4fstack.pushMatrix();
@@ -49,7 +48,7 @@
              Lighting.setupFor3DItems();
              GuiGraphics guigraphics = new GuiGraphics(this.minecraft, this.renderBuffers.bufferSource());
              if (flag && p_109096_ && this.minecraft.level != null) {
-@@ -501,7 +_,7 @@
+@@ -520,7 +_,7 @@
                  }
              } else if (flag && this.minecraft.screen != null) {
                  try {
@@ -58,7 +57,7 @@
                  } catch (Throwable throwable1) {
                      CrashReport crashreport1 = CrashReport.forThrowable(throwable1, "Rendering screen");
                      CrashReportCategory crashreportcategory1 = crashreport1.addCategory("Screen render details");
-@@ -657,6 +_,9 @@
+@@ -654,6 +_,9 @@
          if (this.minecraft.options.bobView().get()) {
              this.bobView(posestack, camera.getPartialTickTime());
          }

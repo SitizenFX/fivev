@@ -195,7 +195,7 @@ public class ClientCommandHandler {
                 MutableComponent details = Component.literal("")
                         .withStyle(ChatFormatting.GRAY)
                         .withStyle((style) -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, reader.getString())));
+                                .withClickEvent(new ClickEvent.SuggestCommand(reader.getString())));
                 if (position > 10)
                     details.append("...");
 
@@ -211,7 +211,7 @@ public class ClientCommandHandler {
             mc.gui.getChat().addMessage(
                 Component.translatable("command.failed")
                     .withStyle(ChatFormatting.RED)
-                    .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, message)))
+                    .withStyle(style -> style.withHoverEvent(new HoverEvent.ShowText(message)))
             );
             LOGGER.error("Error executing client command \"{}\"", command, generic);
         }

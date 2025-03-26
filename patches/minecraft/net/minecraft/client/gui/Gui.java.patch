@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/Gui.java
 +++ b/net/minecraft/client/gui/Gui.java
-@@ -147,7 +_,7 @@
+@@ -148,7 +_,7 @@
      public float vignetteBrightness = 1.0F;
      private int toolHighlightTimer;
      private ItemStack lastToolHighlight = ItemStack.EMPTY;
@@ -9,16 +9,16 @@
      private final SubtitleOverlay subtitleOverlay;
      private final SpectatorGui spectatorGui;
      private final PlayerTabOverlay tabList;
-@@ -345,7 +_,7 @@
+@@ -347,7 +_,7 @@
              Window window = this.minecraft.getWindow();
-             int i = Mth.floor(this.minecraft.mouseHandler.xpos() * (double)window.getGuiScaledWidth() / (double)window.getScreenWidth());
-             int j = Mth.floor(this.minecraft.mouseHandler.ypos() * (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+             int i = Mth.floor(this.minecraft.mouseHandler.getScaledXPos(window));
+             int j = Mth.floor(this.minecraft.mouseHandler.getScaledYPos(window));
 -            this.chat.render(p_329202_, this.tickCount, i, j, false);
 +            net.minecraftforge.client.ForgeHooksClient.onCustomizeChatEvent(p_329202_, this.chat, window, i, j, this.tickCount);
          }
      }
  
-@@ -443,6 +_,8 @@
+@@ -445,6 +_,8 @@
  
              for (MobEffectInstance mobeffectinstance : Ordering.natural().reverse().sortedCopy(collection)) {
                  Holder<MobEffect> holder = mobeffectinstance.getEffect();
@@ -27,7 +27,7 @@
                  if (mobeffectinstance.showIcon()) {
                      int k = p_282812_.guiWidth();
                      int l = 1;
-@@ -473,6 +_,7 @@
+@@ -475,6 +_,7 @@
                          }
                      }
  
@@ -35,7 +35,7 @@
                      TextureAtlasSprite textureatlassprite = mobeffecttexturemanager.get(holder);
                      int l1 = k;
                      int k1 = l;
-@@ -623,6 +_,10 @@
+@@ -625,6 +_,10 @@
      }
  
      private void renderSelectedItemName(GuiGraphics p_283501_) {
@@ -46,7 +46,7 @@
          Profiler.get().push("selectedItemName");
          if (this.toolHighlightTimer > 0 && !this.lastToolHighlight.isEmpty()) {
              MutableComponent mutablecomponent = Component.empty().append(this.lastToolHighlight.getHoverName()).withStyle(this.lastToolHighlight.getRarity().color());
-@@ -630,9 +_,13 @@
+@@ -632,9 +_,13 @@
                  mutablecomponent.withStyle(ChatFormatting.ITALIC);
              }
  
@@ -62,7 +62,7 @@
              if (!this.minecraft.gameMode.canHurtPlayer()) {
                  k += 14;
              }
-@@ -643,7 +_,7 @@
+@@ -645,7 +_,7 @@
              }
  
              if (l > 0) {
@@ -71,8 +71,8 @@
              }
          }
  
-@@ -1152,7 +_,7 @@
-             ItemStack itemstack = this.minecraft.player.getInventory().getSelected();
+@@ -1154,7 +_,7 @@
+             ItemStack itemstack = this.minecraft.player.getInventory().getSelectedItem();
              if (itemstack.isEmpty()) {
                  this.toolHighlightTimer = 0;
 -            } else if (this.lastToolHighlight.isEmpty() || !itemstack.is(this.lastToolHighlight.getItem()) || !itemstack.getHoverName().equals(this.lastToolHighlight.getHoverName())) {

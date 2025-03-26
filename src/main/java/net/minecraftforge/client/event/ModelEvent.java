@@ -149,17 +149,17 @@ public abstract class ModelEvent extends Event {
      * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
      */
     public static class RegisterGeometryLoaders extends ModelEvent implements IModBusEvent {
-        private final Map<ResourceLocation, IGeometryLoader<?>> loaders;
+        private final Map<ResourceLocation, IGeometryLoader> loaders;
 
         @ApiStatus.Internal
-        public RegisterGeometryLoaders(Map<ResourceLocation, IGeometryLoader<?>> loaders) {
+        public RegisterGeometryLoaders(Map<ResourceLocation, IGeometryLoader> loaders) {
             this.loaders = loaders;
         }
 
         /**
          * Registers a new geometry loader.
          */
-        public void register(String name, IGeometryLoader<?> loader) {
+        public void register(String name, IGeometryLoader loader) {
             @SuppressWarnings("removal")
             var namespace = ModLoadingContext.get().getActiveNamespace();
             var key = ResourceLocation.fromNamespaceAndPath(namespace, name);

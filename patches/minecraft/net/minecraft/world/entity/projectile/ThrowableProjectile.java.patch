@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/projectile/ThrowableProjectile.java
 +++ b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
-@@ -58,7 +_,7 @@
+@@ -59,7 +_,7 @@
          this.updateRotation();
          this.applyEffectsFromBlocks();
          super.tick();

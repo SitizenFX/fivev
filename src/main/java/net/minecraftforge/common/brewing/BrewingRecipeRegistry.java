@@ -5,6 +5,7 @@
 
 package net.minecraftforge.common.brewing;
 
+/*
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.core.NonNullList;
 
-/*
 public class BrewingRecipeRegistry {
 
     /**

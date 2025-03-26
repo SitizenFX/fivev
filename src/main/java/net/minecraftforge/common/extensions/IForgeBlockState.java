@@ -460,9 +460,10 @@ public interface IForgeBlockState {
      * @param pos Block position in level
      * @param face The face that the fire is coming from
      * @param igniter The entity that lit the fire
+     * @return {@code true} if the block <strong>SHOULD BE REMOVED</strong>
      */
-    default void onCaughtFire(Level level, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
-        self().getBlock().onCaughtFire(self(), level, pos, face, igniter);
+    default boolean onCaughtFire(Level level, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter) {
+        return self().getBlock().onCaughtFire(self(), level, pos, face, igniter);
     }
 
     /**

@@ -8,10 +8,9 @@ package net.minecraftforge.client.model.renderable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
@@ -20,6 +19,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector4f;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -37,33 +37,39 @@ public class BakedModelRenderable implements IRenderable<BakedModelRenderable.Co
      *
      * @see net.minecraftforge.client.event.ModelEvent.RegisterModelStateDefinitions
      */
-    public static BakedModelRenderable of(ModelResourceLocation model) {
-        return of(Minecraft.getInstance().getModelManager().getModel(model));
+    public static BakedModelRenderable of(BlockState state) {
+        return of(Minecraft.getInstance().getModelManager().getBlockModelShaper().getBlockModel(state));
     }
 
     /**
      * Constructs a {@link BakedModelRenderable} from the given baked model.
      */
-    public static BakedModelRenderable of(BakedModel model) {
+    public static BakedModelRenderable of(BlockStateModel model) {
         return new BakedModelRenderable(model);
     }
 
-    private final BakedModel model;
+    private final BlockStateModel model;
 
-    private BakedModelRenderable(BakedModel model) {
+    private BakedModelRenderable(BlockStateModel model) {
         this.model = model;
     }
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, ITextureRenderTypeLookup textureRenderTypeLookup, int lightmap, int overlay, float partialTick, Context context) {
+        @SuppressWarnings("deprecation")
         var buffer = bufferSource.getBuffer(textureRenderTypeLookup.get(TextureAtlas.LOCATION_BLOCKS));
         var tint = context.tint();
         var randomSource = context.randomSource();
-        for (var direction : context.faces()) {
-            randomSource.setSeed(context.seed());
-            // Given the lack of context, the requested render type has to be null to ensure the model renders all of its geometry
-            for (BakedQuad quad : model.getQuads(context.state(), direction, randomSource, context.data(), null))
-                buffer.putBulkData(poseStack.last(), quad, tint.x(), tint.y(), tint.z(), tint.w(), lightmap, overlay, true);
+        randomSource.setSeed(context.seed());
+        // Given the lack of context, the requested render type has to be null to ensure the model renders all of its geometry
+        var parts = new ArrayList<BlockModelPart>();
+        model.collectParts(randomSource, parts, context.data(), null);
+        for (var part : parts) {
+            for (var direction : Direction.valuesView()) {
+                for (var quad : part.getQuads(direction)) {
+                    buffer.putBulkData(poseStack.last(), quad, tint.x(), tint.y(), tint.z(), tint.w(), lightmap, overlay, true);
+                }
+            }
         }
     }
 

@@ -5,7 +5,6 @@
 
 package net.minecraftforge.debug.gameplay.crafting;
 
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -25,7 +25,7 @@ public class TagsTest extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void cobble_in_legacy(GameTestHelper helper) throws ReflectiveOperationException {
         var cobble = new ItemStack(Items.COBBLESTONE);
         var forgeCobbleTag = ItemTags.create(ResourceLocation.fromNamespaceAndPath("forge", "cobblestone"));

@@ -13,11 +13,15 @@ import java.util.function.Function;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
@@ -155,15 +159,12 @@ public final class ForgeBiomeModifiers {
      * @param biomes Biomes to add mob spawns to.
      * @param spawners List of SpawnerDatas specifying EntityType, weight, and pack size.
      */
-    public record AddSpawnsBiomeModifier(HolderSet<Biome> biomes, List<SpawnerData> spawners) implements BiomeModifier {
+    public record AddSpawnsBiomeModifier(HolderSet<Biome> biomes, WeightedList<SpawnerData> spawners) implements BiomeModifier {
         public static final MapCodec<AddSpawnsBiomeModifier> CODEC = RecordCodecBuilder.mapCodec(builder ->
             builder.group(
                 Biome.LIST_CODEC.fieldOf("biomes").forGetter(AddSpawnsBiomeModifier::biomes),
                 // Allow either a list or single spawner, attempting to decode the list format first.
-                Codec.either(SpawnerData.CODEC.listOf(), SpawnerData.CODEC).xmap(
-                    either -> either.map(Function.identity(), List::of), // convert list/singleton to list when decoding
-                    list -> list.size() == 1 ? Either.right(list.get(0)) : Either.left(list) // convert list to singleton/list when encoding
-                ).fieldOf("spawners").forGetter(AddSpawnsBiomeModifier::spawners)
+                WeightedList.codec(SpawnerData.CODEC).fieldOf("spawners").forGetter(AddSpawnsBiomeModifier::spawners)
             ).apply(builder, AddSpawnsBiomeModifier::new));
 
         /**
@@ -172,16 +173,18 @@ public final class ForgeBiomeModifiers {
          * @param spawner SpawnerData specifying EntityTYpe, weight, and pack size.
          * @return AddSpawnsBiomeModifier that adds a single spawn entry to the specified biomes.
          */
-        public static AddSpawnsBiomeModifier singleSpawn(HolderSet<Biome> biomes, SpawnerData spawner) {
-            return new AddSpawnsBiomeModifier(biomes, List.of(spawner));
+        public static AddSpawnsBiomeModifier singleSpawn(HolderSet<Biome> biomes, int weight, SpawnerData spawner) {
+            return new AddSpawnsBiomeModifier(biomes, WeightedList.of(List.of(new Weighted<>(spawner, weight))));
         }
 
         @Override
         public void modify(Holder<Biome> biome, Phase phase, Builder builder) {
             if (phase == Phase.ADD && this.biomes.contains(biome)) {
                 var spawns = builder.getMobSpawnSettings();
-                for (var spawner : this.spawners)
-                    spawns.addSpawn(spawner.type.getCategory(), spawner);
+                for (var weighted : this.spawners.unwrap()) {
+                    var spawner = weighted.value();
+                    spawns.addSpawn(spawner.type().getCategory(), weighted.weight(), spawner);
+                }
             }
         }
 
@@ -216,7 +219,7 @@ public final class ForgeBiomeModifiers {
             if (phase == Phase.REMOVE && this.biomes.contains(biome)) {
                 var spawns = builder.getMobSpawnSettings();
                 for (var category : MobCategory.values())
-                    spawns.getSpawner(category).removeIf(data -> this.entityTypes.contains(ForgeRegistries.ENTITY_TYPES.getHolder(data.type).get()));
+                    spawns.getSpawner(category).removeIf(data -> this.entityTypes.contains(ForgeRegistries.ENTITY_TYPES.getHolder(data.type()).orElseThrow()));
             }
         }
 

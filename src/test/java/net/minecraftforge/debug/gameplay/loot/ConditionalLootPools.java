@@ -10,8 +10,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -27,6 +27,7 @@ import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -53,11 +54,11 @@ public class ConditionalLootPools extends BaseTestMod {
         event.getGenerator().addProvider(event.includeServer(), new LootProvider(event.getGenerator().getPackOutput(), event.getLookupProvider()));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void test_true_false(GameTestHelper helper) {
         var center = new BlockPos(1, 1, 1);
         helper.setBlock(center, TEST_BLOCK.get());
-        helper.assertBlock(center, block -> block == TEST_BLOCK.get(), "Failed to set block");
+        helper.assertBlock(center, block -> block == TEST_BLOCK.get(), block -> Component.literal("Failed to set block, was " + block.getDescriptionId()));
 
         var player = helper.makeMockServerPlayer();
         player.gameMode.destroyBlock(helper.absolutePos(center));

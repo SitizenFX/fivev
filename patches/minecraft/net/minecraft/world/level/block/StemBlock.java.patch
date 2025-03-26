@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/StemBlock.java
 +++ b/net/minecraft/world/level/block/StemBlock.java
-@@ -79,9 +_,11 @@
+@@ -69,9 +_,11 @@
  
      @Override
      protected void randomTick(BlockState p_222538_, ServerLevel p_222539_, BlockPos p_222540_, RandomSource p_222541_) {
@@ -12,8 +12,8 @@
 +            if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(p_222539_, p_222540_, p_222538_, vanilla)) {
                  int i = p_222538_.getValue(AGE);
                  if (i < 7) {
-                     p_222538_ = p_222538_.setValue(AGE, Integer.valueOf(i + 1));
-@@ -100,6 +_,7 @@
+                     p_222538_ = p_222538_.setValue(AGE, i + 1);
+@@ -90,6 +_,7 @@
                          }
                      }
                  }
@@ -21,7 +21,7 @@
              }
          }
      }
-@@ -132,5 +_,10 @@
+@@ -122,5 +_,10 @@
      @Override
      protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_57040_) {
          p_57040_.add(AGE);

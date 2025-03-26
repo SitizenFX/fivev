@@ -5,10 +5,10 @@
 
 package net.minecraftforge.debug.modules.automatic;
 
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -21,7 +21,7 @@ public class AutomaticModuleMod extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void correct_name(GameTestHelper helper) throws ReflectiveOperationException {
         var mod = AutomaticModuleMod.class.getModule();
         if ("net.minecraftforge.debug.modules.automatic".equals(mod.getName()))

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
-@@ -49,6 +_,10 @@
+@@ -56,6 +_,10 @@
      @Nullable
      private UUID target;
      public final float bobOffs;
@@ -11,7 +11,7 @@
  
      public ItemEntity(EntityType<? extends ItemEntity> p_31991_, Level p_31992_) {
          super(p_31991_, p_31992_);
-@@ -67,6 +_,7 @@
+@@ -74,6 +_,7 @@
          this.setPos(p_149664_, p_149665_, p_149666_);
          this.setDeltaMovement(p_149668_, p_149669_, p_149670_);
          this.setItem(p_149667_);
@@ -19,7 +19,7 @@
      }
  
      private ItemEntity(ItemEntity p_31994_) {
-@@ -75,6 +_,7 @@
+@@ -82,6 +_,7 @@
          this.copyPosition(p_31994_);
          this.age = p_31994_.age;
          this.bobOffs = p_31994_.bobOffs;
@@ -27,7 +27,7 @@
      }
  
      @Override
-@@ -120,6 +_,7 @@
+@@ -127,6 +_,7 @@
  
      @Override
      public void tick() {
@@ -35,7 +35,7 @@
          if (this.getItem().isEmpty()) {
              this.discard();
          } else {
-@@ -132,6 +_,10 @@
+@@ -139,6 +_,10 @@
              this.yo = this.getY();
              this.zo = this.getZ();
              Vec3 vec3 = this.getDeltaMovement();
@@ -46,7 +46,7 @@
              if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > 0.1F) {
                  this.setUnderwaterMovement();
              } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > 0.1F) {
-@@ -154,7 +_,8 @@
+@@ -161,7 +_,8 @@
                  this.applyEffectsFromBlocks();
                  float f = 0.98F;
                  if (this.onGround()) {
@@ -55,8 +55,8 @@
 +                    f = this.level().getBlockState(groundPos).getFriction(level(), groundPos, this) * 0.98F;
                  }
  
-                 this.setDeltaMovement(this.getDeltaMovement().multiply((double)f, 0.98, (double)f));
-@@ -186,7 +_,16 @@
+                 this.setDeltaMovement(this.getDeltaMovement().multiply(f, 0.98, f));
+@@ -193,7 +_,16 @@
                  }
              }
  
@@ -74,8 +74,8 @@
                  this.discard();
              }
          }
-@@ -294,7 +_,7 @@
-             this.health = (int)((float)this.health - p_362683_);
+@@ -301,7 +_,7 @@
+             this.health = (int)(this.health - p_362683_);
              this.gameEvent(GameEvent.ENTITY_DAMAGE, p_364841_.getEntity());
              if (this.health <= 0) {
 -                this.getItem().onDestroyed(this);
@@ -83,26 +83,23 @@
                  this.discard();
              }
  
-@@ -312,6 +_,7 @@
+@@ -319,6 +_,7 @@
          p_32050_.putShort("Health", (short)this.health);
          p_32050_.putShort("Age", (short)this.age);
          p_32050_.putShort("PickupDelay", (short)this.pickupDelay);
 +        p_32050_.putInt("Lifespan", this.lifespan);
-         if (this.thrower != null) {
-             p_32050_.putUUID("Thrower", this.thrower);
-         }
-@@ -333,6 +_,10 @@
-             this.pickupDelay = p_32034_.getShort("PickupDelay");
-         }
- 
-+        if (p_32034_.contains("Lifespan")) {
-+            this.lifespan = p_32034_.getInt("Lifespan");
-+        }
-+
-         if (p_32034_.hasUUID("Owner")) {
-             this.target = p_32034_.getUUID("Owner");
-         }
-@@ -357,10 +_,17 @@
+         p_32050_.storeNullable("Thrower", UUIDUtil.CODEC, this.thrower);
+         p_32050_.storeNullable("Owner", UUIDUtil.CODEC, this.target);
+         if (!this.getItem().isEmpty()) {
+@@ -332,6 +_,7 @@
+         this.health = p_32034_.getShortOr("Health", (short)5);
+         this.age = p_32034_.getShortOr("Age", (short)0);
+         this.pickupDelay = p_32034_.getShortOr("PickupDelay", (short)0);
++        p_32034_.getInt("Lifespan").ifPresent(lifespan -> this.lifespan = lifespan);
+         this.target = p_32034_.read("Owner", UUIDUtil.CODEC).orElse(null);
+         this.thrower = p_32034_.read("Thrower", UUIDUtil.CODEC).orElse(null);
+         this.cachedThrower = null;
+@@ -345,10 +_,17 @@
      @Override
      public void playerTouch(Player p_32040_) {
          if (!this.level().isClientSide) {
@@ -121,7 +118,7 @@
                  p_32040_.take(this, i);
                  if (itemstack.isEmpty()) {
                      this.discard();
-@@ -454,7 +_,7 @@
+@@ -442,7 +_,7 @@
  
      public void makeFakeItem() {
          this.setNeverPickUp();

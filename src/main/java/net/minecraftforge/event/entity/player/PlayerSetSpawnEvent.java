@@ -6,48 +6,67 @@
 package net.minecraftforge.event.entity.player;
 
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.eventbus.api.Cancelable;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This event is fired when a player's spawn point is set or reset.<br>
+ * This event is fired when a player's spawn point is set or reset.
+ * <p>
  * The event can be canceled, which will prevent the spawn point from being changed.
  */
 @Cancelable
-public class PlayerSetSpawnEvent extends PlayerEvent
-{
-    private final ResourceKey<Level> spawnLevel;
-    private final boolean forced;
-    @Nullable
-    private final BlockPos newSpawn;
+public class PlayerSetSpawnEvent extends PlayerEvent {
+    private final @Nullable ServerPlayer.RespawnConfig config;
 
-    public PlayerSetSpawnEvent(Player player, ResourceKey<Level> spawnLevel, @Nullable BlockPos newSpawn, boolean forced)
-    {
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    private final ResourceKey<Level> spawnLevel;
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    private final boolean forced;
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    private final @Nullable BlockPos newSpawn;
+
+    public PlayerSetSpawnEvent(ServerPlayer player, @Nullable ServerPlayer.RespawnConfig config) {
         super(player);
-        this.spawnLevel = spawnLevel;
-        this.newSpawn = newSpawn;
-        this.forced = forced;
+        this.config = config;
+
+        boolean hasConfig = config != null;
+        this.forced = hasConfig && config.forced();
+        this.spawnLevel = hasConfig ? config.dimension() : Level.OVERWORLD;
+        this.newSpawn = hasConfig ? config.pos() : null;
     }
 
-    public boolean isForced()
-    {
-        return forced;
+    /** @return The config for the player respawn */
+    public @Nullable ServerPlayer.RespawnConfig getConfig() {
+        return this.config;
     }
 
     /**
-     * The new spawn position, or null if the spawn position is being reset.
+     * @return If the new spawn point is forced
+     * @deprecated Use {@link ServerPlayer.RespawnConfig#forced()} via {@link #getConfig()}
      */
-    @Nullable
-    public BlockPos getNewSpawn()
-    {
-        return newSpawn;
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    public boolean isForced() {
+        return this.forced;
     }
 
-    public ResourceKey<Level> getSpawnLevel()
-    {
-        return spawnLevel;
+    /**
+     * @return The new spawn position, or {@code null} if the spawn position is being reset
+     * @deprecated Use {@link ServerPlayer.RespawnConfig#pos()} via {@link #getConfig()}
+     */
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    public @Nullable BlockPos getNewSpawn() {
+        return this.newSpawn;
+    }
+
+    /**
+     * @return The new spawn dimension, defaulting to {@link Level#OVERWORLD} if it is {@code null}
+     * @deprecated Use {@link ServerPlayer.RespawnConfig#dimension()} via {@link #getConfig()}
+     */
+    @Deprecated(forRemoval = true, since = "1.21.5")
+    public ResourceKey<Level> getSpawnLevel() {
+        return this.spawnLevel;
     }
 }

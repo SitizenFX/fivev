@@ -7,7 +7,6 @@ package net.minecraftforge.fml.loading;
 
 import com.mojang.logging.LogUtils;
 import cpw.mods.modlauncher.api.*;
-import joptsimple.OptionSpecBuilder;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.forgespi.Environment;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 import static net.minecraftforge.fml.loading.LogMarkers.CORE;
 
 public class FMLServiceProvider implements ITransformationService {

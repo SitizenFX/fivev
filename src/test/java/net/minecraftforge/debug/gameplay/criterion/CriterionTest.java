@@ -17,8 +17,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +36,7 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -61,16 +60,15 @@ public final class CriterionTest extends BaseTestMod {
         MinecraftForge.EVENT_BUS.addListener(this::onBlockBreak);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void test_custom_criterion(GameTestHelper helper) {
         var advancement = helper.getLevel().getServer().getAdvancements().get(TEST_ADVANCEMENT_ID);
 
-        if (advancement == null)
-            throw new GameTestAssertException("No advancement is present");
+        helper.assertTrue(advancement != null, () -> "No advancement is present");
 
         var center = new BlockPos(1, 1, 1);
         helper.setBlock(center, Blocks.GLASS);
-        helper.assertBlock(center, block -> block == Blocks.GLASS, "Failed to set glass block");
+        helper.assertBlock(center, block -> block == Blocks.GLASS, block -> Component.literal("Failed to set glass block, was " + block.getDescriptionId()));
 
         var player = helper.makeMockServerPlayer();
         player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND_SWORD));
@@ -79,7 +77,7 @@ public final class CriterionTest extends BaseTestMod {
         helper.assertFalse(player.getAdvancements().revoke(advancement, TEST_CRITERION_ID), "Advancement was granted to player in invalid conditions (breaking glass with diamond sword)");
 
         helper.setBlock(center, Blocks.DIRT);
-        helper.assertBlock(center, block -> block == Blocks.DIRT, "Failed to set dirt block");
+        helper.assertBlock(center, block -> block == Blocks.DIRT, block -> Component.literal("Failed to set dirt block, was " + block.getDescriptionId()));
         player.gameMode.destroyBlock(helper.absolutePos(center));
 
         helper.assertFalse(player.getAdvancements().revoke(advancement, TEST_CRITERION_ID), "Advancement was granted to player in invalid conditions (breaking dirt with diamond sword)");
@@ -87,13 +85,13 @@ public final class CriterionTest extends BaseTestMod {
         player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.COD));
 
         helper.setBlock(center, Blocks.DIRT);
-        helper.assertBlock(center, block -> block == Blocks.DIRT, "Failed to set dirt block");
+        helper.assertBlock(center, block -> block == Blocks.DIRT,  block -> Component.literal("Failed to set dirt block, was " + block.getDescriptionId()));
         player.gameMode.destroyBlock(helper.absolutePos(center));
 
         helper.assertFalse(player.getAdvancements().revoke(advancement, TEST_CRITERION_ID), "Advancement was granted to player in invalid conditions (breaking dirt with cod)");
 
         helper.setBlock(center, Blocks.GLASS);
-        helper.assertBlock(center, block -> block == Blocks.GLASS, "Failed to set glass block");
+        helper.assertBlock(center, block -> block == Blocks.GLASS,  block -> Component.literal("Failed to set glass block, was " + block.getDescriptionId()));
         player.gameMode.destroyBlock(helper.absolutePos(center));
 
         helper.assertTrue(player.getAdvancements().revoke(advancement, TEST_CRITERION_ID), "Advancement was not granted to player in correct conditions (breaking glass with cod)");

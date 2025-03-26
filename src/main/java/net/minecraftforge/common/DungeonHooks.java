@@ -6,17 +6,17 @@
 package net.minecraftforge.common;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.random.WeightedRandom;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 
-public class DungeonHooks
-{
-    private static ArrayList<DungeonMob> dungeonMobs = new ArrayList<DungeonMob>();
+public class DungeonHooks {
+    private static WeightedList<EntityType<?>> dungeonMobs = WeightedList.<EntityType<?>>builder()
+        .add(EntityType.SKELETON, 100)
+        .add(EntityType.ZOMBIE, 200)
+        .add(EntityType.SPIDER, 100)
+        .build();
 
     /**
      * Adds a mob to the possible list of creatures the spawner will create.
@@ -35,23 +35,20 @@ public class DungeonHooks
     public static float addDungeonMob(EntityType<?> type, int rarity)
     {
         if (rarity <= 0)
-        {
             throw new IllegalArgumentException("Rarity must be greater then zero");
-        }
 
-        Iterator<DungeonMob> itr = dungeonMobs.iterator();
-        while (itr.hasNext())
-        {
-            DungeonMob mob = itr.next();
-            if (type == mob.type)
-            {
+        var list = new ArrayList<>(dungeonMobs.unwrap());
+        var itr = list.iterator();
+        while (itr.hasNext()) {
+            var mob = itr.next();
+            if (type == mob.value()) {
                 itr.remove();
-                rarity = mob.getWeight().asInt() + rarity;
+                rarity = mob.weight() + rarity;
                 break;
             }
         }
 
-        dungeonMobs.add(new DungeonMob(rarity, type));
+        dungeonMobs = WeightedList.<EntityType<?>>builder().addAll(list).add(type, rarity).build();
         return rarity;
     }
 
@@ -61,16 +58,16 @@ public class DungeonHooks
      * @param name The name of the mob to remove
      * @return The rarity of the removed mob, prior to being removed.
      */
-    public static int removeDungeonMob(EntityType<?> name)
-    {
-        for (DungeonMob mob : dungeonMobs)
-        {
-            if (name == mob.type)
-            {
-                dungeonMobs.remove(mob);
-                return mob.getWeight().asInt();
-            }
+    public static int removeDungeonMob(EntityType<?> name) {
+        var list = new ArrayList<>(dungeonMobs.unwrap());
+        for (var mob : list) {
+            if (mob.value() != name) continue;
+
+            list.remove(mob);
+            dungeonMobs = WeightedList.<EntityType<?>>builder().addAll(list).build();
+            return mob.weight();
         }
+
         return 0;
     }
 
@@ -79,33 +76,7 @@ public class DungeonHooks
      * @param rand World generation random number generator
      * @return The mob name
      */
-    public static EntityType<?> getRandomDungeonMob(RandomSource rand)
-    {
-        DungeonMob mob = WeightedRandom.getRandomItem(rand, dungeonMobs).orElseThrow();
-        return mob.type;
-    }
-
-
-    public static class DungeonMob extends WeightedEntry.IntrusiveBase
-    {
-        public final EntityType<?> type;
-        public DungeonMob(int weight, EntityType<?> type)
-        {
-            super(weight);
-            this.type = type;
-        }
-
-        @Override
-        public boolean equals(Object target)
-        {
-            return target instanceof DungeonMob && type.equals(((DungeonMob)target).type);
-        }
-    }
-
-    static
-    {
-        addDungeonMob(EntityType.SKELETON, 100);
-        addDungeonMob(EntityType.ZOMBIE,   200);
-        addDungeonMob(EntityType.SPIDER,   100);
+    public static EntityType<?> getRandomDungeonMob(RandomSource rand) {
+        return dungeonMobs.getRandomOrThrow(rand);
     }
 }

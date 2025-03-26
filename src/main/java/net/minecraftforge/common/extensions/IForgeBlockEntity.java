@@ -5,7 +5,6 @@
 
 package net.minecraftforge.common.extensions;
 
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
@@ -31,19 +30,16 @@ public interface IForgeBlockEntity extends ICapabilityProvider {
     }
 
     /**
-     * Called when you receive a TileEntityData packet for the location this
-     * TileEntity is currently in. On the client, the NetworkManager will always
-     * be the remote server. On the server, it will be whomever is responsible for
+     * Called when you receive a TileEntityData packet for the location this TileEntity is currently in. On the client,
+     * the NetworkManager will always be the remote server. On the server, it will be whomever is responsible for
      * sending the packet.
      *
-     * @param net The NetworkManager the packet originated from
-     * @param pkt The data packet
+     * @param connection The Connection the packet originated from
+     * @param pkt        The data packet
+     * @param lookup     The holder lookup provider
      */
     default void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookup) {
-        CompoundTag compoundtag = pkt.getTag();
-        if (compoundtag != null) {
-            self().loadWithComponents(compoundtag, lookup);
-        }
+        this.self().loadWithComponents(pkt.getTag(), lookup);
     }
 
     /**

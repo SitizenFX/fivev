@@ -5,21 +5,17 @@
 
 package net.minecraftforge.client;
 
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Transformation;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -50,24 +46,18 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderDefines;
-import net.minecraft.client.renderer.ShaderProgram;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.SpriteGetter;
+import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.core.BlockPos;
@@ -131,9 +121,9 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.client.extensions.common.IClientMobEffectExtensions;
 import net.minecraftforge.client.gui.ClientTooltipComponentManager;
 import net.minecraftforge.client.gui.ModMismatchDisconnectedScreen;
+import net.minecraftforge.client.model.ForgeBlockModelData;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.geometry.GeometryLoaderManager;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.client.textures.ForgeTextureMetadata;
 import net.minecraftforge.client.textures.TextureAtlasSpriteLoaderManager;
 import net.minecraftforge.common.ForgeI18n;
@@ -143,7 +133,6 @@ import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.VersionChecker;
-import net.minecraftforge.gametest.ForgeGameTestHooks;
 import net.minecraftforge.network.NetworkContext;
 import net.minecraftforge.network.NetworkInitialization;
 import net.minecraftforge.network.NetworkRegistry;
@@ -425,17 +414,6 @@ public class ForgeHooksClient {
         };
     }
 
-    public static boolean calculateFaceWithoutAO(BlockAndTintGetter getter, BlockState state, BlockPos pos, BakedQuad quad, boolean isFaceCubic, float[] brightness, int[] lightmap) {
-        if (quad.hasAmbientOcclusion())
-            return false;
-
-        BlockPos lightmapPos = isFaceCubic ? pos.relative(quad.getDirection()) : pos;
-
-        brightness[0] = brightness[1] = brightness[2] = brightness[3] = getter.getShade(quad.getDirection(), quad.isShade());
-        lightmap[0] = lightmap[1] = lightmap[2] = lightmap[3] = LevelRenderer.getLightColor(getter, state, lightmapPos);
-        return true;
-    }
-
     private static int slotMainHand = 0;
 
     public static boolean shouldCauseReequipAnimation(@NotNull ItemStack from, @NotNull ItemStack to, int slot) {
@@ -699,10 +677,6 @@ public class ForgeHooksClient {
         return MinecraftForge.EVENT_BUS.post(event) ? "" : event.getMessage();
     }
 
-    public static final Supplier<ShaderProgram> SHADER_UNLIT_TRANSLUCENT = Suppliers.memoize(() ->
-        new ShaderProgram(ResourceLocation.fromNamespaceAndPath("forge", "rendertype_entity_unlit_translucent"), DefaultVertexFormat.NEW_ENTITY, ShaderDefines.EMPTY)
-    );
-
     public static Font getTooltipFont(@NotNull ItemStack stack, Font fallbackFont) {
         Font stackFont = IClientItemExtensions.of(stack).getFont(stack, IClientItemExtensions.FontContext.TOOLTIP);
         return stackFont == null ? fallbackFont : stackFont;
@@ -850,7 +824,6 @@ public class ForgeHooksClient {
             throw new IllegalStateException("Client hooks initialized more than once");
         initializedClientHooks = true;
 
-        ForgeGameTestHooks.registerGametests();
         ModLoader.get().postEvent(new RegisterClientReloadListenersEvent(resourceManager));
         ModLoader.get().postEvent(new EntityRenderersEvent.RegisterLayerDefinitions());
         ModLoader.get().postEvent(new EntityRenderersEvent.RegisterRenderers());
@@ -880,44 +853,44 @@ public class ForgeHooksClient {
             || ForgeEventFactoryClient.onScreenMouseDragPost(screen, mouseX, mouseY, mouseButton, dragX, dragY);
     }
 
-    public static BlockModel deserializeBlockModel(BlockModel model, List<BlockElement> elements, JsonObject json, JsonDeserializationContext context) {
-        IUnbakedGeometry<?> geometry = null;
-        if (json.has("loader")) {
-            var name = ResourceLocation.parse(GsonHelper.getAsString(json, "loader"));
-            var loader = GeometryLoaderManager.get(name);
-            if (loader == null)
-                throw new JsonParseException(String.format(Locale.ENGLISH, "Model loader '%s' not found. Registered loaders: %s", name, GeometryLoaderManager.getLoaderList()));
+    public static @Nullable UnbakedGeometry deserializeBlockModelGeometry(JsonObject json, JsonDeserializationContext context) {
+        var name = GsonHelper.getAsString(json, "loader", null);
+        if (name == null)
+            return null;
 
-            geometry = loader.read(json, context);
+        var loader = GeometryLoaderManager.get(ResourceLocation.parse(name));
+        if (loader == null)
+            throw new JsonParseException(String.format(Locale.ENGLISH, "Model loader '%s' not found. Registered loaders: %s", name, GeometryLoaderManager.getLoaderList()));
+
+        return loader.read(json, context);
+    }
+
+
+    @Nullable
+    public static ForgeBlockModelData deserializeBlockModel(JsonObject json, JsonDeserializationContext context) {
+        Optional<ResourceLocation> renderType = Optional.empty();
+        Optional<ResourceLocation> renderTypeFast = Optional.empty();
+        Optional<Map<String, Boolean>> visibility = Optional.empty();
+
+        var transform = Optional.ofNullable(GsonHelper.getAsObject(json, "transform", null, context, Transformation.class));
+
+        var renderTypeName = GsonHelper.getAsString(json, "render_type", null);
+        if (renderTypeName != null)
+            renderType = Optional.of(ResourceLocation.parse(renderTypeName));
+
+        var renderTypeFastName = GsonHelper.getAsString(json, "render_type_fast", null);
+        if (renderTypeFastName != null)
+            renderTypeFast = Optional.of(ResourceLocation.parse(renderTypeFastName));
+
+        var visibilityJson = GsonHelper.getAsJsonObject(json, "visibility", null);
+        if (visibilityJson != null) {
+            var map = ImmutableMap.<String, Boolean>builder();
+            for (var part : visibilityJson.entrySet())
+                map.put(part.getKey(), part.getValue().getAsBoolean());
+            visibility = Optional.of(map.build());
         }
 
-        if (geometry != null) {
-            elements.clear();
-            model.customData.setCustomGeometry(geometry);
-        }
-
-        if (json.has("transform")) {
-            JsonElement transform = json.get("transform");
-            model.customData.setRootTransform(context.deserialize(transform, Transformation.class));
-        }
-
-        if (json.has("render_type")) {
-            var renderTypeHintName = GsonHelper.getAsString(json, "render_type");
-            model.customData.setRenderTypeHint(ResourceLocation.parse(renderTypeHintName));
-        }
-
-        if (json.has("render_type_fast")) {
-            var renderTypeHintName = GsonHelper.getAsString(json, "render_type_fast");
-            model.customData.setRenderTypeFastHint(ResourceLocation.parse(renderTypeHintName));
-        }
-
-        if (json.has("visibility")) {
-            var visibility = GsonHelper.getAsJsonObject(json, "visibility");
-            for (var part : visibility.entrySet())
-                model.customData.visibilityData.setVisibilityState(part.getKey(), part.getValue().getAsBoolean());
-        }
-
-        return model;
+        return new ForgeBlockModelData(transform, renderType, renderTypeFast, visibility);
     }
 
     /** This is a dirty fucking hack, but it needs to send in the top most render type. */
@@ -944,9 +917,8 @@ public class ForgeHooksClient {
             return group;
         }
 
-        @Override
-        public BakedModel bake(ResourceLocation name, ModelState state) {
-            return parent.bake(name, state);
+        @Override public ResolvedModel getModel(ResourceLocation p_397309_) {
+            return parent.getModel(p_397309_);
         }
 
         @Override
@@ -955,8 +927,8 @@ public class ForgeHooksClient {
         }
 
         @Override
-        public ModelDebugName rootName() {
-            return parent.rootName();
+        public <T> T compute(SharedOperationKey<T> p_395456_) {
+            return parent.compute(p_395456_);
         }
     }
 }

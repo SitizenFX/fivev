@@ -11,7 +11,7 @@
 +                .bounds(0, 0, 75 + 20 /* Forge: Add space */, 20)
                  .createNarration(
                      p_342179_ -> p_343088_.isUnbound()
-                             ? Component.translatable("narrator.controls.unbound", p_343976_)
+                         ? Component.translatable("narrator.controls.unbound", p_343976_)
 @@ -158,7 +_,7 @@
                  )
                  .build();

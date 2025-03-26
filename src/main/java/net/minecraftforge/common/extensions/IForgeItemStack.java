@@ -223,12 +223,12 @@ public interface IForgeItemStack {
     }
 
     /**
-     * Called to tick this items in a players inventory, the indexes are the global slot index.
+     * Called to tick this items in a entitie's inventory, the slotIndex may be -1 for non player entities as they may not have a slot index.
+     * See {@link EntityEquipment#tick(Entity)}
      */
-    default void onInventoryTick(Level level, Player player, int slotIndex, int selectedIndex) {
-        self().getItem().onInventoryTick(self(), level, player, slotIndex, selectedIndex);
+    default void inventoryTick(Level level, Entity entity, @Nullable EquipmentSlot slot, int slotIndex) {
+        self().getItem().inventoryTick(self(), level, entity, slot, slotIndex);
     }
-
 
     /**
      * Called every tick from {@code Horse#playGallopSound(SoundEvent)} on the item in the

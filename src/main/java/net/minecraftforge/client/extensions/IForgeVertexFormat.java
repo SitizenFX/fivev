@@ -5,7 +5,6 @@
 
 package net.minecraftforge.client.extensions;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 

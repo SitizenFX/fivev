@@ -5,6 +5,8 @@
 
 package net.minecraftforge.client.gui;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.HoverEvent.Action;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -227,8 +228,16 @@ public class ModMismatchDisconnectedScreen extends Screen {
             String modId = id.getNamespace();
             String tooltipId = id.getPath().isEmpty() ? id.getNamespace() : id.toString();
             return Component.literal(modName).withStyle(color % 2 == 0 ? ChatFormatting.GOLD : ChatFormatting.YELLOW)
-                    .withStyle(s -> s.withHoverEvent(new HoverEvent(Action.SHOW_TEXT, Component.literal(tooltipId + (!presentModUrls.getOrDefault(modId, "").isEmpty() ? "\n" + ForgeI18n.parseMessage("fml.modmismatchscreen.homepage") : "")))))
-                    .withStyle(s -> s.withClickEvent(!presentModUrls.getOrDefault(modId, "").isEmpty() ? new ClickEvent(ClickEvent.Action.OPEN_URL, presentModUrls.get(modId)) : null));
+                    .withStyle(s -> s.withHoverEvent(new HoverEvent.ShowText(Component.literal(tooltipId + (!presentModUrls.getOrDefault(modId, "").isEmpty() ? "\n" + ForgeI18n.parseMessage("fml.modmismatchscreen.homepage") : "")))))
+                    .withStyle(s -> s.withClickEvent(openUrl(presentModUrls.getOrDefault(modId, ""))));
+        }
+
+        private static ClickEvent.OpenUrl openUrl(String url) {
+            try {
+                return url.isEmpty() ? null : new ClickEvent.OpenUrl(new URI(url));
+            } catch (URISyntaxException e) {
+                return null;
+            }
         }
 
         @Override
@@ -242,7 +251,7 @@ public class ModMismatchDisconnectedScreen extends Screen {
         }
 
         @Override
-        protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
+        protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, int mouseX, int mouseY) {
             int i = 0;
 
             for (Pair<FormattedCharSequence, Pair<FormattedCharSequence, FormattedCharSequence>> line : lineTable) {

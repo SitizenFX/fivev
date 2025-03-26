@@ -11,7 +11,7 @@
      private CompletableFuture<SearchTree<RecipeCollection>> recipeSearch = CompletableFuture.completedFuture(SearchTree.empty());
      private final Map<SessionSearchTrees.Key, Runnable> reloaders = new IdentityHashMap<>();
  
-@@ -92,44 +_,52 @@
+@@ -90,44 +_,52 @@
      }
  
      public void updateCreativeTags(List<ItemStack> p_344581_) {
@@ -53,11 +53,11 @@
 +                CompletableFuture<?> completablefuture = this.creativeSearch.getOrDefault(entry.getValue(), EMPTY);
 +                this.creativeSearch.put(entry.getValue(), CompletableFuture.supplyAsync(
                      () -> new FullTextSearchTree<>(
-                             p_345254_ -> getTooltipLines(Stream.of(p_345254_), item$tooltipcontext, tooltipflag),
-                             p_344415_ -> p_344415_.getItemHolder().unwrapKey().map(ResourceKey::location).stream(),
--                            p_342500_
-+                            items
-                         ),
+                         p_345254_ -> getTooltipLines(Stream.of(p_345254_), item$tooltipcontext, tooltipflag),
+                         p_344415_ -> p_344415_.getItemHolder().unwrapKey().map(ResourceKey::location).stream(),
+-                        p_342500_
++                        items
+                     ),
                      Util.backgroundExecutor()
 -                );
 +                ));

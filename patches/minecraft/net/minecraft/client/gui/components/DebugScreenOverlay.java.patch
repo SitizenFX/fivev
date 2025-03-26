@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/components/DebugScreenOverlay.java
 +++ b/net/minecraft/client/gui/components/DebugScreenOverlay.java
-@@ -105,9 +_,9 @@
+@@ -134,9 +_,9 @@
      @Nullable
      private CompletableFuture<LevelChunk> serverChunk;
      private boolean renderDebug;
@@ -13,7 +13,7 @@
      private final LocalSampleLogger frameTimeLogger = new LocalSampleLogger(1);
      private final LocalSampleLogger tickTimeLogger = new LocalSampleLogger(TpsDebugDimensions.values().length);
      private final LocalSampleLogger pingLogger = new LocalSampleLogger(1);
-@@ -135,14 +_,18 @@
+@@ -179,14 +_,18 @@
          this.clientChunk = null;
      }
  
@@ -35,7 +35,7 @@
          this.profilerPieChart.setBottomOffset(10);
          if (this.renderFpsCharts) {
              int i = p_281427_.guiWidth();
-@@ -155,7 +_,9 @@
+@@ -199,7 +_,9 @@
  
              this.profilerPieChart.setBottomOffset(this.tpsChart.getFullHeight());
          }
@@ -45,7 +45,7 @@
          if (this.renderNetworkCharts) {
              int l = p_281427_.guiWidth();
              int i1 = l / 2;
-@@ -171,12 +_,22 @@
+@@ -215,12 +_,22 @@
          try (Zone zone = profilerfiller.zone("profilerPie")) {
              this.profilerPieChart.render(p_281427_);
          }
@@ -70,7 +70,7 @@
          list.add("");
          boolean flag = this.minecraft.getSingleplayerServer() != null;
          list.add(
-@@ -190,11 +_,18 @@
+@@ -234,11 +_,18 @@
                  + (this.renderNetworkCharts ? " visible" : " hidden")
          );
          list.add("For help: press F3 + Q");
@@ -90,7 +90,7 @@
          this.renderLines(p_281261_, list, false);
      }
  
-@@ -543,6 +_,7 @@
+@@ -592,6 +_,7 @@
                  list.add("");
                  list.add(ChatFormatting.UNDERLINE + "Targeted Entity");
                  list.add(String.valueOf(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType())));

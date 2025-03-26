@@ -17,7 +17,6 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -41,6 +40,7 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -79,7 +79,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         helper.succeed();
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void shaped_false_conditions(GameTestHelper helper) {
         assertFalse(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern(
@@ -92,7 +92,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void shaped_true_conditions(GameTestHelper helper) {
         assertTrue(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern(
@@ -105,7 +105,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void shapeless_false_conditions(GameTestHelper helper) {
         assertFalse(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern("XXX")
@@ -114,7 +114,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void shapeless_true_conditions(GameTestHelper helper) {
         assertTrue(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern("XXXX")
@@ -123,27 +123,27 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void cooking_false_conditions(GameTestHelper helper) {
         assertFalse(helper, RecipeType.SMELTING, new SingleRecipeInput(new ItemStack(Blocks.DIRT)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void cooking_true_conditions(GameTestHelper helper) {
         assertTrue(helper, RecipeType.SMELTING, new SingleRecipeInput(new ItemStack(Blocks.BEE_NEST)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void single_item_false_conditions(GameTestHelper helper) {
         assertFalse(helper, RecipeType.STONECUTTING, new SingleRecipeInput(new ItemStack(Blocks.DIRT)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void single_item_true_conditions(GameTestHelper helper) {
         assertTrue(helper, RecipeType.STONECUTTING, new SingleRecipeInput(new ItemStack(Blocks.REDSTONE_ORE)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void conditional_recipe_choice(GameTestHelper helper) {
         assertFalse(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern("XXX")
@@ -159,7 +159,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void tag_empty_condition_with_populated_tag(GameTestHelper helper) {
         assertFalse(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern("XXX")
@@ -168,7 +168,7 @@ public class ConditionalRecipeTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void tag_empty_condition_with_empty_tag(GameTestHelper helper) {
         assertTrue(helper, RecipeType.CRAFTING, SimpleCraftingContainer.builder()
             .pattern("XXX")

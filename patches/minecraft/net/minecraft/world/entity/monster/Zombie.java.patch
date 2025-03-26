@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/Zombie.java
 +++ b/net/minecraft/world/entity/monster/Zombie.java
-@@ -262,21 +_,28 @@
+@@ -266,21 +_,28 @@
      }
  
      protected void convertToZombieType(EntityType<? extends Zombie> p_34311_) {
@@ -23,21 +23,21 @@
          ZombieVillager zombievillager = p_360910_.convertTo(EntityType.ZOMBIE_VILLAGER, ConversionParams.single(p_360910_, true, true), p_359258_ -> {
              p_359258_.finalizeSpawn(p_369430_, p_369430_.getCurrentDifficultyAt(p_359258_.blockPosition()), EntitySpawnReason.CONVERSION, new Zombie.ZombieGroupData(false, true));
              p_359258_.setVillagerData(p_360910_.getVillagerData());
-             p_359258_.setGossips(p_360910_.getGossips().store(NbtOps.INSTANCE));
+             p_359258_.setGossips(p_360910_.getGossips().copy());
              p_359258_.setTradeOffers(p_360910_.getOffers().copy());
              p_359258_.setVillagerXp(p_360910_.getVillagerXp());
 +            net.minecraftforge.event.ForgeEventFactory.onLivingConvert(p_360910_, p_359258_);
              if (!this.isSilent()) {
                  p_369430_.levelEvent(null, 1026, this.blockPosition(), 0);
              }
-@@ -298,19 +_,26 @@
+@@ -302,19 +_,26 @@
                  livingentity = (LivingEntity)p_363403_.getEntity();
              }
  
 -            if (livingentity != null
 +            var vanilla = (livingentity != null
                  && p_363771_.getDifficulty() == Difficulty.HARD
-                 && (double)this.random.nextFloat() < this.getAttributeValue(Attributes.SPAWN_REINFORCEMENTS_CHANCE)
+                 && this.random.nextFloat() < this.getAttributeValue(Attributes.SPAWN_REINFORCEMENTS_CHANCE)
 -                && p_363771_.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
 +                && p_363771_.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING));
                  int i = Mth.floor(this.getX());

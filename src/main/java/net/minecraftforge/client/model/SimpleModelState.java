@@ -11,8 +11,4 @@ import net.minecraft.client.resources.model.ModelState;
 /**
  * Simple implementation of {@link ModelState}.
  */
-public record SimpleModelState(Transformation getRotation, boolean isUvLocked) implements ModelState {
-    public SimpleModelState(Transformation transformation) {
-        this(transformation, false);
-    }
-}
+public record SimpleModelState(Transformation transformation) implements ModelState {}

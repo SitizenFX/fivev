@@ -20,8 +20,8 @@
                  LOGGER.warn("Failed to load player data for {}", p_329651_.getName().getString());
              }
 @@ -82,5 +_,9 @@
-             p_78436_.load(p_328937_);
-             return p_328937_;
+             p_78436_.load(p_391129_);
+             return p_391129_;
          });
 +    }
 +

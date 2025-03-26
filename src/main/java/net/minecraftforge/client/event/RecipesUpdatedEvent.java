@@ -6,7 +6,6 @@
 package net.minecraftforge.client.event;
 
 import net.minecraft.client.ClientRecipeBook;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;

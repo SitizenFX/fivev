@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/dimension/end/EndDragonFight.java
 +++ b/net/minecraft/world/level/dimension/end/EndDragonFight.java
-@@ -545,6 +_,14 @@
+@@ -541,6 +_,14 @@
          }
      }
  

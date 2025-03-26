@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -675,6 +674,7 @@ public class ForgeConfigSpec extends UnmodifiableConfigWrapper<UnmodifiableConfi
 
         public void clearComment() { comment.clear(); }
         public boolean hasComment() { return !this.comment.isEmpty(); }
+        @SuppressWarnings("unused")
         public String buildComment() { return buildComment(List.of("unknown", "unknown")); }
         public String buildComment(final List<String> path) {
             if (comment.stream().allMatch(String::isBlank)) {

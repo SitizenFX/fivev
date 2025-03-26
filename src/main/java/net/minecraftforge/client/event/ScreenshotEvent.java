@@ -13,6 +13,7 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.LogicalSide;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,42 +31,31 @@ import java.io.IOException;
  * @see Screenshot
  */
 @Cancelable
-public class ScreenshotEvent extends Event
-{
+public class ScreenshotEvent extends Event {
     public static final Component DEFAULT_CANCEL_REASON = Component.literal("Screenshot canceled");
 
     private final NativeImage image;
     private File screenshotFile;
 
-    private Component resultMessage = null;
+    private @Nullable Component resultMessage = null;
 
     @ApiStatus.Internal
-    public ScreenshotEvent(NativeImage image, File screenshotFile)
-    {
+    public ScreenshotEvent(NativeImage image, File screenshotFile) {
         this.image = image;
         this.screenshotFile = screenshotFile;
-        try
-        {
+        try {
             this.screenshotFile = screenshotFile.getCanonicalFile(); // FORGE: Fix errors on Windows with paths that include \.\
-        } catch (IOException ignored)
-        {
-        }
+        } catch (IOException ignored) { }
     }
 
-    /**
-     * {@return the in-memory image of the screenshot}
-     */
-    public NativeImage getImage()
-    {
-        return image;
+    /** @return the in-memory image of the screenshot */
+    public NativeImage getImage() {
+        return this.image;
     }
 
-    /**
-     * @return the file where the screenshot will be saved to
-     */
-    public File getScreenshotFile()
-    {
-        return screenshotFile;
+    /** @return the file where the screenshot will be saved to */
+    public File getScreenshotFile() {
+        return this.screenshotFile;
     }
 
     /**
@@ -73,40 +63,36 @@ public class ScreenshotEvent extends Event
      *
      * @param screenshotFile the new filepath
      */
-    public void setScreenshotFile(File screenshotFile)
-    {
+    public void setScreenshotFile(File screenshotFile) {
         this.screenshotFile = screenshotFile;
     }
 
-    /**
-     * {@return the custom cancellation message, or {@code null} if no custom message is set}
-     */
-    public Component getResultMessage()
-    {
-        return resultMessage;
+    /** @return the custom cancellation message, or {@code null} if no custom message is set */
+    public @Nullable Component getResultMessage() {
+        return this.resultMessage;
     }
 
     /**
      * Sets the new custom cancellation message used to inform the player.
+     * <p>
      * It may be {@code null}, in which case the {@linkplain #DEFAULT_CANCEL_REASON default cancel reason} will be used.
      *
      * @param resultMessage the new result message
      */
-    public void setResultMessage(Component resultMessage)
-    {
+    public void setResultMessage(Component resultMessage) {
         this.resultMessage = resultMessage;
     }
 
     /**
      * Returns the cancellation message to be used in informing the player.
      *
-     * <p>If there is no custom message given ({@link #getResultMessage()} returns {@code null}), then
+     * <p>If there is no custom message given ({@link #getResultMessage()} == {@code null}), then
      * the message will be the {@linkplain #DEFAULT_CANCEL_REASON default cancel reason message}.</p>
      *
      * @return the cancel message for the player
      */
-    public Component getCancelMessage()
-    {
-        return getResultMessage() != null ? getResultMessage() : DEFAULT_CANCEL_REASON;
+    public Component getCancelMessage() {
+        var message = this.getResultMessage();
+        return message != null ? message : DEFAULT_CANCEL_REASON;
     }
 }

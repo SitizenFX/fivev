@@ -18,11 +18,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
-import net.minecraft.util.ExtraCodecs;
 
 /**
  * Holds extra data that may be injected into a face.<p>
- * Used by {@link ItemLayerModel}, {@link BlockElement} and {@link BlockElementFace}
+ * Used by {@link ItemLayerGeometry}, {@link BlockElement} and {@link BlockElementFace}
  *
  * @param color Color in ARGB format
  * @param blockLight Block Light for this face from 0-15 (inclusive)

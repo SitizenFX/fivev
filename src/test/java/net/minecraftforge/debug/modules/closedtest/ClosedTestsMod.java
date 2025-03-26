@@ -13,11 +13,11 @@ import net.minecraftforge.debug.modules.closed.api.PublicUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.test.ManifestProvider;
 import net.minecraftforge.test.ModuleProvider;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 @Mod(ClosedTestsMod.MODID)
@@ -57,7 +57,7 @@ public class ClosedTestsMod extends BaseTestMod {
      * This attempted to access a class and method that IS exported by ClosedMod
      * Should succeed with no issues
      */
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void can_reflect_exported(GameTestHelper helper) throws ReflectiveOperationException {
         var method = PublicUtils.class.getDeclaredMethod("publicMethod");
         method.invoke(null);
@@ -69,7 +69,7 @@ public class ClosedTestsMod extends BaseTestMod {
      * It is NOT exported/opened by ClosedMod
      * Should succeed with no exceptions
      */
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void can_reflect_opened_internal(GameTestHelper helper) throws ReflectiveOperationException {
         try {
             var cls = Class.forName("net.minecraftforge.debug.modules.closed.internala.InternalA");
@@ -85,7 +85,7 @@ public class ClosedTestsMod extends BaseTestMod {
      * This is NOT opened by us, and is NOT exported by ClosedTest
      * This should error with IllegalAccessException because java is enforcing access control.
      */
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void cant_reflect_internal(GameTestHelper helper) throws ReflectiveOperationException {
         try {
             var cls = Class.forName("net.minecraftforge.debug.modules.closed.internalb.InternalB");

@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/Bee.java
 +++ b/net/minecraft/world/entity/animal/Bee.java
-@@ -505,7 +_,9 @@
+@@ -503,7 +_,9 @@
          if (this.hivePos == null) {
              return null;
          } else {
@@ -11,7 +11,7 @@
          }
      }
  
-@@ -668,13 +_,22 @@
+@@ -666,13 +_,22 @@
      }
  
      @Override
@@ -21,7 +21,7 @@
 -
 -    @Override
      public Vec3 getLeashOffset() {
-         return new Vec3(0.0, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.2F));
+         return new Vec3(0.0, 0.5F * this.getEyeHeight(), this.getBbWidth() * 0.2F);
 +    }
 +
 +    @Deprecated // FORGE: use jumpInFluid instead

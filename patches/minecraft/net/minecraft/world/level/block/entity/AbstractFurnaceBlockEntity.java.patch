@@ -1,14 +1,14 @@
 --- a/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
-@@ -53,6 +_,7 @@
-     public static final int NUM_DATA_VALUES = 4;
-     public static final int BURN_TIME_STANDARD = 200;
-     public static final int BURN_COOL_SPEED = 2;
+@@ -58,6 +_,7 @@
+     private static final short DEFAULT_COOKING_TOTAL_TIME = 0;
+     private static final short DEFAULT_LIT_TIME_REMAINING = 0;
+     private static final short DEFAULT_LIT_TOTAL_TIME = 0;
 +    private final RecipeType<? extends AbstractCookingRecipe> recipeType;
      protected NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
      int litTimeRemaining;
      int litTotalTime;
-@@ -105,6 +_,7 @@
+@@ -110,6 +_,7 @@
      ) {
          super(p_154991_, p_154992_, p_154993_);
          this.quickCheck = RecipeManager.createCheck((RecipeType)p_154994_);
@@ -16,22 +16,22 @@
      }
  
      private boolean isLit() {
-@@ -116,10 +_,10 @@
+@@ -121,10 +_,10 @@
          super.loadAdditional(p_335441_, p_330623_);
          this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
          ContainerHelper.loadAllItems(p_335441_, this.items, p_330623_);
--        this.cookingTimer = p_335441_.getShort("cooking_time_spent");
--        this.cookingTotalTime = p_335441_.getShort("cooking_total_time");
--        this.litTimeRemaining = p_335441_.getShort("lit_time_remaining");
--        this.litTotalTime = p_335441_.getShort("lit_total_time");
-+        this.cookingTimer = p_335441_.getInt("cooking_time_spent");
-+        this.cookingTotalTime = p_335441_.getInt("cooking_total_time");
-+        this.litTimeRemaining = p_335441_.getInt("lit_time_remaining");
-+        this.litTotalTime = p_335441_.getInt("lit_total_time");
-         CompoundTag compoundtag = p_335441_.getCompound("RecipesUsed");
- 
-         for (String s : compoundtag.getAllKeys()) {
-@@ -130,10 +_,10 @@
+-        this.cookingTimer = p_335441_.getShortOr("cooking_time_spent", (short)0);
+-        this.cookingTotalTime = p_335441_.getShortOr("cooking_total_time", (short)0);
+-        this.litTimeRemaining = p_335441_.getShortOr("lit_time_remaining", (short)0);
+-        this.litTotalTime = p_335441_.getShortOr("lit_total_time", (short)0);
++        this.cookingTimer = p_335441_.getIntOr("cooking_time_spent", (short)0);
++        this.cookingTotalTime = p_335441_.getIntOr("cooking_total_time", (short)0);
++        this.litTimeRemaining = p_335441_.getIntOr("lit_time_remaining", (short)0);
++        this.litTotalTime = p_335441_.getIntOr("lit_total_time", (short)0);
+         this.recipesUsed.clear();
+         this.recipesUsed.putAll(p_335441_.read("RecipesUsed", RECIPES_USED_CODEC).orElse(Map.of()));
+     }
+@@ -132,10 +_,10 @@
      @Override
      protected void saveAdditional(CompoundTag p_187452_, HolderLookup.Provider p_330192_) {
          super.saveAdditional(p_187452_, p_330192_);
@@ -44,8 +44,8 @@
 +        p_187452_.putInt("lit_time_remaining", this.litTimeRemaining);
 +        p_187452_.putInt("lit_total_time", this.litTotalTime);
          ContainerHelper.saveAllItems(p_187452_, this.items, p_330192_);
-         CompoundTag compoundtag = new CompoundTag();
-         this.recipesUsed.forEach((p_360478_, p_360479_) -> compoundtag.putInt(p_360478_.location().toString(), p_360479_));
+         p_187452_.store("RecipesUsed", RECIPES_USED_CODEC, this.recipesUsed);
+     }
 @@ -161,27 +_,31 @@
              }
  
@@ -121,7 +121,7 @@
              }
  
              if (itemstack.is(Blocks.WET_SPONGE.asItem()) && !p_267073_.get(1).isEmpty() && p_267073_.get(1).is(Items.BUCKET)) {
-@@ -388,5 +_,34 @@
+@@ -388,6 +_,35 @@
          for (ItemStack itemstack : this.items) {
              p_363325_.accountStack(itemstack);
          }
@@ -155,4 +155,5 @@
 +        super.reviveCaps();
 +        this.handlers = net.minecraftforge.items.wrapper.SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
      }
- }
+ 
+     @Override

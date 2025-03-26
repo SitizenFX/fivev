@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -32,13 +32,13 @@ public class ModLoadSortingTest extends BaseTestMod {
         beforeHasInit = ModLoadSortingBefore.hasInit;
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void ran_after_parent(GameTestHelper helper) {
         helper.assertTrue(afterHasInit, "Mod constructor was fired before dependency finished");
         helper.succeed();
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void ran_before_child(GameTestHelper helper) {
         helper.assertFalse(beforeHasInit, "Mod constructor was fired before dependency finished");
         helper.succeed();

@@ -20,7 +20,7 @@
              this.menu.items.addAll(p_261591_);
 @@ -330,6 +_,35 @@
      protected void init() {
-         if (this.minecraft.gameMode.hasInfiniteItems()) {
+         if (this.minecraft.player.hasInfiniteMaterials()) {
              super.init();
 +            this.pages.clear();
 +            int tabIndex = 0;
@@ -98,14 +98,14 @@
      protected void renderLabels(GuiGraphics p_283168_, int p_281774_, int p_281466_) {
          if (selectedTab.showTitle()) {
 -            p_283168_.drawString(this.font, selectedTab.getDisplayName(), 8, 6, 4210752, false);
-+            com.mojang.blaze3d.systems.RenderSystem.disableBlend();
++            com.mojang.blaze3d.opengl.GlStateManager._disableBlend();
 +            p_283168_.drawString(this.font, selectedTab.getDisplayName(), 8, 6, selectedTab.getLabelColor(), false);
          }
      }
  
 @@ -488,7 +_,7 @@
-             double d0 = p_98531_ - (double)this.leftPos;
-             double d1 = p_98532_ - (double)this.topPos;
+             double d0 = p_98531_ - this.leftPos;
+             double d1 = p_98532_ - this.topPos;
  
 -            for (CreativeModeTab creativemodetab : CreativeModeTabs.tabs()) {
 +            for (CreativeModeTab creativemodetab : currentPage.getVisibleTabs()) {
@@ -113,7 +113,7 @@
                      return true;
                  }
 @@ -510,7 +_,7 @@
-             double d1 = p_98623_ - (double)this.topPos;
+             double d1 = p_98623_ - this.topPos;
              this.scrolling = false;
  
 -            for (CreativeModeTab creativemodetab : CreativeModeTabs.tabs()) {
@@ -138,7 +138,7 @@
  
              this.refreshSearchResults();
          } else {
-@@ -676,7 +_,15 @@
+@@ -673,7 +_,15 @@
          super.render(p_283000_, p_281317_, p_282770_, p_281295_);
          this.effects.render(p_283000_, p_281317_, p_282770_, p_281295_);
  
@@ -155,7 +155,7 @@
              if (this.checkTabHovering(p_283000_, creativemodetab, p_281317_, p_282770_)) {
                  break;
              }
-@@ -688,6 +_,7 @@
+@@ -685,6 +_,7 @@
              p_283000_.renderTooltip(this.font, TRASH_SLOT_TOOLTIP, p_281317_, p_282770_);
          }
  
@@ -163,7 +163,7 @@
          this.renderTooltip(p_283000_, p_281317_, p_282770_);
      }
  
-@@ -700,7 +_,7 @@
+@@ -697,7 +_,7 @@
      public List<Component> getTooltipFromContainerItem(ItemStack p_281769_) {
          boolean flag = this.hoveredSlot != null && this.hoveredSlot instanceof CreativeModeInventoryScreen.CustomCreativeSlot;
          boolean flag1 = selectedTab.getType() == CreativeModeTab.Type.CATEGORY;
@@ -172,16 +172,16 @@
          TooltipFlag.Default tooltipflag$default = this.minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
          TooltipFlag tooltipflag = flag ? tooltipflag$default.asCreative() : tooltipflag$default;
          List<Component> list = p_281769_.getTooltipLines(Item.TooltipContext.of(this.minecraft.level), this.minecraft.player, tooltipflag);
-@@ -719,7 +_,7 @@
+@@ -718,7 +_,7 @@
              int i = 1;
  
              for (CreativeModeTab creativemodetab : CreativeModeTabs.tabs()) {
 -                if (creativemodetab.getType() != CreativeModeTab.Type.SEARCH && creativemodetab.contains(p_281769_)) {
-+                if (!creativemodetab.hasSearchBar() && creativemodetab.contains(p_281769_)) {
++                if (creativemodetab.hasSearchBar() && creativemodetab.contains(p_281769_)) {
                      list1.add(i++, creativemodetab.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
                  }
              }
-@@ -730,7 +_,7 @@
+@@ -729,7 +_,7 @@
  
      @Override
      protected void renderBg(GuiGraphics p_282663_, float p_282504_, int p_282089_, int p_282249_) {
@@ -190,15 +190,15 @@
              if (creativemodetab != selectedTab) {
                  this.renderTabButton(p_282663_, creativemodetab);
              }
-@@ -746,6 +_,7 @@
-             p_282663_.blitSprite(RenderType::guiTextured, resourcelocation, j, k + (int)((float)(i - k - 17) * this.scrollOffs), 12, 15);
+@@ -745,6 +_,7 @@
+             p_282663_.blitSprite(RenderType::guiTextured, resourcelocation, j, k + (int)((i - k - 17) * this.scrollOffs), 12, 15);
          }
  
 +        if (currentPage.getVisibleTabs().contains(selectedTab)) //Forge: only display tab selection when the selected tab is on the current page
          this.renderTabButton(p_282663_, selectedTab);
          if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY) {
              InventoryScreen.renderEntityInInventoryFollowsMouse(
-@@ -764,7 +_,7 @@
+@@ -763,7 +_,7 @@
      }
  
      private int getTabX(CreativeModeTab p_260136_) {
@@ -207,7 +207,7 @@
          int j = 27;
          int k = 27 * i;
          if (p_260136_.isAlignedRight()) {
-@@ -776,7 +_,7 @@
+@@ -775,7 +_,7 @@
  
      private int getTabY(CreativeModeTab p_260181_) {
          int i = 0;
@@ -216,7 +216,7 @@
              i -= 32;
          } else {
              i += this.imageHeight;
-@@ -804,8 +_,8 @@
+@@ -803,8 +_,8 @@
  
      protected void renderTabButton(GuiGraphics p_283590_, CreativeModeTab p_283489_) {
          boolean flag = p_283489_ == selectedTab;
@@ -227,15 +227,15 @@
          int j = this.leftPos + this.getTabX(p_283489_);
          int k = this.topPos - (flag1 ? 28 : -(this.imageHeight - 4));
          ResourceLocation[] aresourcelocation;
-@@ -815,6 +_,7 @@
+@@ -814,6 +_,7 @@
              aresourcelocation = flag ? SELECTED_BOTTOM_TABS : UNSELECTED_BOTTOM_TABS;
          }
  
-+        com.mojang.blaze3d.systems.RenderSystem.enableBlend(); //Forge: Make sure blend is enabled else tabs show a white border.
++        com.mojang.blaze3d.opengl.GlStateManager._enableBlend(); //Forge: Make sure blend is enabled else tabs show a white border.
          p_283590_.blitSprite(RenderType::guiTextured, aresourcelocation[Mth.clamp(i, 0, aresourcelocation.length)], j, k, 26, 32);
          p_283590_.pose().pushPose();
          p_283590_.pose().translate(0.0F, 0.0F, 100.0F);
-@@ -856,6 +_,14 @@
+@@ -855,6 +_,14 @@
          }
      }
  
@@ -250,7 +250,7 @@
      @OnlyIn(Dist.CLIENT)
      static class CustomCreativeSlot extends Slot {
          public CustomCreativeSlot(Container p_98633_, int p_98634_, int p_98635_, int p_98636_) {
-@@ -1037,6 +_,22 @@
+@@ -1036,6 +_,22 @@
          @Override
          public boolean mayPickup(Player p_98665_) {
              return this.target.mayPickup(p_98665_);

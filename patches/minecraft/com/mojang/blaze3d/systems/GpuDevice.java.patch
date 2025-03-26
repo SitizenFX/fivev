@@ -1,0 +1,20 @@
+--- a/com/mojang/blaze3d/systems/GpuDevice.java
++++ b/com/mojang/blaze3d/systems/GpuDevice.java
+@@ -25,7 +_,17 @@
+ 
+     GpuTexture createTexture(@Nullable Supplier<String> p_394357_, TextureFormat p_395807_, int p_395623_, int p_395802_, int p_396157_);
+ 
++    /** Forge: same as {@link #createTexture(Supplier, TextureFormat, int, int, int)} but with stencil support */
++    default GpuTexture createTexture(@Nullable Supplier<String> p_394357_, TextureFormat p_395807_, int p_395623_, int p_395802_, int p_396157_, boolean stencil) {
++        return this.createTexture(p_394357_, p_395807_, p_395623_, p_395802_, p_396157_);
++    }
++
+     GpuTexture createTexture(@Nullable String p_391798_, TextureFormat p_393333_, int p_391800_, int p_395600_, int p_394065_);
++
++    /** Forge: same as {@link #createTexture(String, TextureFormat, int, int, int)} but with stencil support */
++    default GpuTexture createTexture(@Nullable String p_391798_, TextureFormat p_393333_, int p_391800_, int p_395600_, int p_394065_, boolean stencil) {
++        return this.createTexture(p_391798_, p_393333_, p_391800_, p_395600_, p_394065_);
++    }
+ 
+     GpuBuffer createBuffer(@Nullable Supplier<String> p_395215_, BufferType p_392847_, BufferUsage p_391478_, int p_397054_);
+ 

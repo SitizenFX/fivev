@@ -8,7 +8,7 @@
 +                if (i < 0) return false;
 +
                  float f = getPowerForTime(i);
-                 if ((double)f < 0.1) {
+                 if (f < 0.1) {
                      return false;
 @@ -89,6 +_,8 @@
      public InteractionResult use(Level p_40672_, Player p_40673_, InteractionHand p_40674_) {

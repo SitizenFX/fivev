@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/data/models/ModelProvider.java
 +++ b/net/minecraft/client/data/models/ModelProvider.java
-@@ -43,11 +_,11 @@
+@@ -45,11 +_,11 @@
  
      @Override
      public CompletableFuture<?> run(CachedOutput p_376268_) {
@@ -16,7 +16,7 @@
          modelprovider$blockstategeneratorcollector.validate();
          modelprovider$iteminfocollector.finalizeAndValidate();
          return CompletableFuture.allOf(
-@@ -57,6 +_,22 @@
+@@ -59,6 +_,22 @@
          );
      }
  
@@ -36,13 +36,13 @@
 +        return new ItemModelGenerators(items, models);
 +    }
 +
-     static <T> CompletableFuture<?> saveAll(CachedOutput p_378816_, Function<T, Path> p_377914_, Map<T, ? extends Supplier<JsonElement>> p_377836_) {
-         return DataProvider.saveAll(p_378816_, Supplier::get, p_377914_, p_377836_);
-     }
-@@ -69,6 +_,15 @@
+     @Override
+     public final String getName() {
+         return "Model Definitions";
+@@ -67,6 +_,15 @@
      @OnlyIn(Dist.CLIENT)
-     public static class BlockStateGeneratorCollector implements Consumer<BlockStateGenerator> {
-         private final Map<Block, BlockStateGenerator> generators = new HashMap<>();
+     public static class BlockStateGeneratorCollector implements Consumer<BlockModelDefinitionGenerator> {
+         private final Map<Block, BlockModelDefinitionGenerator> generators = new HashMap<>();
 +        private final Supplier<Stream<Block>> known;
 +
 +        public BlockStateGeneratorCollector() {
@@ -53,9 +53,9 @@
 +            this.known = known;
 +        }
  
-         public void accept(BlockStateGenerator p_378147_) {
-             Block block = p_378147_.getBlock();
-@@ -79,7 +_,7 @@
+         public void accept(BlockModelDefinitionGenerator p_393399_) {
+             Block block = p_393399_.block();
+@@ -77,7 +_,7 @@
          }
  
          public void validate() {

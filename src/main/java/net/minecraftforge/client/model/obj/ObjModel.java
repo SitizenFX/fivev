@@ -15,14 +15,15 @@ import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.client.model.IModelBuilder;
 import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.SimpleUnbakedGeometry;
 import net.minecraftforge.client.model.geometry.UnbakedGeometryHelper;
 import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
 import net.minecraftforge.client.model.renderable.CompositeRenderable;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
  * Supports positions, texture coordinates, normals and colors. The {@link ObjMaterialLibrary material library}
  * has support for numerous features, including support for {@link ResourceLocation} textures (non-standard).
  */
-public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
+public class ObjModel {
     private static final Vector4f COLOR_WHITE = new Vector4f(1, 1, 1, 1);
     private static final Vec2[] DEFAULT_COORDS = {
         new Vec2(0, 0),
@@ -61,6 +62,7 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
     };
 
     private final Map<String, ModelGroup> parts = Maps.newLinkedHashMap();
+    private final Map<String, ModelGroup> partsView = Collections.unmodifiableMap(parts);
     private final Set<String> rootComponentNames = Collections.unmodifiableSet(parts.keySet());
     private Set<String> allComponentNames;
 
@@ -85,6 +87,10 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
         this.flipV = settings.flipV;
         this.emissiveAmbient = settings.emissiveAmbient;
         this.mtlOverride = settings.mtlOverride;
+    }
+
+    public Map<String, ModelGroup> getParts() {
+        return partsView;
     }
 
     public static ObjModel parse(ObjTokenizer tokenizer, ModelSettings settings) throws IOException {
@@ -269,19 +275,10 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
         };
     }
 
-    @Override
-    protected void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, TextureSlots textures, ModelState modelTransform) {
-        for (var part : parts.values()) {
-            if (owner.isComponentVisible(part.name(), true))
-                part.addQuads(owner, modelBuilder, baker, textures, modelTransform, modelLocation);
-        }
-    }
-
     public Set<String> getRootComponentNames() {
         return rootComponentNames;
     }
 
-    @Override
     public Set<String> getConfigurableComponentNames() {
         if (allComponentNames != null)
             return allComponentNames;
@@ -428,7 +425,7 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
         return builder.get();
     }
 
-    private class ModelObject {
+    public class ModelObject {
         public final String name;
 
         List<ModelMesh> meshes = Lists.newArrayList();
@@ -441,9 +438,9 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
             return name;
         }
 
-        protected void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, TextureSlots textures, ModelState modelTransform, ResourceLocation modelLocation) {
+        public void bake(TextureSlots slots, ModelBaker baker, ModelState state, ModelDebugName name, IGeometryBakingContext context, QuadCollection.Builder builder) {
             for (var mesh : meshes)
-                mesh.addQuads(owner, modelBuilder, baker, textures, modelTransform, modelLocation);
+                mesh.bake(slots, baker, state, name, context, builder);
         }
 
         protected void bake(CompositeRenderable.PartBuilder<?> builder, TextureSlots textures) {
@@ -465,7 +462,7 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
         }
     }
 
-    private class ModelGroup extends ModelObject {
+    public class ModelGroup extends ModelObject {
         final Map<String, ModelObject> parts = Maps.newLinkedHashMap();
 
         ModelGroup(String name) {
@@ -473,12 +470,12 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
         }
 
         @Override
-        public void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, TextureSlots spriteGetter, ModelState modelTransform, ResourceLocation modelLocation) {
-            super.addQuads(owner, modelBuilder, baker, spriteGetter, modelTransform, modelLocation);
+        public void bake(TextureSlots slots, ModelBaker baker, ModelState state, ModelDebugName name, IGeometryBakingContext context, QuadCollection.Builder builder) {
+            super.bake(slots, baker, state, name, context, builder);
 
             for (var part : parts.values()) {
-                if (owner.isComponentVisible(part.name(), true))
-                    part.addQuads(owner, modelBuilder, baker, spriteGetter, modelTransform, modelLocation);
+                if (context.isComponentVisible(part.name(), true))
+                    part.bake(slots, baker, state, name, context, builder);
             }
         }
 
@@ -522,22 +519,25 @@ public class ObjModel extends SimpleUnbakedGeometry<ObjModel> {
             this.smoothingGroup = currentSmoothingGroup;
         }
 
-        protected void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, TextureSlots textures, ModelState modelTransform, ResourceLocation modelLocation) {
+        protected void bake(TextureSlots slots, ModelBaker baker, ModelState state, ModelDebugName name, IGeometryBakingContext context, QuadCollection.Builder builder) {
             if (mat == null)
                 return;
-            var material = UnbakedGeometryHelper.resolveDirtyMaterial(mat.diffuseColorMap, textures);
-            var texture = baker.sprites().get(material);
+
+            var material = UnbakedGeometryHelper.resolveDirtyMaterial(mat.diffuseColorMap, slots);
+            var texture = baker.sprites().get(material, name);
             int tintIndex = mat.diffuseTintIndex;
             Vector4f colorTint = mat.diffuseColor;
 
-            var rootTransform = owner.getRootTransform();
-            var transform = rootTransform.isIdentity() ? modelTransform.getRotation() : modelTransform.getRotation().compose(rootTransform);
+            // TODO: [Forge][Rendering] Models contains the transforms so we shouldnt care about them here.
+            //var rootTransform = context.getRootTransform();
+            //var transform = rootTransform.isIdentity() ? modelTransform.transformation() : modelTransform.transformation().compose(rootTransform);
+            var transform = Transformation.identity();
             for (int[][] face : faces) {
                 Pair<BakedQuad, Direction> quad = makeQuad(face, tintIndex, colorTint, mat.ambientColor, texture, transform);
                 if (quad.getRight() == null)
-                    modelBuilder.addUnculledFace(quad.getLeft());
+                    builder.addUnculledFace(quad.getLeft());
                 else
-                    modelBuilder.addCulledFace(quad.getRight(), quad.getLeft());
+                    builder.addCulledFace(quad.getRight(), quad.getLeft());
             }
         }
 

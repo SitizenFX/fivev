@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +52,7 @@ public final class RenderTypeHelper {
      * but removes the need to query the model again if the item is a {@link BlockItem}.
      */
     @NotNull
-    public static RenderType getFallbackItemRenderType(ItemStack stack, BakedModel model) {
+    public static RenderType getFallbackItemRenderType(ItemStack stack, BlockStateModel model) {
         if (stack.getItem() instanceof BlockItem blockItem) {
             var renderTypes = model.getRenderTypes(blockItem.getBlock().defaultBlockState(), RandomSource.create(42), ModelData.EMPTY);
             if (renderTypes.contains(RenderType.translucent()))

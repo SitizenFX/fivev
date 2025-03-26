@@ -94,8 +94,6 @@ public class ForgeConfig {
      * Client specific configuration - only loaded clientside from forge-client.toml
      */
     public static class Client {
-        public final BooleanValue experimentalForgeLightPipelineEnabled;
-
         public final BooleanValue showLoadWarnings;
 
         public final BooleanValue allowMipmapLowering;
@@ -103,11 +101,6 @@ public class ForgeConfig {
         Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Client only settings, mostly things related to rendering")
                    .push("client");
-
-            experimentalForgeLightPipelineEnabled = builder
-                .comment("EXPERIMENTAL: Enable the Forge block rendering pipeline - fixes the lighting of custom models.")
-                .translation("forge.configgui.forgeLightPipelineEnabled")
-                .define("experimentalForgeLightPipelineEnabled", false);
 
             showLoadWarnings = builder
                 .comment("When enabled, Forge will show any warnings that occurred during loading.")

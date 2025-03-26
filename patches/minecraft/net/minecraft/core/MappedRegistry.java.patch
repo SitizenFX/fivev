@@ -1,6 +1,6 @@
 --- a/net/minecraft/core/MappedRegistry.java
 +++ b/net/minecraft/core/MappedRegistry.java
-@@ -86,6 +_,7 @@
+@@ -85,6 +_,7 @@
  
      @Override
      public Holder.Reference<T> register(ResourceKey<T> p_256252_, T p_256591_, RegistrationInfo p_329661_) {
@@ -8,7 +8,7 @@
          this.validateWrite(p_256252_);
          Objects.requireNonNull(p_256252_);
          Objects.requireNonNull(p_256591_);
-@@ -104,6 +_,8 @@
+@@ -103,6 +_,8 @@
                  reference.bindKey(p_256252_);
              } else {
                  reference = this.byKey.computeIfAbsent(p_256252_, p_358082_ -> Holder.Reference.createStandAlone(this, (ResourceKey<T>)p_358082_));
@@ -17,7 +17,7 @@
              }
  
              this.byKey.put(p_256252_, reference);
-@@ -275,7 +_,6 @@
+@@ -274,7 +_,6 @@
              return this;
          } else {
              this.frozen = true;
@@ -25,7 +25,7 @@
              List<ResourceLocation> list = this.byKey
                  .entrySet()
                  .stream()
-@@ -291,7 +_,8 @@
+@@ -290,7 +_,8 @@
                          throw new IllegalStateException("Some intrusive holders were not registered: " + this.unregisteredIntrusiveHolders.values());
                      }
  
@@ -35,7 +35,7 @@
                  }
  
                  if (this.allTags.isBound()) {
-@@ -390,6 +_,31 @@
+@@ -389,6 +_,31 @@
          };
      }
  
@@ -67,7 +67,7 @@
      @Override
      public Registry.PendingTags<T> prepareTagReload(TagLoader.LoadResult<T> p_368827_) {
          if (!this.frozen) {
-@@ -437,6 +_,11 @@
+@@ -436,6 +_,11 @@
                  @Override
                  public HolderLookup.RegistryLookup<T> lookup() {
                      return registrylookup;

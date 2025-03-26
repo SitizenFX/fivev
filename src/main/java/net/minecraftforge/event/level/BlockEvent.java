@@ -337,9 +337,9 @@ public class BlockEvent extends Event {
     @Cancelable
     public static class FarmlandTrampleEvent extends BlockEvent {
         private final Entity entity;
-        private final float fallDistance;
+        private final double fallDistance;
 
-        public FarmlandTrampleEvent(ServerLevel level, BlockPos pos, BlockState state, float fallDistance, Entity entity) {
+        public FarmlandTrampleEvent(ServerLevel level, BlockPos pos, BlockState state, double fallDistance, Entity entity) {
             super(level, pos, state);
             this.entity = entity;
             this.fallDistance = fallDistance;
@@ -349,7 +349,7 @@ public class BlockEvent extends Event {
             return entity;
         }
 
-        public float getFallDistance() {
+        public double getFallDistance() {
             return fallDistance;
         }
 

@@ -8,9 +8,7 @@ package net.minecraftforge.common.data;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
-import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
@@ -18,8 +16,6 @@ import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-
 import static net.minecraftforge.common.Tags.Fluids.*;
 
 @ApiStatus.Internal

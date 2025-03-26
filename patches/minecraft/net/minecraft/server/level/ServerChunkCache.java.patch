@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
-@@ -187,6 +_,10 @@
+@@ -205,6 +_,10 @@
              if (chunkholder == null) {
                  return null;
              } else {
@@ -11,53 +11,21 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
-@@ -368,9 +_,25 @@
-     }
- 
-     private void collectTickingChunks(List<LevelChunk> p_368970_) {
--        this.chunkMap.forEachSpawnCandidateChunk(p_358696_ -> {
-+        // FORGE: If there are no forced chunks, just do the vanilla logic
-+        if (!this.chunkMap.hasForcedChunks()) {
-+            this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(p_368970_, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
-+            return;
-+        }
-+
-+        // FORGE: We have forced chunks? Ok, use a linked hash set to preserve order
-+        Set<LevelChunk> set = new java.util.LinkedHashSet<>();
-+        this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(set, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
-+        this.chunkMap.forEachForcedChunk(this.getChunkCollector(set, chunk -> true));
-+        p_368970_.addAll(set);
-+    }
-+
-+    /** FORGE: Isolate chunk collection callback */
-+    private Consumer<ChunkHolder> getChunkCollector(java.util.Collection<LevelChunk> p_368970_, java.util.function.Predicate<LevelChunk> predicate) {
-+        return (p_358696_ -> {
-             LevelChunk levelchunk = p_358696_.getTickingChunk();
--            if (levelchunk != null && this.level.isNaturalSpawningAllowed(p_358696_.getPos())) {
-+            // FORGE: Use custom predicate instead of only checking isNaturalSpawningAllowed
-+            if (levelchunk != null && predicate.test(levelchunk)) {
-                 p_368970_.add(levelchunk);
+@@ -621,5 +_,17 @@
+                 return super.pollTask();
              }
-         });
-@@ -466,11 +_,19 @@
-     }
- 
-     public <T> void addRegionTicket(TicketType<T> p_8388_, ChunkPos p_8389_, int p_8390_, T p_8391_) {
--        this.distanceManager.addRegionTicket(p_8388_, p_8389_, p_8390_, p_8391_);
-+        addRegionTicket(p_8388_, p_8389_, p_8390_, p_8391_, false);
+         }
 +    }
 +
-+    public <T> void addRegionTicket(TicketType<T> p_8388_, ChunkPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks) {
-+       this.distanceManager.addRegionTicket(p_8388_, p_8389_, p_8390_, p_8391_, forceTicks);
-     }
- 
-     public <T> void removeRegionTicket(TicketType<T> p_8439_, ChunkPos p_8440_, int p_8441_, T p_8442_) {
--        this.distanceManager.removeRegionTicket(p_8439_, p_8440_, p_8441_, p_8442_);
-+        removeRegionTicket(p_8439_, p_8440_, p_8441_, p_8442_, false);
++    /** @deprecated Use {@link #addTicketWithRadius(TicketType, ChunkPos, int)} with {@link TicketType#FORCED} */
++    @Deprecated(forRemoval = true, since = "1.21.5")
++    public void addRegionTicket(TicketType type, ChunkPos pos, int ticketLevel, boolean forceTicks) {
++        this.addTicketWithRadius(forceTicks ? TicketType.FORCED : type, pos, ticketLevel);
 +    }
 +
-+    public <T> void removeRegionTicket(TicketType<T> p_8439_, ChunkPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks) {
-+       this.distanceManager.removeRegionTicket(p_8439_, p_8440_, p_8441_, p_8442_, forceTicks);
++    /** @deprecated Use {@link #removeTicketWithRadius(TicketType, ChunkPos, int)} with {@link TicketType#FORCED} */
++    @Deprecated(forRemoval = true, since = "1.21.5")
++    public void removeRegionTicket(TicketType type, ChunkPos pos, int ticketLevel, boolean forceTicks) {
++        this.removeTicketWithRadius(forceTicks ? TicketType.FORCED : type, pos, ticketLevel);
      }
- 
-     @Override
+ }

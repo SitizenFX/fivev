@@ -11,5 +11,5 @@
 +        if (p_32337_.isHolding(is -> is.getItem() instanceof CrossbowItem)) {
 +            var crossbowitem = (CrossbowItem) itemstack.getItem();
              crossbowitem.performShooting(
-                 p_32337_.level(), p_32337_, interactionhand, itemstack, p_32338_, (float)(14 - p_32337_.level().getDifficulty().getId() * 4), this.getTarget()
+                 p_32337_.level(), p_32337_, interactionhand, itemstack, p_32338_, 14 - p_32337_.level().getDifficulty().getId() * 4, this.getTarget()
              );

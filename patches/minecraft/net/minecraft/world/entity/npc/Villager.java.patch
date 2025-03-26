@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/npc/Villager.java
 +++ b/net/minecraft/world/entity/npc/Villager.java
-@@ -313,7 +_,7 @@
+@@ -320,7 +_,7 @@
      @Override
      public InteractionResult mobInteract(Player p_35472_, InteractionHand p_35473_) {
          ItemStack itemstack = p_35472_.getItemInHand(p_35473_);
@@ -9,22 +9,12 @@
              return super.mobInteract(p_35472_, p_35473_);
          } else if (this.isBaby()) {
              this.setUnhappy();
-@@ -712,7 +_,8 @@
- 
-     @Override
-     protected Component getTypeName() {
--        return Component.translatable(this.getType().getDescriptionId() + "." + BuiltInRegistries.VILLAGER_PROFESSION.getKey(this.getVillagerData().getProfession()).getPath());
-+        var profName = net.minecraftforge.registries.ForgeRegistries.VILLAGER_PROFESSIONS.getKey(this.getVillagerData().getProfession());
-+        return Component.translatable(this.getType().getDescriptionId() + '.' + (!"minecraft".equals(profName.getNamespace()) ? profName.getNamespace() + '.' : "") + profName.getPath());
-     }
- 
-     @Override
-@@ -770,7 +_,7 @@
+@@ -766,7 +_,7 @@
  
      @Override
      public void thunderHit(ServerLevel p_35409_, LightningBolt p_35410_) {
 -        if (p_35409_.getDifficulty() != Difficulty.PEACEFUL) {
 +        if (p_35409_.getDifficulty() != Difficulty.PEACEFUL && net.minecraftforge.event.ForgeEventFactory.canLivingConvert(this, EntityType.WITCH, (timer) -> {})) {
              LOGGER.info("Villager {} was struck by lightning {}.", this, p_35410_);
-             Witch witch = this.convertTo(EntityType.WITCH, ConversionParams.single(this, false, false), p_375163_ -> {
-                 p_375163_.finalizeSpawn(p_35409_, p_35409_.getCurrentDifficultyAt(p_375163_.blockPosition()), EntitySpawnReason.CONVERSION, null);
+             Witch witch = this.convertTo(EntityType.WITCH, ConversionParams.single(this, false, false), p_390723_ -> {
+                 p_390723_.finalizeSpawn(p_35409_, p_35409_.getCurrentDifficultyAt(p_390723_.blockPosition()), EntitySpawnReason.CONVERSION, null);

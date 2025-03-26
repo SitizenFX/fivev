@@ -1,23 +1,23 @@
 --- a/com/mojang/blaze3d/vertex/VertexFormat.java
 +++ b/com/mojang/blaze3d/vertex/VertexFormat.java
-@@ -14,7 +_,7 @@
- import net.minecraftforge.api.distmarker.OnlyIn;
+@@ -20,7 +_,7 @@
  
  @OnlyIn(Dist.CLIENT)
+ @DontObfuscate
 -public class VertexFormat {
 +public class VertexFormat implements net.minecraftforge.client.extensions.IForgeVertexFormat {
      public static final int UNKNOWN_ELEMENT = -1;
      private final List<VertexFormatElement> elements;
      private final List<String> names;
-@@ -23,6 +_,7 @@
-     private final int[] offsetsByElement = new int[32];
+@@ -31,6 +_,7 @@
+     private GpuBuffer immediateDrawVertexBuffer;
      @Nullable
-     private VertexBuffer immediateDrawVertexBuffer;
+     private GpuBuffer immediateDrawIndexBuffer;
 +    private final com.google.common.collect.ImmutableMap<String, VertexFormatElement> elementMapping;
  
      VertexFormat(List<VertexFormatElement> p_343616_, List<String> p_345241_, IntList p_345522_, int p_344162_) {
          this.elements = p_343616_;
-@@ -35,6 +_,11 @@
+@@ -43,6 +_,11 @@
              int j = vertexformatelement != null ? p_343616_.indexOf(vertexformatelement) : -1;
              this.offsetsByElement[i] = j != -1 ? p_345522_.getInt(j) : -1;
          }
@@ -29,13 +29,13 @@
      }
  
      public static VertexFormat.Builder builder() {
-@@ -141,6 +_,9 @@
+@@ -146,6 +_,9 @@
  
-         return vertexbuffer;
+         return this.immediateDrawIndexBuffer;
      }
 +
 +    public ImmutableMap<String, VertexFormatElement> getElementMapping() { return elementMapping; }
 +    public int getOffset(int index) { return offsetsByElement[index]; }
  
      @OnlyIn(Dist.CLIENT)
-     public static class Builder {
+     @DontObfuscate

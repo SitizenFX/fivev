@@ -1,13 +1,12 @@
 --- a/net/minecraft/client/particle/ParticleEngine.java
 +++ b/net/minecraft/client/particle/ParticleEngine.java
-@@ -72,11 +_,11 @@
+@@ -72,10 +_,10 @@
      private static final int MAX_PARTICLES_PER_LAYER = 16384;
      private static final List<ParticleRenderType> RENDER_ORDER = List.of(ParticleRenderType.TERRAIN_SHEET, ParticleRenderType.PARTICLE_SHEET_OPAQUE, ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT);
      protected ClientLevel level;
 -    private final Map<ParticleRenderType, Queue<Particle>> particles = Maps.newIdentityHashMap();
 +    private final Map<ParticleRenderType, Queue<Particle>> particles = Maps.newTreeMap(net.minecraftforge.client.ForgeHooksClient.makeParticleRenderTypeComparator(RENDER_ORDER));
      private final Queue<TrackingEmitter> trackingEmitters = Queues.newArrayDeque();
-     private final TextureManager textureManager;
      private final RandomSource random = RandomSource.create();
 -    private final Int2ObjectMap<ParticleProvider<?>> providers = new Int2ObjectOpenHashMap<>();
 +    private final Map<ResourceLocation, ParticleProvider<?>> providers = new java.util.HashMap<>();
@@ -15,7 +14,7 @@
      private final Map<ResourceLocation, ParticleEngine.MutableSpriteSet> spriteSets = Maps.newHashMap();
      private final TextureAtlas textureAtlas;
 @@ -205,10 +_,14 @@
-         this.register(ParticleTypes.BLOCK_CRUMBLE, new TerrainParticle.CrumblingProvider());
+         this.register(ParticleTypes.FIREFLY, FireflyParticle.FireflyProvider::new);
      }
  
 +    /** @deprecated Register via {@link net.minecraftforge.client.event.RegisterParticleProvidersEvent} */
@@ -139,7 +138,7 @@
          BlockState blockstate = this.level.getBlockState(p_107368_);
          if (blockstate.getRenderShape() != RenderShape.INVISIBLE && blockstate.shouldSpawnTerrainParticles()) {
 @@ -558,7 +_,7 @@
-                 d0 = (double)i + aabb.maxX + 0.1F;
+                 d0 = i + aabb.maxX + 0.1F;
              }
  
 -            this.add(new TerrainParticle(this.level, d0, d1, d2, 0.0, 0.0, 0.0, blockstate, p_107368_).setPower(0.2F).scale(0.6F));

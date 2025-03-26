@@ -39,4 +39,4 @@
 +                            .filter(holder -> this.namespacePredicate.test(holder.key().location().getNamespace()))
                              .map(
                                  p_256105_ -> dumpValue(
-                                         packoutput$pathprovider.json(p_256105_.key().location()),
+                                     packoutput$pathprovider.json(p_256105_.key().location()),

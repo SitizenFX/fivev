@@ -7,19 +7,15 @@ package net.minecraftforge.debug.gameplay.level;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ChunkLevel;
-import net.minecraft.server.level.FullChunkStatus;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
-import org.jetbrains.annotations.Nullable;
 
 @GameTestHolder("forge." + ForcedChunkLoadingTest.MOD_ID)
 @Mod(ForcedChunkLoadingTest.MOD_ID)
@@ -32,7 +28,7 @@ public class ForcedChunkLoadingTest extends BaseTestMod {
 
     private static final int MAX_CHUNK_LOCATION_ATTEMPTS = 5;
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void force_far_away_chunk(GameTestHelper helper) {
         var random = RandomSource.create();
         var level = helper.getLevel();
@@ -52,18 +48,19 @@ public class ForcedChunkLoadingTest extends BaseTestMod {
         }
 
         if (chunk == null) {
-            helper.fail("Failed to find a far away chunk that is not already ticking after " + MAX_CHUNK_LOCATION_ATTEMPTS + " attempts");
+            helper.fail(Component.literal("Failed to find a far away chunk that is not already ticking after " + MAX_CHUNK_LOCATION_ATTEMPTS + " attempts"));
             return;
         } else if (attempts > 1) {
             helper.say("WARNING: Finding a far away chunk took " + attempts + " attempts.", ChatFormatting.YELLOW);
         }
 
         var pos = chunk.getPos();
+        var posLong = pos.toLong();
         helper.say("Attempting to force far away chunk: " + pos, ChatFormatting.YELLOW);
-        chunkSource.chunkMap.getDistanceManager().addRegionTicket(TicketType.FORCED, pos, ChunkLevel.byStatus(FullChunkStatus.FULL), pos, true);
+        chunkSource.updateChunkForced(pos, true);
 
         helper.runAfterDelay(20, () -> {
-            helper.assertTrue(chunkSource.chunkMap.getDistanceManager().shouldForceTicks(pos.toLong()), "Chunk is not ticketed as a forced loaded chunk");
+            helper.assertTrue(chunkSource.chunkMap.getDistanceManager().shouldForceTicks(posLong), "Chunk is not ticketed as a force loaded chunk");
             helper.assertTrue(chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(pos.toLong()), "Forced chunk cannot tick entities");
             helper.assertTrue(chunkSource.chunkMap.getDistanceManager().inBlockTickingRange(pos.toLong()), "Forced chunk cannot tick blocks");
             helper.assertTrue(chunkSource.hasChunk(pos.x, pos.z), "Chunk is not loaded despite being ticketed as a force loaded chunk");

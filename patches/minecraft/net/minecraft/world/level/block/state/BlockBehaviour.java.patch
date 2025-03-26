@@ -1,15 +1,6 @@
 --- a/net/minecraft/world/level/block/state/BlockBehaviour.java
 +++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
-@@ -171,7 +_,7 @@
-     }
- 
-     protected void onRemove(BlockState p_60515_, Level p_60516_, BlockPos p_60517_, BlockState p_60518_, boolean p_60519_) {
--        if (p_60515_.hasBlockEntity() && !p_60515_.is(p_60518_.getBlock())) {
-+        if (p_60515_.hasBlockEntity() && (!p_60515_.is(p_60518_.getBlock()) || !p_60518_.hasBlockEntity())) {
-             p_60516_.removeBlockEntity(p_60517_);
-         }
-     }
-@@ -180,7 +_,7 @@
+@@ -178,7 +_,7 @@
          if (!p_310712_.isAir() && p_312709_.getBlockInteraction() != Explosion.BlockInteraction.TRIGGER_BLOCK) {
              Block block = p_310712_.getBlock();
              boolean flag = p_312709_.getIndirectSourceEntity() instanceof Player;
@@ -18,7 +9,7 @@
                  BlockEntity blockentity = p_310712_.hasBlockEntity() ? p_367589_.getBlockEntity(p_311490_) : null;
                  LootParams.Builder lootparams$builder = new LootParams.Builder(p_367589_)
                      .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(p_311490_))
-@@ -195,8 +_,7 @@
+@@ -193,8 +_,7 @@
                  p_310712_.getDrops(lootparams$builder).forEach(p_309419_ -> p_311277_.accept(p_309419_, p_311490_));
              }
  
@@ -28,12 +19,12 @@
          }
      }
  
-@@ -342,12 +_,15 @@
+@@ -344,12 +_,15 @@
          if (f == -1.0F) {
              return 0.0F;
          } else {
 -            int i = p_60467_.hasCorrectToolForDrops(p_60466_) ? 30 : 100;
--            return p_60467_.getDestroySpeed(p_60466_) / f / (float)i;
+-            return p_60467_.getDestroySpeed(p_60466_) / f / i;
 +            int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(p_60466_, p_60467_) ? 30 : 100;
 +            return p_60467_.getDestroySpeed(p_60466_, p_60469_) / f / (float)i;
          }
@@ -46,15 +37,16 @@
      }
  
      protected void attack(BlockState p_60499_, Level p_60500_, BlockPos p_60501_, Player p_60502_) {
-@@ -387,6 +_,7 @@
+@@ -385,6 +_,8 @@
          return this.isRandomlyTicking;
      }
  
-+    /** @deprecated Use more sensitive version {@link IForgeBlockState#getSoundType(IWorldReader, BlockPos, Entity) } */
++    /** @deprecated Forge: Use more sensitive version {@link net.minecraftforge.common.extensions.IForgeBlockState#getSoundType(LevelReader, BlockPos, Entity) } */
++    @Deprecated
      protected SoundType getSoundType(BlockState p_328629_) {
          return this.soundType;
      }
-@@ -407,6 +_,10 @@
+@@ -405,6 +_,10 @@
          return this.properties.destroyTime;
      }
  
@@ -65,7 +57,7 @@
      public abstract static class BlockStateBase extends StateHolder<Block, BlockState> {
          private static final Direction[] DIRECTIONS = Direction.values();
          private static final VoxelShape[] EMPTY_OCCLUSION_SHAPES = Util.make(new VoxelShape[DIRECTIONS.length], p_368402_ -> Arrays.fill(p_368402_, Shapes.empty()));
-@@ -559,12 +_,14 @@
+@@ -557,12 +_,14 @@
              return this.useShapeForLightOcclusion;
          }
  
@@ -81,7 +73,7 @@
          }
  
          public boolean ignitedByLava() {
-@@ -577,9 +_,11 @@
+@@ -575,9 +_,11 @@
          }
  
          public MapColor getMapColor(BlockGetter p_285002_, BlockPos p_285293_) {
@@ -94,7 +86,7 @@
          public BlockState rotate(Rotation p_60718_) {
              return this.getBlock().rotate(this.asState(), p_60718_);
          }
-@@ -633,6 +_,8 @@
+@@ -631,6 +_,8 @@
          }
  
          public PushReaction getPistonPushReaction() {
@@ -103,12 +95,12 @@
              return this.pushReaction;
          }
  
-@@ -998,7 +_,7 @@
+@@ -996,7 +_,7 @@
          BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn = (p_360542_, p_360543_, p_360544_, p_360545_) -> p_360542_.isFaceSturdy(
-                     p_360543_, p_360544_, Direction.UP
-                 )
--                && p_360542_.getLightEmission() < 14;
-+                && p_360542_.getLightEmission(p_360543_, p_360544_) < 14;
+                 p_360543_, p_360544_, Direction.UP
+             )
+-            && p_360542_.getLightEmission() < 14;
++            && p_360542_.getLightEmission(p_360543_, p_360544_) < 14;
          BlockBehaviour.StatePredicate isRedstoneConductor = (p_360546_, p_360547_, p_360548_) -> p_360546_.isCollisionShapeFullBlock(p_360547_, p_360548_);
          BlockBehaviour.StatePredicate isSuffocating = (p_360539_, p_360540_, p_360541_) -> p_360539_.blocksMotion() && p_360539_.isCollisionShapeFullBlock(p_360540_, p_360541_);
          BlockBehaviour.StatePredicate isViewBlocking = this.isSuffocating;

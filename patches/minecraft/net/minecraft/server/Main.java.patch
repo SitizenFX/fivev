@@ -81,48 +81,47 @@
              WorldStem worldstem;
              try {
                  WorldLoader.InitConfig worldloader$initconfig = loadOrCreateConfig(dedicatedserversettings.getProperties(), dynamic1, flag, packrepository);
-@@ -218,6 +_,16 @@
-                                             worlddimensions = dedicatedserverproperties.createDimensions(p_358511_.datapackWorldgen());
-                                         }
+@@ -216,6 +_,16 @@
+                                         worlddimensions = dedicatedserverproperties.createDimensions(p_358511_.datapackWorldgen());
+                                     }
  
-+                                        //Forge: Do a write-read-cycle to inject modded dimensions on first start of a dedicated server into its generated world dimensions list.
-+                                        var dynamicops = net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE, p_358511_.datapackWorldgen());
-+                                        worlddimensions = WorldDimensions.CODEC.encoder()
-+                                            .encodeStart(dynamicops, worlddimensions)
-+                                            .flatMap((writtenPayloadWithModdedDimensions) ->
-+                                                WorldDimensions.CODEC.decoder().parse(dynamicops, writtenPayloadWithModdedDimensions)
-+                                            )
-+                                            .resultOrPartial(LOGGER::error)
-+                                            .orElse(worlddimensions);
++                                    //Forge: Do a write-read-cycle to inject modded dimensions on first start of a dedicated server into its generated world dimensions list.
++                                    var dynamicops = net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE, p_358511_.datapackWorldgen());
++                                    worlddimensions = WorldDimensions.CODEC.encoder()
++                                        .encodeStart(dynamicops, worlddimensions)
++                                        .flatMap((writtenPayloadWithModdedDimensions) ->
++                                            WorldDimensions.CODEC.decoder().parse(dynamicops, writtenPayloadWithModdedDimensions)
++                                        )
++                                        .resultOrPartial(LOGGER::error)
++                                        .orElse(worlddimensions);
 +
-                                         WorldDimensions.Complete worlddimensions$complete = worlddimensions.bake(registry);
-                                         Lifecycle lifecycle = worlddimensions$complete.lifecycle().add(p_358511_.datapackWorldgen().allRegistriesLifecycle());
-                                         return new WorldLoader.DataLoadOutput<>(
-@@ -248,9 +_,16 @@
+                                     WorldDimensions.Complete worlddimensions$complete = worlddimensions.bake(registry);
+                                     Lifecycle lifecycle = worlddimensions$complete.lifecycle().add(p_358511_.datapackWorldgen().allRegistriesLifecycle());
+                                     return new WorldLoader.DataLoadOutput<>(
+@@ -254,9 +_,20 @@
+             }
  
-             WorldData worlddata = worldstem.worldData();
              levelstoragesource$levelstorageaccess.saveDataTag(registryaccess$frozen, worlddata);
 -            final DedicatedServer dedicatedserver = MinecraftServer.spin(
 +            final MinecraftServer dedicatedserver = MinecraftServer.spin(
                  p_296433_ -> {
 -                    DedicatedServer dedicatedserver1 = new DedicatedServer(
 +                    MinecraftServer dedicatedserver1;
++                    // TODO: [Forge][GameTest] URGENT !!! FIX GAME TESTS !!!
++                    /*
 +                    if (gametestEnabled) {
 +                       net.minecraftforge.gametest.ForgeGameTestHooks.registerGametests();
 +                       var tests = net.minecraft.gametest.framework.GameTestRegistry.getAllTestFunctions();
 +                       var spawnPos = optionset.valueOf(spawnPosOpt);
 +                       dedicatedserver1 = net.minecraft.gametest.framework.GameTestServer.create(p_296433_, levelstoragesource$levelstorageaccess, packrepository, tests, spawnPos);
++
 +                    } else {
++                     */
 +                    dedicatedserver1 = new DedicatedServer(
                          p_296433_,
                          levelstoragesource$levelstorageaccess,
                          packrepository,
-@@ -260,12 +_,13 @@
-                         services,
-                         LoggerChunkProgressListener::createFromGameruleRadius
-                     );
-+                    }
-                     dedicatedserver1.setPort(optionset.valueOf(optionspec11));
+@@ -270,8 +_,8 @@
                      dedicatedserver1.setDemo(optionset.has(optionspec2));
                      dedicatedserver1.setId(optionset.valueOf(optionspec12));
                      boolean flag2 = !optionset.has(optionspec) && !optionset.valuesOf(optionspec15).contains("nogui");
@@ -133,7 +132,7 @@
                      }
  
                      return dedicatedserver1;
-@@ -274,7 +_,10 @@
+@@ -280,7 +_,10 @@
              Thread thread = new Thread("Server Shutdown Thread") {
                  @Override
                  public void run() {

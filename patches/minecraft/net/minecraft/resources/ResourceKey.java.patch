@@ -12,7 +12,7 @@
 @@ -67,5 +_,18 @@
      }
  
-     static record InternKey(ResourceLocation registry, ResourceLocation location) {
+     record InternKey(ResourceLocation registry, ResourceLocation location) {
 +    }
 +
 +    @Override

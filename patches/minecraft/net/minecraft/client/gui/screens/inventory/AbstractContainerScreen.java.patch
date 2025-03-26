@@ -6,7 +6,7 @@
          super.render(p_283479_, p_283661_, p_281248_, p_281886_);
 +        net.minecraftforge.client.event.ForgeEventFactoryClient.onContainerRenderBackground(this, p_283479_, p_283661_, p_281248_);
          p_283479_.pose().pushPose();
-         p_283479_.pose().translate((float)i, (float)j, 0.0F);
+         p_283479_.pose().translate(i, j, 0.0F);
          Slot slot = this.hoveredSlot;
 @@ -117,6 +_,8 @@
              this.onStopHovering(slot);
@@ -40,7 +40,7 @@
          if (super.mouseClicked(p_97748_, p_97749_, p_97750_)) {
              return true;
          } else {
--            boolean flag = this.minecraft.options.keyPickItem.matchesMouse(p_97750_) && this.minecraft.gameMode.hasInfiniteItems();
+-            boolean flag = this.minecraft.options.keyPickItem.matchesMouse(p_97750_) && this.minecraft.player.hasInfiniteMaterials();
 +            InputConstants.Key mouseKey = InputConstants.Type.MOUSE.getOrCreate(p_97750_);
 +            boolean flag = this.minecraft.options.keyPickItem.isActiveAndMatches(mouseKey);
              Slot slot = this.getHoveredSlot(p_97748_, p_97749_);
@@ -72,7 +72,7 @@
                                  this.quickCraftingType = 2;
                              }
                          }
-@@ -464,10 +_,13 @@
+@@ -461,10 +_,13 @@
  
      @Override
      public boolean mouseReleased(double p_97812_, double p_97813_, int p_97814_) {
@@ -86,7 +86,7 @@
          int k = -1;
          if (slot != null) {
              k = slot.index;
-@@ -484,7 +_,7 @@
+@@ -481,7 +_,7 @@
                          if (slot2 != null
                              && slot2.mayPickup(this.minecraft.player)
                              && slot2.hasItem()
@@ -95,7 +95,7 @@
                              && AbstractContainerMenu.canItemQuickReplace(slot2, this.lastQuickMoved, true)) {
                              this.slotClicked(slot2, slot2.index, p_97814_, ClickType.QUICK_MOVE);
                          }
-@@ -548,7 +_,7 @@
+@@ -545,7 +_,7 @@
  
                  this.slotClicked(null, -999, AbstractContainerMenu.getQuickcraftMask(2, this.quickCraftingType), ClickType.QUICK_CRAFT);
              } else if (!this.menu.getCarried().isEmpty()) {
@@ -104,7 +104,7 @@
                      this.slotClicked(slot, k, p_97814_, ClickType.CLONE);
                  } else {
                      boolean flag1 = k != -999
-@@ -628,9 +_,10 @@
+@@ -622,9 +_,10 @@
  
      @Override
      public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
@@ -116,7 +116,7 @@
              this.onClose();
              return true;
          } else {
-@@ -704,4 +_,11 @@
+@@ -698,4 +_,11 @@
  
          super.onClose();
      }

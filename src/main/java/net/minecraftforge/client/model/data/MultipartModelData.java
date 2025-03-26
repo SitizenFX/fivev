@@ -5,7 +5,7 @@
 
 package net.minecraftforge.client.model.data;
 
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.IdentityHashMap;
@@ -15,15 +15,15 @@ public class MultipartModelData
 {
     public static final ModelProperty<MultipartModelData> PROPERTY = new ModelProperty<>();
 
-    private final Map<BakedModel, ModelData> partData;
+    private final Map<BlockModelPart, ModelData> partData;
 
-    private MultipartModelData(Map<BakedModel, ModelData> partData)
+    private MultipartModelData(Map<BlockModelPart, ModelData> partData)
     {
         this.partData = partData;
     }
 
     @Nullable
-    public ModelData get(BakedModel model)
+    public ModelData get(BlockModelPart model)
     {
         return partData.get(model);
     }
@@ -35,7 +35,7 @@ public class MultipartModelData
      * @param model     The model to get data for
      * @return The data for the part, or the one passed in if not found
      */
-    public static ModelData resolve(ModelData modelData, BakedModel model)
+    public static ModelData resolve(ModelData modelData, BlockModelPart model)
     {
         var multipartData = modelData.get(PROPERTY);
         if (multipartData == null)
@@ -51,9 +51,9 @@ public class MultipartModelData
 
     public static final class Builder
     {
-        private final Map<BakedModel, ModelData> partData = new IdentityHashMap<>();
+        private final Map<BlockModelPart, ModelData> partData = new IdentityHashMap<>();
 
-        public Builder with(BakedModel model, ModelData data)
+        public Builder with(BlockModelPart model, ModelData data)
         {
             partData.put(model, data);
             return this;

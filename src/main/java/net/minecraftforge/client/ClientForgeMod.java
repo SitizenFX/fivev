@@ -6,16 +6,13 @@
 package net.minecraftforge.client;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterNamedRenderTypesEvent;
-import net.minecraftforge.client.model.CompositeModel;
 import net.minecraftforge.client.model.DynamicFluidContainerModel;
-import net.minecraftforge.client.model.ElementsModel;
-import net.minecraftforge.client.model.EmptyModel;
-import net.minecraftforge.client.model.ItemLayerModel;
-import net.minecraftforge.client.model.SeparateTransformsModel;
+import net.minecraftforge.client.model.ItemLayerGeometry;
 import net.minecraftforge.client.model.obj.ObjLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,13 +21,10 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientForgeMod {
     @SubscribeEvent
     public static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register("empty", EmptyModel.LOADER);
-        event.register("elements", ElementsModel.Loader.INSTANCE);
+        event.register("empty", (json, ctx) -> UnbakedGeometry.EMPTY);
         event.register("obj", ObjLoader.INSTANCE);
         event.register("fluid_container", DynamicFluidContainerModel.Loader.INSTANCE);
-        event.register("composite", CompositeModel.Loader.INSTANCE);
-        event.register("item_layers", ItemLayerModel.Loader.INSTANCE);
-        event.register("separate_transforms", SeparateTransformsModel.Loader.INSTANCE);
+        event.register("item_layers", ItemLayerGeometry.Loader.INSTANCE);
     }
 
     @SubscribeEvent

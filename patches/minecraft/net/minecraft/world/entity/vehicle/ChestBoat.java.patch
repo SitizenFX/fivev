@@ -2,7 +2,7 @@
 +++ b/net/minecraft/world/entity/vehicle/ChestBoat.java
 @@ -15,4 +_,26 @@
      protected double rideHeight(EntityDimensions p_362135_) {
-         return (double)(p_362135_.height() / 3.0F);
+         return p_362135_.height() / 3.0F;
      }
 +
 +    private net.minecraftforge.common.util.LazyOptional<?> itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this));

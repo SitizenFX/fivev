@@ -896,27 +896,22 @@ public class ForgeRegistry<V> implements IForgeRegistryInternal<V>, IForgeRegist
             if (nbt == null)
                 return ret;
 
-            ListTag list = nbt.getList("ids", 10);
-            for (Tag tag : list) {
-                CompoundTag comp = (CompoundTag) tag;
-                ret.ids.put(ResourceLocation.parse(comp.getString("K")), comp.getInt("V"));
-            }
+            nbt.getListOrEmpty("ids").compoundStream().forEach(comp ->
+                ret.ids.put(ResourceLocation.parse(comp.getString("K").orElseThrow()), comp.getIntOr("V", 0))
+            );
 
-            list = nbt.getList("aliases", 10);
-            for (Tag tag : list) {
-                CompoundTag comp = (CompoundTag) tag;
-                ret.aliases.put(ResourceLocation.parse(comp.getString("K")), ResourceLocation.parse(comp.getString("V")));
-            }
+            nbt.getListOrEmpty("aliases").compoundStream().forEach(comp ->
+                ret.aliases.put(ResourceLocation.parse(comp.getString("K").orElseThrow()), ResourceLocation.parse(comp.getString("V").orElseThrow()))
+            );
 
-            list = nbt.getList("overrides", 10);
-            for (Tag tag : list) {
-                CompoundTag comp = (CompoundTag) tag;
-                ret.overrides.put(ResourceLocation.parse(comp.getString("K")), comp.getString("V"));
-            }
+            nbt.getListOrEmpty("overrides").compoundStream().forEach(comp ->
+                ret.overrides.put(ResourceLocation.parse(comp.getString("K").orElseThrow()), comp.getString("V").orElseThrow())
+            );
 
-            int[] blocked = nbt.getIntArray("blocked");
-            for (int i : blocked)
-                ret.blocked.add(i);
+            nbt.getIntArray("blocked").ifPresent(blocked -> {
+                for (int i : blocked)
+                    ret.blocked.add(i);
+            });
 
             return ret;
         }

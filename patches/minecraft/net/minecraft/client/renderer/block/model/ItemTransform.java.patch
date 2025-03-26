@@ -1,24 +1,19 @@
 --- a/net/minecraft/client/renderer/block/model/ItemTransform.java
 +++ b/net/minecraft/client/renderer/block/model/ItemTransform.java
-@@ -21,11 +_,17 @@
-     public final Vector3f rotation;
-     public final Vector3f translation;
-     public final Vector3f scale;
-+    public final Vector3f rightRotation;
+@@ -17,7 +_,11 @@
+ import org.joml.Vector3fc;
  
-     public ItemTransform(Vector3f p_254427_, Vector3f p_254496_, Vector3f p_254022_) {
-+        this(p_254427_, p_254496_, p_254022_, new Vector3f());
+ @OnlyIn(Dist.CLIENT)
+-public record ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc scale) {
++public record ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc scale, Vector3fc rightRotation) {
++    public ItemTransform(Vector3fc rotation, Vector3fc translation, Vector3fc scale) {
++        this(rotation, translation, scale, new Vector3f());
 +    }
 +
-+    public ItemTransform(Vector3f p_254427_, Vector3f p_254496_, Vector3f p_254022_, Vector3f rightRotation) {
-         this.rotation = new Vector3f(p_254427_);
-         this.translation = new Vector3f(p_254496_);
-         this.scale = new Vector3f(p_254022_);
-+        this.rightRotation = new Vector3f(rightRotation);
-     }
+     public static final ItemTransform NO_TRANSFORM = new ItemTransform(new Vector3f(), new Vector3f(), new Vector3f(1.0F, 1.0F, 1.0F));
  
-     public void apply(boolean p_111764_, PoseStack p_111765_) {
-@@ -82,7 +_,7 @@
+     public void apply(boolean p_111764_, PoseStack.Pose p_397991_) {
+@@ -62,7 +_,7 @@
              vector3f1.set(Mth.clamp(vector3f1.x, -5.0F, 5.0F), Mth.clamp(vector3f1.y, -5.0F, 5.0F), Mth.clamp(vector3f1.z, -5.0F, 5.0F));
              Vector3f vector3f2 = this.getVector3f(jsonobject, "scale", DEFAULT_SCALE);
              vector3f2.set(Mth.clamp(vector3f2.x, -4.0F, 4.0F), Mth.clamp(vector3f2.y, -4.0F, 4.0F), Mth.clamp(vector3f2.z, -4.0F, 4.0F));

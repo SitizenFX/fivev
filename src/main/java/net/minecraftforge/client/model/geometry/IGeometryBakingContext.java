@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
  * {@linkplain RenderTypeGroup render types}.
  *
  * @see StandaloneGeometryBakingContext
- * @see BlockGeometryBakingContext
  */
 public interface IGeometryBakingContext {
     /**

@@ -92,7 +92,7 @@ public class PartialNBTIngredient extends AbstractIngredient {
     public static final MapCodec<PartialNBTIngredient> CODEC = RecordCodecBuilder.mapCodec(builder ->
         builder.group(
             Ingredient.NON_AIR_HOLDER_SET_CODEC.fieldOf("items").forGetter(i -> i.values),
-            TagParser.AS_CODEC.fieldOf("nbt").forGetter(i -> i.nbt)
+            TagParser.FLATTENED_CODEC.fieldOf("nbt").forGetter(i -> i.nbt)
         ).apply(builder, PartialNBTIngredient::new)
     );
 

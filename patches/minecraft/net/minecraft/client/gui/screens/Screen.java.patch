@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/screens/Screen.java
 +++ b/net/minecraft/client/gui/screens/Screen.java
-@@ -200,7 +_,7 @@
+@@ -197,7 +_,7 @@
      }
  
      public void onClose() {
@@ -39,7 +39,7 @@
      }
  
      protected void renderBlurredBackground() {
-@@ -454,6 +_,19 @@
+@@ -453,6 +_,19 @@
      }
  
      public void onFilesDrop(List<Path> p_96591_) {

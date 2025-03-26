@@ -1,7 +1,7 @@
 --- a/net/minecraft/world/item/AxeItem.java
 +++ b/net/minecraft/world/item/AxeItem.java
 @@ -62,7 +_,8 @@
-         if (playerHasShieldUseIntent(p_40529_)) {
+         if (playerHasBlockingItemUseIntent(p_40529_)) {
              return InteractionResult.PASS;
          } else {
 -            Optional<BlockState> optional = this.evaluateNewBlockState(level, blockpos, player, level.getBlockState(blockpos));

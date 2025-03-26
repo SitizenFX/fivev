@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/DiodeBlock.java
 +++ b/net/minecraft/world/level/block/DiodeBlock.java
-@@ -176,6 +_,9 @@
+@@ -175,6 +_,9 @@
          Direction direction = p_52583_.getValue(FACING);
          BlockPos blockpos = p_52582_.relative(direction.getOpposite());
          Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(p_52581_, direction.getOpposite(), Direction.UP);

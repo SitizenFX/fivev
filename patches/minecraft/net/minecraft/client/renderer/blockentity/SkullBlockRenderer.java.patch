@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/blockentity/SkullBlockRenderer.java
 +++ b/net/minecraft/client/renderer/blockentity/SkullBlockRenderer.java
-@@ -33,6 +_,7 @@
+@@ -34,6 +_,7 @@
  
  @OnlyIn(Dist.CLIENT)
  public class SkullBlockRenderer implements BlockEntityRenderer<SkullBlockEntity> {
@@ -8,7 +8,7 @@
      private final Function<SkullBlock.Type, SkullModelBase> modelByType;
      public static final Map<SkullBlock.Type, ResourceLocation> SKIN_BY_TYPE = Util.make(Maps.newHashMap(), p_340906_ -> {
          p_340906_.put(SkullBlock.Types.SKELETON, ResourceLocation.withDefaultNamespace("textures/entity/skeleton/skeleton.png"));
-@@ -57,7 +_,9 @@
+@@ -58,7 +_,9 @@
                  case PIGLIN -> new PiglinHeadModel(p_376421_.bakeLayer(ModelLayers.PIGLIN_HEAD));
              });
          } else {

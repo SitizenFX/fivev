@@ -19,10 +19,10 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.math.Quadrant;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.JsonOps;
 
-import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockElementRotation;
@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /**
  * General purpose model builder, contains all the commonalities between item
@@ -313,18 +314,18 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
                 JsonObject transform = new JsonObject();
                 ItemTransform vec = e.getValue();
                 if (vec.equals(ItemTransform.NO_TRANSFORM)) continue;
-                var hasRightRotation = !vec.rightRotation.equals(ItemTransform.Deserializer.DEFAULT_ROTATION);
-                if (!vec.translation.equals(ItemTransform.Deserializer.DEFAULT_TRANSLATION)) {
-                    transform.add("translation", serializeVector3f(e.getValue().translation));
+                var hasRightRotation = !vec.rightRotation().equals(ItemTransform.Deserializer.DEFAULT_ROTATION);
+                if (!vec.translation().equals(ItemTransform.Deserializer.DEFAULT_TRANSLATION)) {
+                    transform.add("translation", serializeVector3f(e.getValue().translation()));
                 }
-                if (!vec.rotation.equals(ItemTransform.Deserializer.DEFAULT_ROTATION)) {
-                    transform.add(hasRightRotation ? "left_rotation" : "rotation", serializeVector3f(vec.rotation));
+                if (!vec.rotation().equals(ItemTransform.Deserializer.DEFAULT_ROTATION)) {
+                    transform.add(hasRightRotation ? "left_rotation" : "rotation", serializeVector3f(vec.rotation()));
                 }
-                if (!vec.scale.equals(ItemTransform.Deserializer.DEFAULT_SCALE)) {
-                    transform.add("scale", serializeVector3f(e.getValue().scale));
+                if (!vec.scale().equals(ItemTransform.Deserializer.DEFAULT_SCALE)) {
+                    transform.add("scale", serializeVector3f(e.getValue().scale()));
                 }
                 if (hasRightRotation) {
-                    transform.add("right_rotation", serializeVector3f(vec.rightRotation));
+                    transform.add("right_rotation", serializeVector3f(vec.rightRotation()));
                 }
                 display.add(e.getKey().getSerializedName(), transform);
             }
@@ -343,44 +344,44 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
             JsonArray elements = new JsonArray();
             this.elements.stream().map(ElementBuilder::build).forEach(part -> {
                 JsonObject partObj = new JsonObject();
-                partObj.add("from", serializeVector3f(part.from));
-                partObj.add("to", serializeVector3f(part.to));
+                partObj.add("from", serializeVector3f(part.from()));
+                partObj.add("to", serializeVector3f(part.to()));
 
-                if (part.rotation != null) {
+                if (part.rotation() != null) {
                     JsonObject rotation = new JsonObject();
-                    rotation.add("origin", serializeVector3f(part.rotation.origin()));
-                    rotation.addProperty("axis", part.rotation.axis().getSerializedName());
-                    rotation.addProperty("angle", part.rotation.angle());
-                    if (part.rotation.rescale()) {
-                        rotation.addProperty("rescale", part.rotation.rescale());
+                    rotation.add("origin", serializeVector3f(part.rotation().origin()));
+                    rotation.addProperty("axis", part.rotation().axis().getSerializedName());
+                    rotation.addProperty("angle", part.rotation().angle());
+                    if (part.rotation().rescale()) {
+                        rotation.addProperty("rescale", part.rotation().rescale());
                     }
                     partObj.add("rotation", rotation);
                 }
 
-                if (!part.shade) {
-                    partObj.addProperty("shade", part.shade);
+                if (!part.shade()) {
+                    partObj.addProperty("shade", part.shade());
                 }
 
                 JsonObject faces = new JsonObject();
                 for (Direction dir : Direction.values()) {
-                    BlockElementFace face = part.faces.get(dir);
+                    BlockElementFace face = part.faces().get(dir);
                     if (face == null) continue;
 
                     JsonObject faceObj = new JsonObject();
                     faceObj.addProperty("texture", serializeLocOrKey(face.texture()));
-                    if (!Arrays.equals(face.uv().uvs, part.uvsByFace(dir)))
-                        faceObj.add("uv", new Gson().toJsonTree(face.uv().uvs));
+                    if (!face.uvs().equals(part.faces().get(dir).uvs()))
+                        faceObj.add("uv", new Gson().toJsonTree(new float[]{face.uvs().minU(), face.uvs().minV(), face.uvs().maxU(), face.uvs().maxV()}));
                     if (face.cullForDirection() != null)
                         faceObj.addProperty("cullface", face.cullForDirection().getSerializedName());
-                    if (face.uv().rotation != 0)
-                        faceObj.addProperty("rotation", face.uv().rotation);
+                    if (face.rotation() != Quadrant.R0)
+                        faceObj.addProperty("rotation", face.rotation().ordinal());
                     if (face.tintIndex() != -1)
                         faceObj.addProperty("tintindex", face.tintIndex());
-                    if (face.data() != null && !ForgeFaceData.DEFAULT.equals(face.data()))
+                    if (!ForgeFaceData.DEFAULT.equals(face.data()))
                         faceObj.add("forge_data", ForgeFaceData.CODEC.encodeStart(JsonOps.INSTANCE, face.data()).result().get());
                     faces.add(dir.getSerializedName(), faceObj);
                 }
-                if (!part.faces.isEmpty())
+                if (!part.faces().isEmpty())
                     partObj.add("faces", faces);
                 elements.add(partObj);
             });
@@ -407,7 +408,7 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
         return ResourceLocation.parse(tex).toString();
     }
 
-    private JsonArray serializeVector3f(Vector3f vec) {
+    private JsonArray serializeVector3f(Vector3fc vec) {
         JsonArray ret = new JsonArray();
         ret.add(serializeFloat(vec.x()));
         ret.add(serializeFloat(vec.y()));
@@ -734,7 +735,8 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
             BlockElementFace build() {
                 if (this.texture == null)
                     throw new IllegalStateException("A model face must have a texture");
-                return new BlockElementFace(cullface, tintindex, texture, new BlockFaceUV(uvs, rotation.rotation), this.data);
+                // TODO: [Forge][Rendering[[VEN] This is probably wrong, but it was BLAZING FAST!!! to write!
+                return new BlockElementFace(cullface, tintindex, texture, new BlockElementFace.UVs(uvs[0], uvs[1], uvs[2], uvs[3]), Quadrant.values()[rotation.rotation], this.data);
             }
 
             public ElementBuilder end() { return ElementBuilder.this; }

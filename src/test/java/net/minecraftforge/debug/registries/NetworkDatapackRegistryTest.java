@@ -17,8 +17,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
@@ -26,6 +26,7 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DataPackRegistryEvent;
 import net.minecraftforge.test.BaseTestMod;
@@ -63,7 +64,7 @@ public class NetworkDatapackRegistryTest extends BaseTestMod {
         );
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void client_has_registry(GameTestHelper helper) {
         if (FMLLoader.getDist().isDedicatedServer())
             LOGGER.info("client_has_registry test skipped as we're on dedicated server");
@@ -81,7 +82,7 @@ public class NetworkDatapackRegistryTest extends BaseTestMod {
         var entry = reg.get().getValue(TEST_ENTRY);
         if (entry == null)
             helper.fail("Failed to find " + TEST_ENTRY);
-        helper.assertValueEqual(entry.value, TEST_VALUE, "Loaded entry does not contain expected value");
+        helper.assertValueEqual(entry.value, TEST_VALUE, Component.literal("Loaded entry does not contain expected value"));
     }
 
     public static record DataObject(ResourceLocation value) {

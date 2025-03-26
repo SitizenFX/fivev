@@ -91,7 +91,7 @@ public interface IForgeTransformation {
         Transformation transform = self();
         if (transform.isIdentity()) return Transformation.identity();
 
-        Matrix4f ret = transform.getMatrix();
+        Matrix4f ret = transform.getMatrixCopy();
         Matrix4f tmp = new Matrix4f().translation(origin.x(), origin.y(), origin.z());
         tmp.mul(ret, ret);
         tmp.translation(-origin.x(), -origin.y(), -origin.z());

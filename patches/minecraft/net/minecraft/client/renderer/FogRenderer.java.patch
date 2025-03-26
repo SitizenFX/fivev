@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/FogRenderer.java
 +++ b/net/minecraft/client/renderer/FogRenderer.java
-@@ -192,6 +_,12 @@
+@@ -187,6 +_,12 @@
              f2 = f2 * (1.0F - f10) + f2 * f12 * f10;
          }
  
@@ -13,7 +13,7 @@
          return new Vector4f(f, f1, f2, 1.0F);
      }
  
-@@ -270,9 +_,10 @@
+@@ -265,9 +_,10 @@
                  fogrenderer$fogdata.shape = FogShape.CYLINDER;
              }
  

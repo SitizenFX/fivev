@@ -198,9 +198,8 @@ class TagsCommand {
         if (count > 0) { // Highlight the count text, make it clickable, and append page counters
             containsComponent = ComponentUtils.wrapInSquareBrackets(containsComponent.withStyle(s -> s
                     .withColor(ChatFormatting.GREEN)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, allElementNames))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Component.translatable(copyHoverText)))));
+                    .withClickEvent(new ClickEvent.CopyToClipboard(allElementNames))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.translatable(copyHoverText)))));
             containsComponent = Component.translatable("commands.forge.tags.page_info",
                     containsComponent, actualPage, totalPages);
         }

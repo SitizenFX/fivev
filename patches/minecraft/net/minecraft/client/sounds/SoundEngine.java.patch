@@ -35,19 +35,19 @@
                                              this.soundBuffers
                                                  .getCompleteBuffer(sound.getPath())
                                                  .thenAccept(p_377326_ -> channelaccess$channelhandle.execute(p_194495_ -> {
-                                                         p_194495_.attachStaticBuffer(p_377326_);
-                                                         p_194495_.play();
+                                                     p_194495_.attachStaticBuffer(p_377326_);
+                                                     p_194495_.play();
 +                                                    net.minecraftforge.client.event.ForgeEventFactoryClient.onPlaySoundSource(this, soundinstance, p_194495_);
-                                                     }));
+                                                 }));
                                          } else {
 -                                            this.soundBuffers
 -                                                .getStream(sound.getPath(), flag1)
 +                                            soundinstance
 +                                                .getStream(this.soundBuffers, sound, flag1)
                                                  .thenAccept(p_376862_ -> channelaccess$channelhandle.execute(p_194498_ -> {
-                                                         p_194498_.attachBufferStream(p_376862_);
-                                                         p_194498_.play();
+                                                     p_194498_.attachBufferStream(p_376862_);
+                                                     p_194498_.play();
 +                                                        net.minecraftforge.client.event.ForgeEventFactoryClient.onPlayStreamingSource(this, soundinstance, p_194498_);
-                                                     }));
+                                                 }));
                                          }
  

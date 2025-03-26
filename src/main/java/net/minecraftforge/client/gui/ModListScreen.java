@@ -159,9 +159,9 @@ public class ModListScreen extends Screen {
         }
 
         @Override
-        protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
+        protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, int mouseX, int mouseY) {
             if (logoPath != null) {
-                RenderSystem.enableBlend();
+                //RenderSystem.enableBlend();
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 // Draw the logo image inscribed in a rectangle with width entryWidth (minus some padding) and height 50
                 int headerHeight = 50;
@@ -171,9 +171,9 @@ public class ModListScreen extends Screen {
 
             for (FormattedCharSequence line : lines) {
                 if (line != null) {
-                    RenderSystem.enableBlend();
+                    //RenderSystem.enableBlend();
                     guiGraphics.drawString(ModListScreen.this.font, line, left + PADDING, relativeY, 0xFFFFFF);
-                    RenderSystem.disableBlend();
+                    //RenderSystem.disableBlend();
                 }
                 relativeY += font.lineHeight;
             }
@@ -409,7 +409,7 @@ public class ModListScreen extends Screen {
 
                 if (logo != null) {
 
-                    var texture = new DynamicTexture(logo) {
+                    var texture = new DynamicTexture(() -> logoFile, logo); /* {
                         @Override
                         public void upload() {
                             var pixels = this.getPixels();
@@ -420,6 +420,7 @@ public class ModListScreen extends Screen {
                             }
                         }
                     };
+                    */
 
                     tm.register(LOGO, texture);
                     var size = new Size2i(logo.getWidth(), logo.getHeight());

@@ -15,9 +15,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.server.RegistryLayer;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.chunk.storage.SerializableChunkData;
@@ -62,7 +61,6 @@ import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.Container;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -293,7 +291,7 @@ public final class ForgeEventFactory {
 
     /**
      * Specialized variant of {@link #checkSpawnPosition} for spawners, as they have slightly different checks.
-     * @see #CheckSpawnPosition
+     * @see #checkSpawnPosition(Mob, ServerLevelAccessor, EntitySpawnReason)
      * @implNote See in-line comments about custom spawn rules.
      */
     public static boolean checkSpawnPositionSpawner(Mob mob, ServerLevelAccessor level, EntitySpawnReason spawnType, SpawnData spawnData, BaseSpawner spawner) {
@@ -331,7 +329,7 @@ public final class ForgeEventFactory {
      * The only code that changes is the {@link Mob#finalizeSpawn} call.
      * @return The SpawnGroupData from this event, or null if it was canceled. The return value of this method has no bearing on if the entity will be spawned.
      * @see MobSpawnEvent.FinalizeSpawn
-     * @see Mob#finalizeSpawn(ServerLevelAccessor, DifficultyInstance, MobSpawnType, SpawnGroupData, CompoundTag)
+     * @see Mob#finalizeSpawn(ServerLevelAccessor, DifficultyInstance, EntitySpawnReason, SpawnGroupData)
      * @apiNote Callers do not need to check if the entity's spawn was cancelled, as the spawn will be blocked by Forge.
      * @implNote Changes to the signature of this method must be reflected in the method redirector coremod.
      */
@@ -507,7 +505,7 @@ public final class ForgeEventFactory {
         boolean isCanceled = post(new EntityMountEvent(entityMounting, entityBeingMounted, entityMounting.level(), isMounting));
 
         if(isCanceled) {
-            entityMounting.absMoveTo(entityMounting.getX(), entityMounting.getY(), entityMounting.getZ(), entityMounting.yRotO, entityMounting.xRotO);
+            entityMounting.absSnapTo(entityMounting.getX(), entityMounting.getY(), entityMounting.getZ(), entityMounting.yRotO, entityMounting.xRotO);
             return false;
         } else
             return true;
@@ -533,8 +531,8 @@ public final class ForgeEventFactory {
         post(new PlayerFlyableFallEvent(player, distance, multiplier));
     }
 
-    public static boolean onPlayerSpawnSet(Player player, ResourceKey<Level> levelKey, BlockPos pos, boolean forced) {
-        return post(new PlayerSetSpawnEvent(player, levelKey, pos, forced));
+    public static boolean onPlayerSpawnSet(ServerPlayer player, ServerPlayer.RespawnConfig config) {
+        return post(new PlayerSetSpawnEvent(player, config));
     }
 
     public static PlayerSpawnPhantomsEvent onPlayerSpawnPhantom(Player player, int phantomsToSpawn) {
@@ -623,7 +621,7 @@ public final class ForgeEventFactory {
 
         var canContinueSleep = evt.getResult();
         if (canContinueSleep == Result.DEFAULT)
-            return !player.level().isDay();
+            return !player.level().isBrightOutside();
         else
             return canContinueSleep == Result.ALLOW;
     }
@@ -829,12 +827,12 @@ public final class ForgeEventFactory {
         post(new TickEvent.ServerTickEvent.Post(haveTime, server));
     }
 
-    public static WeightedRandomList<MobSpawnSettings.SpawnerData> getPotentialSpawns(LevelAccessor level, MobCategory category, BlockPos pos, WeightedRandomList<MobSpawnSettings.SpawnerData> oldList) {
+    public static WeightedList<MobSpawnSettings.SpawnerData> getPotentialSpawns(LevelAccessor level, MobCategory category, BlockPos pos, WeightedList<MobSpawnSettings.SpawnerData> oldList) {
         LevelEvent.PotentialSpawns event = new LevelEvent.PotentialSpawns(level, category, pos, oldList);
         if (post(event))
-            return WeightedRandomList.create();
+            return WeightedList.of();
         //System.out.println("List: " + oldList.unwrap() + " " + event.getSpawnerDataList());
-        return WeightedRandomList.create(event.getSpawnerDataList());
+        return WeightedList.of(event.getSpawnerDataList());
     }
 
     public static void onAdvancementEarned(Player player, AdvancementHolder holder) {
@@ -913,8 +911,8 @@ public final class ForgeEventFactory {
         return fire(new LivingSwapItemsEvent.Hands(entity));
     }
 
-    public static ShieldBlockEvent onShieldBlock(LivingEntity blocker, DamageSource source, float blocked) {
-        return fire(new ShieldBlockEvent(blocker, source, blocked));
+    public static ShieldBlockEvent onShieldBlock(LivingEntity blocker, DamageSource source, float blocked, ItemStack blockedWith) {
+        return fire(new ShieldBlockEvent(blocker, source, blocked, blockedWith));
     }
 
     public static void onEntityEnterSection(Entity entity, long packedOldPos, long packedNewPos) {
@@ -925,7 +923,7 @@ public final class ForgeEventFactory {
         return post(new LivingEvent.LivingTickEvent(entity));
     }
 
-    public static LivingFallEvent onLivingFall(LivingEntity entity, float distance, float damageMultiplier) {
+    public static LivingFallEvent onLivingFall(LivingEntity entity, double distance, float damageMultiplier) {
         return fire(new LivingFallEvent(entity, distance, damageMultiplier));
     }
 
@@ -1090,7 +1088,7 @@ public final class ForgeEventFactory {
         return fire(new LootingLevelEvent(target, cause, level));
     }
 
-    public static boolean fireFarmlandTrampleEvent(ServerLevel level, BlockPos pos, BlockState state, float fallDistance, Entity entity) {
+    public static boolean fireFarmlandTrampleEvent(ServerLevel level, BlockPos pos, BlockState state, double fallDistance, Entity entity) {
         return post(new BlockEvent.FarmlandTrampleEvent(level, pos, state, fallDistance, entity));
     }
 }

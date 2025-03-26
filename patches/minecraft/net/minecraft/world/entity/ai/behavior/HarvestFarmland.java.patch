@@ -7,7 +7,7 @@
 -        if (!p_23174_.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
 +        if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(p_23174_, p_23175_)) {
              return false;
-         } else if (p_23175_.getVillagerData().getProfession() != VillagerProfession.FARMER) {
+         } else if (!p_23175_.getVillagerData().profession().is(VillagerProfession.FARMER)) {
              return false;
 @@ -118,6 +_,11 @@
                              p_23196_.setBlockAndUpdate(this.aboveFarmlandPos, blockstate1);

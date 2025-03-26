@@ -1,12 +1,16 @@
 --- a/net/minecraft/client/renderer/entity/player/PlayerRenderer.java
 +++ b/net/minecraft/client/renderer/entity/player/PlayerRenderer.java
-@@ -128,10 +_,14 @@
-                 if (itemuseanimation == ItemUseAnimation.BRUSH) {
-                     return HumanoidModel.ArmPose.BRUSH;
+@@ -98,7 +_,7 @@
+     private static HumanoidModel.ArmPose getArmPose(Player p_376602_, ItemStack p_376446_, InteractionHand p_361073_) {
+         if (p_376446_.isEmpty()) {
+             return HumanoidModel.ArmPose.EMPTY;
+-        } else if (!p_376602_.swinging && p_376446_.is(Items.CROSSBOW) && CrossbowItem.isCharged(p_376446_)) {
++        } else if (!p_376602_.swinging && p_376446_.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(p_376446_)) {
+             return HumanoidModel.ArmPose.CROSSBOW_HOLD;
+         } else {
+             if (p_376602_.getUsedItemHand() == p_361073_ && p_376602_.getUseItemRemainingTicks() > 0) {
+@@ -132,6 +_,10 @@
                  }
--            } else if (!p_376602_.swinging && p_376446_.is(Items.CROSSBOW) && CrossbowItem.isCharged(p_376446_)) {
-+            } else if (!p_376602_.swinging && p_376446_.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(p_376446_)) {
-                 return HumanoidModel.ArmPose.CROSSBOW_HOLD;
              }
  
 +            var pose = net.minecraftforge.client.extensions.common.IClientItemExtensions.of(p_376446_).getArmPose(p_376602_, p_361073_, p_376446_);
@@ -16,7 +20,7 @@
              return HumanoidModel.ArmPose.ITEM;
          }
      }
-@@ -255,10 +_,12 @@
+@@ -253,10 +_,12 @@
      }
  
      public void renderRightHand(PoseStack p_117771_, MultiBufferSource p_117772_, int p_117773_, ResourceLocation p_364347_, boolean p_367689_) {
@@ -29,7 +33,7 @@
          this.renderHand(p_117814_, p_117815_, p_117816_, p_368419_, this.model.leftArm, p_362915_);
      }
  
-@@ -297,5 +_,12 @@
+@@ -295,5 +_,12 @@
          } else {
              super.setupRotations(p_369667_, p_117803_, p_117804_, p_117805_);
          }

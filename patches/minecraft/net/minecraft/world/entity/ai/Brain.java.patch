@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/ai/Brain.java
 +++ b/net/minecraft/world/entity/ai/Brain.java
-@@ -485,6 +_,30 @@
+@@ -494,6 +_,30 @@
          return builder.build();
      }
  

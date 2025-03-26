@@ -5,12 +5,10 @@
 
 package net.minecraftforge.debug.gameplay.item;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -20,7 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -31,6 +28,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -67,7 +65,7 @@ public class ItemCapabilityTest extends BaseTestMod {
         }
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void testItemCap(GameTestHelper helper) {
 
         helper.registerEventListener(ItemCapabilityTest.class);
@@ -96,7 +94,7 @@ public class ItemCapabilityTest extends BaseTestMod {
         helper.assertValueEqual(
                 storage.get() == null ? -1 : storage.get().getEnergyStored(),
                 11,
-                "Value did not Sync to client"
+                Component.literal("Value did not Sync to client")
         );
 
         helper.succeed();
@@ -143,12 +141,10 @@ public class ItemCapabilityTest extends BaseTestMod {
     }
 
     public static final class MyProvider implements ICapabilityProvider {
-        private final ItemStack stack;
         private final EnergyStorage storage;
         private final LazyOptional<EnergyStorage> storageLazyOptional;
 
         public MyProvider(ItemStack stack) {
-            this.stack = stack;
             this.storage = new MyEnergyStorage(1000, 10, 10, stack.getOrDefault(STORAGE.get(), 10), storage -> {
                 stack.set(STORAGE.get(), storage.getEnergyStored());
             });

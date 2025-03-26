@@ -1,0 +1,54 @@
+--- a/net/minecraft/client/renderer/block/model/multipart/MultiPartModel.java
++++ b/net/minecraft/client/renderer/block/model/multipart/MultiPartModel.java
+@@ -38,6 +_,11 @@
+     }
+ 
+     @Override
++    public TextureAtlasSprite particleIcon(net.minecraftforge.client.model.data.ModelData data) {
++        return this.shared.firstModel.particleIcon(data);
++    }
++
++    @Override
+     public void collectParts(RandomSource p_391247_, List<BlockModelPart> p_397207_) {
+         if (this.models == null) {
+             this.models = this.shared.selectModels(this.blockState);
+@@ -51,6 +_,20 @@
+         }
+     }
+ 
++    @Override
++    public void collectParts(RandomSource rand, List<BlockModelPart> dest, net.minecraftforge.client.model.data.ModelData extraData, net.minecraft.client.renderer.RenderType renderType) {
++        if (this.models == null) {
++            this.models = this.shared.selectModels(this.blockState);
++        }
++
++        long i = rand.nextLong();
++
++        for (BlockStateModel blockstatemodel : this.models) {
++            rand.setSeed(i);
++            blockstatemodel.collectParts(rand, dest, extraData, renderType);
++        }
++    }
++
+     @OnlyIn(Dist.CLIENT)
+     public record Selector<T>(Predicate<BlockState> condition, T model) {
+         public <S> MultiPartModel.Selector<S> with(S p_393772_) {
+@@ -62,6 +_,7 @@
+     static final class SharedBakedState {
+         private final List<MultiPartModel.Selector<BlockStateModel>> selectors;
+         final TextureAtlasSprite particleIcon;
++        final BlockStateModel firstModel;
+         private final Map<BitSet, List<BlockStateModel>> subsets = new ConcurrentHashMap<>();
+ 
+         private static BlockStateModel getFirstModel(List<MultiPartModel.Selector<BlockStateModel>> p_392132_) {
+@@ -74,8 +_,8 @@
+ 
+         public SharedBakedState(List<MultiPartModel.Selector<BlockStateModel>> p_393647_) {
+             this.selectors = p_393647_;
+-            BlockStateModel blockstatemodel = getFirstModel(p_393647_);
+-            this.particleIcon = blockstatemodel.particleIcon();
++            this.firstModel = getFirstModel(p_393647_);
++            this.particleIcon = firstModel.particleIcon();
+         }
+ 
+         public List<BlockStateModel> selectModels(BlockState p_392405_) {

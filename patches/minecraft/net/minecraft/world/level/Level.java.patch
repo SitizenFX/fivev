@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -79,7 +_,7 @@
+@@ -83,7 +_,7 @@
  import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.Scoreboard;
  
--public abstract class Level implements LevelAccessor, AutoCloseable {
-+public abstract class Level extends net.minecraftforge.common.capabilities.CapabilityProvider<Level> implements LevelAccessor, AutoCloseable, net.minecraftforge.common.extensions.IForgeLevel {
+-public abstract class Level implements LevelAccessor, UUIDLookup<Entity>, AutoCloseable {
++public abstract class Level extends net.minecraftforge.common.capabilities.CapabilityProvider<Level> implements LevelAccessor, UUIDLookup<Entity>, AutoCloseable, net.minecraftforge.common.extensions.IForgeLevel {
      public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceKey.codec(Registries.DIMENSION);
      public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registries.DIMENSION, ResourceLocation.withDefaultNamespace("overworld"));
      public static final ResourceKey<Level> NETHER = ResourceKey.create(Registries.DIMENSION, ResourceLocation.withDefaultNamespace("the_nether"));
-@@ -116,6 +_,11 @@
+@@ -120,6 +_,11 @@
      private final RegistryAccess registryAccess;
      private final DamageSources damageSources;
      private long subTickCount;
@@ -21,7 +21,7 @@
  
      protected Level(
          WritableLevelData p_270739_,
-@@ -127,6 +_,7 @@
+@@ -131,6 +_,7 @@
          long p_270248_,
          int p_270466_
      ) {
@@ -29,7 +29,7 @@
          this.levelData = p_270739_;
          this.dimensionTypeRegistration = p_270240_;
          final DimensionType dimensiontype = p_270240_.value();
-@@ -216,11 +_,35 @@
+@@ -220,11 +_,35 @@
          } else {
              LevelChunk levelchunk = this.getChunkAt(p_46605_);
              Block block = p_46606_.getBlock();
@@ -41,7 +41,7 @@
 +                this.capturedBlockSnapshots.add(blockSnapshot);
 +            }
 +
-             BlockState blockstate = levelchunk.setBlockState(p_46605_, p_46606_, (p_46607_ & 64) != 0);
+             BlockState blockstate = levelchunk.setBlockState(p_46605_, p_46606_, p_46607_);
              if (blockstate == null) {
 +                if (blockSnapshot != null) this.capturedBlockSnapshots.remove(blockSnapshot);
                  return false;
@@ -65,10 +65,10 @@
                  if (blockstate1 == p_46606_) {
                      if (blockstate != blockstate1) {
                          this.setBlocksDirty(p_46605_, blockstate, blockstate1);
-@@ -247,9 +_,8 @@
+@@ -251,9 +_,8 @@
                      }
  
-                     this.onBlockStateChange(p_46605_, blockstate, blockstate1);
+                     this.updatePOIOnBlockStateChange(p_46605_, blockstate, blockstate1);
 +                    p_46606_.onBlockStateChange(this, p_46605_, blockstate);
                  }
 -
@@ -76,7 +76,7 @@
              }
          }
      }
-@@ -499,10 +_,30 @@
+@@ -501,10 +_,30 @@
          (this.tickingBlockEntities ? this.pendingBlockEntityTickers : this.blockEntityTickers).add(p_151526_);
      }
  
@@ -107,7 +107,7 @@
          if (!this.pendingBlockEntityTickers.isEmpty()) {
              this.blockEntityTickers.addAll(this.pendingBlockEntityTickers);
              this.pendingBlockEntityTickers.clear();
-@@ -526,12 +_,19 @@
+@@ -528,12 +_,19 @@
  
      public <T extends Entity> void guardEntityTick(Consumer<T> p_46654_, T p_46655_) {
          try {
@@ -127,7 +127,7 @@
          }
      }
  
-@@ -683,6 +_,7 @@
+@@ -685,6 +_,7 @@
          if (!this.isOutsideBuildHeight(p_46748_)) {
              this.getChunkAt(p_46748_).removeBlockEntity(p_46748_);
          }
@@ -135,7 +135,7 @@
      }
  
      public boolean isLoaded(BlockPos p_46750_) {
-@@ -760,9 +_,9 @@
+@@ -762,9 +_,9 @@
              }
          });
  
@@ -147,7 +147,7 @@
                  && p_46538_.test(enderdragonpart)
                  && p_46537_.intersects(enderdragonpart.getBoundingBox())) {
                  list.add(enderdragonpart);
-@@ -795,8 +_,8 @@
+@@ -797,8 +_,8 @@
                  }
              }
  
@@ -158,7 +158,7 @@
                      T t = p_261885_.tryCast(enderdragonpart);
                      if (t != null && p_261688_.test(t)) {
                          p_262071_.add(t);
-@@ -932,17 +_,16 @@
+@@ -942,17 +_,16 @@
      public abstract Scoreboard getScoreboard();
  
      public void updateNeighbourForOutputSignal(BlockPos p_46718_, Block p_46719_) {
@@ -181,7 +181,7 @@
                      }
                  }
              }
-@@ -1044,6 +_,20 @@
+@@ -1054,6 +_,20 @@
      }
  
      public abstract PotionBrewing potionBrewing();

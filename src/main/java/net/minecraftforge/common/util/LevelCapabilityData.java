@@ -5,47 +5,47 @@
 
 package net.minecraftforge.common.util;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+@SuppressWarnings("deprecation")
 public class LevelCapabilityData extends SavedData {
-    public static final String ID = "capabilities";
+    public static final SavedDataType<LevelCapabilityData> TYPE = new SavedDataType<LevelCapabilityData>(
+        "capabilities",
+        LevelCapabilityData::new,
+        ctx ->
+            RecordCodecBuilder.create(b ->
+                b.group(
+                    CompoundTag.CODEC.fieldOf("data").forGetter(i -> {
+                        if (i.serializable == null)
+                        	return new CompoundTag();
+                        return i.serializable.serializeNBT(ctx.levelOrThrow().registryAccess());
+                    })
+                ).apply(b, nbt -> new LevelCapabilityData(ctx, nbt))
+            ),
+        null
+    );
 
+    @Nullable
     private final INBTSerializable<CompoundTag> serializable;
-    private CompoundTag capNBT = null;
 
-    public LevelCapabilityData(@Nullable INBTSerializable<CompoundTag> serializable) {
-        this.serializable = serializable;
+    private LevelCapabilityData(SavedData.Context ctx) {
+        this.serializable = ctx.levelOrThrow().getCapabilityDispatcher();
     }
 
-    @Override
-    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
-        if (serializable != null)
-            nbt = serializable.serializeNBT(provider);
-        return nbt;
+    private LevelCapabilityData(SavedData.Context ctx, CompoundTag data) {
+        this(ctx);
+        if (this.serializable != null)
+            this.serializable.deserializeNBT(ctx.levelOrThrow().registryAccess(), data);
     }
 
     @Override
     public boolean isDirty() {
         return true;
-    }
-
-    public static LevelCapabilityData compute(DimensionDataStorage data, @Nullable INBTSerializable<CompoundTag> caps) {
-        var factory = new Factory<>(
-            () -> new LevelCapabilityData(caps),
-            (tag, lookup) -> {
-                var ret = new LevelCapabilityData(caps);
-                if (caps != null)
-                    caps.deserializeNBT(lookup, tag);
-                return ret;
-            },
-            null
-        );
-
-        return data.computeIfAbsent(factory, ID);
     }
 }

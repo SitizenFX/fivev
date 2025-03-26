@@ -50,7 +50,7 @@ public enum VanillaGuiOverlay {
 
     PORTAL("portal", (gui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
         float f1 = Mth.lerp(partialTick, gui.getMinecraft().player.oSpinningEffectIntensity, gui.getMinecraft().player.spinningEffectIntensity);
-        if (f1 > 0.0F && !gui.getMinecraft().player.hasEffect(MobEffects.CONFUSION)) {
+        if (f1 > 0.0F && !gui.getMinecraft().player.hasEffect(MobEffects.NAUSEA)) {
             gui.setupOverlayRenderState(true, false);
             gui.renderPortalOverlay(guiGraphics, f1);
         }

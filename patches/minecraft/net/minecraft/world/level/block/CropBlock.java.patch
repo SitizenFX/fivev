@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/CropBlock.java
 +++ b/net/minecraft/world/level/block/CropBlock.java
-@@ -54,7 +_,7 @@
+@@ -46,7 +_,7 @@
  
      @Override
      protected boolean mayPlaceOn(BlockState p_52302_, BlockGetter p_52303_, BlockPos p_52304_) {
@@ -9,7 +9,7 @@
      }
  
      protected IntegerProperty getAgeProperty() {
-@@ -88,8 +_,9 @@
+@@ -80,8 +_,9 @@
              int i = this.getAge(p_221050_);
              if (i < this.getMaxAge()) {
                  float f = getGrowthSpeed(this, p_221051_, p_221052_);
@@ -20,7 +20,7 @@
                  }
              }
          }
-@@ -117,9 +_,9 @@
+@@ -104,9 +_,9 @@
              for (int j = -1; j <= 1; j++) {
                  float f1 = 0.0F;
                  BlockState blockstate = p_52274_.getBlockState(blockpos.offset(i, 0, j));
@@ -32,10 +32,10 @@
                          f1 = 3.0F;
                      }
                  }
-@@ -164,7 +_,7 @@
+@@ -151,7 +_,7 @@
  
      @Override
-     protected void entityInside(BlockState p_52277_, Level p_52278_, BlockPos p_52279_, Entity p_52280_) {
+     protected void entityInside(BlockState p_52277_, Level p_52278_, BlockPos p_52279_, Entity p_52280_, InsideBlockEffectApplier p_391246_) {
 -        if (p_52278_ instanceof ServerLevel serverlevel && p_52280_ instanceof Ravager && serverlevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
 +        if (p_52278_ instanceof ServerLevel serverlevel && p_52280_ instanceof Ravager && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(serverlevel, p_52280_)) {
              serverlevel.destroyBlock(p_52279_, true, p_52280_);

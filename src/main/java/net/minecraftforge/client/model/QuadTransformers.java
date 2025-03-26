@@ -21,8 +21,7 @@ import java.util.Arrays;
  * @see IQuadTransformer
  */
 public final class QuadTransformers {
-
-    private static final IQuadTransformer EMPTY = quad -> {};
+    private static final IQuadTransformer EMPTY = quad -> quad;
     private static final IQuadTransformer[] EMISSIVE_TRANSFORMERS = Util.make(new IQuadTransformer[16], array -> {
         Arrays.setAll(array, i -> applyingLightmap(LightTexture.pack(i, i)));
     });
@@ -30,22 +29,20 @@ public final class QuadTransformers {
     /**
      * {@return a {@link BakedQuad} transformer that does nothing}
      */
-    public static IQuadTransformer empty()
-    {
+    public static IQuadTransformer empty() {
         return EMPTY;
     }
 
     /**
      * {@return a new {@link BakedQuad} transformer that applies the specified {@link Transformation}}
      */
-    public static IQuadTransformer applying(Transformation transform)
-    {
+    public static IQuadTransformer applying(Transformation transform) {
         if (transform.isIdentity())
             return empty();
+
         return quad -> {
-            var vertices = quad.getVertices();
-            for (int i = 0; i < 4; i++)
-            {
+            var vertices = Arrays.copyOf(quad.vertices(), quad.vertices().length);
+            for (int i = 0; i < 4; i++) {
                 int offset = i * IQuadTransformer.STRIDE + IQuadTransformer.POSITION;
                 float x = Float.intBitsToFloat(vertices[offset]);
                 float y = Float.intBitsToFloat(vertices[offset + 1]);
@@ -60,12 +57,10 @@ public final class QuadTransformers {
                 vertices[offset + 2] = Float.floatToRawIntBits(pos.z());
             }
 
-            for (int i = 0; i < 4; i++)
-            {
+            for (int i = 0; i < 4; i++) {
                 int offset = i * IQuadTransformer.STRIDE + IQuadTransformer.NORMAL;
                 int normalIn = vertices[offset];
-                if ((normalIn & 0x00FFFFFF) != 0) // The ignored byte is padding and may be filled with user data
-                {
+                if ((normalIn & 0x00FFFFFF) != 0) { // The ignored byte is padding and may be filled with user data
                     float x = ((byte) (normalIn & 0xFF)) / 127.0f;
                     float y = ((byte) ((normalIn >> 8) & 0xFF)) / 127.0f;
                     float z = ((byte) ((normalIn >> 16) & 0xFF)) / 127.0f;
@@ -79,34 +74,34 @@ public final class QuadTransformers {
                             (normalIn & 0xFF000000); // Restore padding, just in case
                 }
             }
+
+            return new BakedQuad(vertices, quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), quad.lightEmission(), quad.ambientOcclusion());
         };
     }
 
     /**
      * @return A new {@link BakedQuad} transformer that applies the specified packed light value.
      */
-    public static IQuadTransformer applyingLightmap(int packedLight)
-    {
+    public static IQuadTransformer applyingLightmap(int packedLight) {
         return quad -> {
-            var vertices = quad.getVertices();
+            var vertices = Arrays.copyOf(quad.vertices(), quad.vertices().length);
             for (int i = 0; i < 4; i++)
                 vertices[i * IQuadTransformer.STRIDE + IQuadTransformer.UV2] = packedLight;
+            return new BakedQuad(vertices, quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), quad.lightEmission(), quad.ambientOcclusion());
         };
     }
 
     /**
      * @return A new {@link BakedQuad} transformer that applies the specified block and sky light values.
      */
-    public static IQuadTransformer applyingLightmap(int blockLight, int skyLight)
-    {
+    public static IQuadTransformer applyingLightmap(int blockLight, int skyLight) {
         return applyingLightmap(LightTexture.pack(blockLight, skyLight));
     }
 
     /**
      * @return A {@link BakedQuad} transformer that sets the lightmap to the given emissivity (0-15)
      */
-    public static IQuadTransformer settingEmissivity(int emissivity)
-    {
+    public static IQuadTransformer settingEmissivity(int emissivity) {
         Preconditions.checkArgument(emissivity >= 0 && emissivity < 16, "Emissivity must be between 0 and 15.");
         return EMISSIVE_TRANSFORMERS[emissivity];
     }
@@ -114,8 +109,7 @@ public final class QuadTransformers {
     /**
      * @return A {@link BakedQuad} transformer that sets the lightmap to its max value
      */
-    public static IQuadTransformer settingMaxEmissivity()
-    {
+    public static IQuadTransformer settingMaxEmissivity() {
         return EMISSIVE_TRANSFORMERS[15];
     }
 
@@ -123,13 +117,15 @@ public final class QuadTransformers {
      * @param color The color in ARGB format.
      * @return A {@link BakedQuad} transformer that sets the color to the specified value.
      */
-    public static IQuadTransformer applyingColor(int color)
-    {
+    public static IQuadTransformer applyingColor(int color) {
         final int fixedColor = toABGR(color);
         return quad -> {
-            var vertices = quad.getVertices();
+            var vertices = Arrays.copyOf(quad.vertices(), quad.vertices().length);
+
             for (int i = 0; i < 4; i++)
                 vertices[i * IQuadTransformer.STRIDE + IQuadTransformer.COLOR] = fixedColor;
+
+            return new BakedQuad(vertices, quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), quad.lightEmission(), quad.ambientOcclusion());
         };
     }
 
@@ -140,8 +136,7 @@ public final class QuadTransformers {
      * @param blue The blue value (0-255)
      * @return A {@link BakedQuad} transformer that sets the color to the specified value.
      */
-    public static IQuadTransformer applyingColor(int red, int green, int blue)
-    {
+    public static IQuadTransformer applyingColor(int red, int green, int blue) {
         return applyingColor(255, red, green, blue);
     }
 
@@ -152,8 +147,7 @@ public final class QuadTransformers {
      * @param blue The blue value (0-255)
      * @return A {@link BakedQuad} transformer that sets the color to the specified value.
      */
-    public static IQuadTransformer applyingColor(int alpha, int red, int green, int blue)
-    {
+    public static IQuadTransformer applyingColor(int alpha, int red, int green, int blue) {
         return applyingColor(alpha << 24 | red << 16 | green << 8 | blue);
     }
 
@@ -163,14 +157,11 @@ public final class QuadTransformers {
      * @param argb ARGB color
      * @return ABGR color
      */
-    public static int toABGR(int argb)
-    {
+    public static int toABGR(int argb) {
         return (argb & 0xFF00FF00) // alpha and green same spot
              | ((argb >> 16) & 0x000000FF) // red moves to blue
              | ((argb << 16) & 0x00FF0000); // blue moves to red
     }
 
-    private QuadTransformers()
-    {
-    }
+    private QuadTransformers() { }
 }

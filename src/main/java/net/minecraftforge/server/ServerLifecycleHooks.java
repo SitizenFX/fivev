@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntent;
@@ -22,7 +21,6 @@ import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.world.StructureModifier;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.network.ConnectionType;
@@ -36,10 +34,10 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -49,7 +47,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.ApiStatus;
 
-@SuppressWarnings("deprecation")
 @ApiStatus.Internal
 public class ServerLifecycleHooks {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -81,12 +78,8 @@ public class ServerLifecycleHooks {
     }
 
     public static boolean handleServerStarting(final MinecraftServer server) {
-        DistExecutor.runWhenOn(Dist.DEDICATED_SERVER, ()->()->{
+        if (FMLEnvironment.dist.isDedicatedServer())
             LanguageHook.loadLanguagesOnServer(server);
-            // GameTestServer requires the gametests to be registered earlier, so it is done in main and should not be done twice.
-            if (!(server instanceof GameTestServer))
-                net.minecraftforge.gametest.ForgeGameTestHooks.registerGametests();
-        });
         PermissionAPI.initializePermissionAPI();
         return !MinecraftForge.EVENT_BUS.post(new ServerStartingEvent(server));
     }

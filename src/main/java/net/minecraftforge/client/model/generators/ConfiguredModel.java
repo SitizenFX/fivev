@@ -16,7 +16,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ObjectArrays;
 import com.google.gson.JsonObject;
 
+import com.mojang.math.Quadrant;
 import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.util.Mth;
 import net.minecraftforge.client.model.generators.MultiPartBlockStateBuilder.PartBuilder;
 import net.minecraftforge.client.model.generators.VariantBlockStateBuilder.PartialBlockstate;
 import org.jetbrains.annotations.Nullable;
@@ -126,7 +128,17 @@ public final class ConfiguredModel {
     }
 
     static void checkRotation(int rotationX, int rotationY) {
-        Preconditions.checkArgument(BlockModelRotation.by(rotationX, rotationY) != null, "Invalid model rotation x=%d, y=%d", rotationX, rotationY);
+        Preconditions.checkArgument(quadrantFromDeg(rotationX) == null || quadrantFromDeg(rotationY) == null, "Invalid model rotation x=%d, y=%d", rotationX, rotationY);
+    }
+
+    static @Nullable Quadrant quadrantFromDeg(int degrees) {
+        return switch (Mth.positiveModulo(degrees, 360)) {
+            case 0 -> Quadrant.R0;
+            case 90 -> Quadrant.R90;
+            case 180 -> Quadrant.R180;
+            case 270 -> Quadrant.R270;
+            default -> null;
+        };
     }
 
     static void checkWeight(int weight) {

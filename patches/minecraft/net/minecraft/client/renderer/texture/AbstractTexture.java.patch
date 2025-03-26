@@ -1,18 +1,18 @@
 --- a/net/minecraft/client/renderer/texture/AbstractTexture.java
 +++ b/net/minecraft/client/renderer/texture/AbstractTexture.java
-@@ -53,6 +_,8 @@
-         RenderSystem.assertOnRenderThreadOrInit();
-         int i;
-         int j;
-+        this.blur = p_117961_;
-+        this.mipmap = p_117962_;
-         if (p_117961_) {
-             i = p_117962_ ? 9987 : 9729;
-             j = 9729;
-@@ -110,5 +_,18 @@
- 
-     @Override
-     public void close() {
+@@ -30,6 +_,8 @@
+         if (this.texture == null) {
+             throw new IllegalStateException("Texture does not exist, can't get change its filter before something initializes it");
+         } else {
++            this.blur = p_117961_;
++            this.mipmap = p_117962_;
+             this.texture.setTextureFilter(p_117961_ ? FilterMode.LINEAR : FilterMode.NEAREST, p_117962_);
+         }
+     }
+@@ -40,6 +_,19 @@
+             this.texture.close();
+             this.texture = null;
+         }
 +    }
 +
 +    // FORGE: This seems to have been stripped out, but we need it
@@ -27,4 +27,5 @@
 +    public void restoreLastBlurMipmap() {
 +        setFilter(this.lastBlur, this.lastMipmap);
      }
- }
+ 
+     public GpuTexture getTexture() {

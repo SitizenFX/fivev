@@ -238,12 +238,12 @@ class NamespacedWrapper<T> extends MappedRegistry<T> implements ILockableRegistr
 
     void validateWrite() {
         if (this.frozen)
-            throw new IllegalStateException("Registry is already frozen");
+            throw new IllegalStateException("Registry " + this.key().location() + " is already frozen");
     }
 
     void validateWrite(ResourceKey<T> key) {
         if (this.frozen)
-            throw new IllegalStateException("Registry is already frozen (trying to add key " + key + ")");
+            throw new IllegalStateException("Registry " + this.key().location() + " is already frozen (trying to add key " + key + ")");
     }
 
     protected Holder.Reference<T> getOrCreateHolderOrThrow(ResourceKey<T> key) {

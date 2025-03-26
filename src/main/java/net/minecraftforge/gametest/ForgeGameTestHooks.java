@@ -6,10 +6,12 @@
 package net.minecraftforge.gametest;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestRegistry;
-import net.minecraft.gametest.framework.TestFunction;
-import net.minecraftforge.event.RegisterGameTestsEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.gametest.framework.GameTestInstance;
+import net.minecraft.gametest.framework.TestData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
@@ -17,6 +19,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
@@ -24,23 +27,25 @@ import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Internal class used to glue mods into the game test framework.
- * Modders should use the supplied annotations and {@link RegisterGameTestsEvent}
+ * Modders should use the supplied annotations and DeferredRegister
  */
+@SuppressWarnings("unused")
 @ApiStatus.Internal
 public class ForgeGameTestHooks {
     private static boolean registeredGametests = false;
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Type GAME_TEST_HOLDER = Type.getType(GameTestHolder.class);
-    private static final String DEFAULT_BATCH = getDefaultBatch();
 
     public static boolean isGametestEnabled() {
         return !FMLLoader.isProduction() && (SharedConstants.IS_RUNNING_IN_IDE || isGametestServer() || Boolean.getBoolean("forge.enableGameTest"));
@@ -50,6 +55,7 @@ public class ForgeGameTestHooks {
         return !FMLLoader.isProduction() && Boolean.getBoolean("forge.gameTestServer");
     }
 
+/*
     @SuppressWarnings("deprecation")
     public static void registerGametests() {
         if (!registeredGametests && isGametestEnabled() && ModLoader.isLoadingStateValid()) {
@@ -112,6 +118,10 @@ public class ForgeGameTestHooks {
         if (!shouldPrefix)
             return null;
 
+        return getPrefix(cls);
+    }
+
+    private static String getPrefix(Class<?> cls) {
         var prefix = cls.getAnnotation(GameTestPrefix.class);
         if (prefix != null)
             return prefix.value();
@@ -120,73 +130,70 @@ public class ForgeGameTestHooks {
         if (holder != null && !holder.value().isEmpty())
             return holder.value();
 
-        var mod = method.getDeclaringClass().getAnnotation(Mod.class);
+        var mod = cls.getAnnotation(Mod.class);
         if (mod != null)
             return mod.value();
 
         return cls.getSimpleName().toLowerCase(Locale.ENGLISH);
     }
 
-    public static String getTestTemplate(Method method, GameTest meta, String testName) {
-        // If we have a ':' assume we specified the exact template path
-        if (meta.template().indexOf(':') != -1)
-            return meta.template();
-
-        String template = null;
-
-        if (meta.template().isEmpty())
-            template = testName;
-        else
-            template = getPrefixed(method, meta.template());
-
-        var cls = method.getDeclaringClass();
-
-        var holder = cls.getAnnotation(GameTestHolder.class);
-        if (holder != null && !holder.namespace().isEmpty())
-            return holder.namespace() + ':' + template;
-
-        var mod = cls.getAnnotation(Mod.class);
-        if (mod != null)
-            return mod.value() + ':' + template;
-
-        return template;
+    private static ResourceLocation key(String namespace, String path) {
+        return path.indexOf(':') == -1 ? ResourceLocation.parse(path) : ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 
-    private static String getDefaultBatch() {
-        try {
-            return (String)ObfuscationReflectionHelper.findMethod(GameTest.class, "m_177043" + '_').getDefaultValue();
-        } catch (Exception e) {
-            e.printStackTrace(); // Should never happen, but just in case.
-            return "defaultBatch";
+    public static Map<ResourceLocation, GameTestInstance> gatherTests(Class<?> root) {
+        String prefix = getPrefix(root);
+        var seen = new HashSet<ResourceLocation>();
+
+        Class<?> cls = root;
+        while (cls != Object.class) {
+            for (var method : cls.getDeclaredMethods()) {
+                if (cls != root && Modifier.isStatic(method.getModifiers()))
+                    continue;
+
+                var gametest = method.getAnnotation(GameTest.class);
+                if (gametest == null)
+                    continue;
+
+                var owner = method.getDeclaringClass().getName() + "." + method.getName();
+
+                if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != GameTestHelper.class)
+                    throw new IllegalStateException("Invalid @GameTest function " + owner + " incorrect arguments");
+
+                var testName = key(prefix, gametest.name().isEmpty() ? method.getName() : gametest.name());
+                if (!seen.add(testName)) {
+                    if (!Modifier.isStatic(method.getModifiers()))
+                        continue;
+                    throw new IllegalStateException("Failed to register test, already seen " + testName + ", for " + owner);
+                }
+
+                if (gametest.type() == GameTest.Type.FUNCTION) {
+                    var funcName = key(prefix, gametest.function());
+                    var func = BuiltInRegistries.TEST_FUNCTION.get(funcName).orElse(null);
+
+                    if (func == null)
+                        throw new IllegalStateException("Could not find referenced function `" + funcName + "` for " + owner);
+
+                    var data = getTestData(prefix, owner, gametest.data());
+
+
+                } else if (gametest.type() == GameTest.Type.BLOCK) {
+
+                } else {
+                    throw new IllegalStateException("Could not determine GameTest type for " + root.getName() + " -> " + gametest.type());
+                }
+
+
+
+
+            }
+            cls = cls.getSuperclass();
         }
     }
 
-    public static String getTestBatch(Method method, GameTest gametest) {
-        var batch = gametest.batch();
-
-        if (DEFAULT_BATCH.equals(batch)) {
-            var prefix = getPrefix(method);
-            return prefix == null ? batch : prefix;
-        }
-
-        return getPrefixed(method, batch.toLowerCase(Locale.ENGLISH));
+    private static TestData<?> getTestData(String prefix, String owner, GameTest.Data data) {
+        var envName = key(prefix, data.environment());
+        var env = BuiltInRegistries.TEST_ENVIRONMENT
     }
-
-    public static void addTest(Collection<TestFunction> functions, Set<String> classes, Set<String> filters, TestFunction func) {
-        boolean allowed = filters.isEmpty() || filters.stream().anyMatch(f -> f.equals(func.batchName()) || func.batchName().startsWith(f + '.'));
-        if (!allowed)
-            return;
-
-        functions.add(func);
-
-        var batch = func.batchName();
-        classes.add(batch);
-
-        int idx = batch.lastIndexOf('.');
-        while (idx != -1) {
-            batch = batch.substring(0, idx);
-            idx = batch.lastIndexOf('.');
-            classes.add(batch);
-        }
-    }
+*/
 }

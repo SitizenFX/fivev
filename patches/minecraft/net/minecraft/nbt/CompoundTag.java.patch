@@ -1,9 +1,9 @@
 --- a/net/minecraft/nbt/CompoundTag.java
 +++ b/net/minecraft/nbt/CompoundTag.java
-@@ -20,6 +_,10 @@
- import net.minecraft.ReportedException;
+@@ -25,6 +_,10 @@
  
- public class CompoundTag implements Tag {
+ public final class CompoundTag implements Tag {
+     private static final Logger LOGGER = LogUtils.getLogger();
 +    public static net.minecraftforge.common.util.INBTBuilder.Builder builder() {
 +        return (new net.minecraftforge.common.util.INBTBuilder(){}).nbt();
 +    }

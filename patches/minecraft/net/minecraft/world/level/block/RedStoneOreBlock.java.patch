@@ -9,7 +9,7 @@
              this.tryDropExperience(p_221908_, p_221909_, p_221910_, UniformInt.of(1, 5));
          }
      }
-@@ -127,4 +_,10 @@
+@@ -119,4 +_,10 @@
      protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_55484_) {
          p_55484_.add(LIT);
      }

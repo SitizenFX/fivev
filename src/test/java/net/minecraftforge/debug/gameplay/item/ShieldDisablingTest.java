@@ -9,7 +9,6 @@ import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -36,7 +36,7 @@ public final class ShieldDisablingTest extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void player_shield_disabled_by_axe(GameTestHelper helper) {
         player_shield_disabled_common(helper, h -> Util.make(
             h.spawnWithNoFreeWill(EntityType.HUSK, new BlockPos(2, 0, 2)),
@@ -44,7 +44,7 @@ public final class ShieldDisablingTest extends BaseTestMod {
         ));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void player_shield_disabled_by_warden(GameTestHelper helper) {
         player_shield_disabled_common(helper, h -> h.spawnWithNoFreeWill(EntityType.WARDEN, new BlockPos(2, 0, 2)));
     }

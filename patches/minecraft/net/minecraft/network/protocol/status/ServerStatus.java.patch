@@ -11,12 +11,12 @@
      public static final Codec<ServerStatus> CODEC = RecordCodecBuilder.create(
          p_326135_ -> p_326135_.group(
 @@ -29,7 +_,8 @@
-                     ServerStatus.Players.CODEC.lenientOptionalFieldOf("players").forGetter(ServerStatus::players),
-                     ServerStatus.Version.CODEC.lenientOptionalFieldOf("version").forGetter(ServerStatus::version),
-                     ServerStatus.Favicon.CODEC.lenientOptionalFieldOf("favicon").forGetter(ServerStatus::favicon),
--                    Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", Boolean.valueOf(false)).forGetter(ServerStatus::enforcesSecureChat)
-+                    Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", Boolean.valueOf(false)).forGetter(ServerStatus::enforcesSecureChat),
-+                    net.minecraftforge.network.ServerStatusPing.CODEC.optionalFieldOf("forgeData").forGetter(ServerStatus::forgeData)
-                 )
-                 .apply(p_326135_, ServerStatus::new)
+                 ServerStatus.Players.CODEC.lenientOptionalFieldOf("players").forGetter(ServerStatus::players),
+                 ServerStatus.Version.CODEC.lenientOptionalFieldOf("version").forGetter(ServerStatus::version),
+                 ServerStatus.Favicon.CODEC.lenientOptionalFieldOf("favicon").forGetter(ServerStatus::favicon),
+-                Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", false).forGetter(ServerStatus::enforcesSecureChat)
++                Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", false).forGetter(ServerStatus::enforcesSecureChat),
++                net.minecraftforge.network.ServerStatusPing.CODEC.optionalFieldOf("forgeData").forGetter(ServerStatus::forgeData)
+             )
+             .apply(p_326135_, ServerStatus::new)
      );

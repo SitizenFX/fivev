@@ -14,9 +14,9 @@ import net.minecraft.world.entity.LivingEntity;
 /**
  * LivingFallEvent is fired when an Entity is set to be falling.<br>
  * This event is fired whenever an Entity is set to fall in
- * {@link LivingEntity#causeFallDamage(float, float, DamageSource)}.<br>
+ * {@link LivingEntity#causeFallDamage(double, float, DamageSource)}.<br>
  * <br>
- * This event is fired via the {@link ForgeHooks#onLivingFall(LivingEntity, float, float)}.<br>
+ * This event is fired via the {@link net.minecraftforge.event.ForgeEventFactory#onLivingFall(LivingEntity, double, float)}.<br>
  * <br>
  * {@link #distance} contains the distance the Entity is to fall. If this event is canceled, this value is set to 0.0F.
  * <br>
@@ -28,19 +28,18 @@ import net.minecraft.world.entity.LivingEntity;
  * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
 @Cancelable
-public class LivingFallEvent extends LivingEvent
-{
-    private float distance;
+public class LivingFallEvent extends LivingEvent {
+    private double distance;
     private float damageMultiplier;
-    public LivingFallEvent(LivingEntity entity, float distance, float damageMultiplier)
-    {
+
+    public LivingFallEvent(LivingEntity entity, double distance, float damageMultiplier) {
         super(entity);
-        this.setDistance(distance);
-        this.setDamageMultiplier(damageMultiplier);
+        this.distance = distance;
+        this.damageMultiplier = damageMultiplier;
     }
 
-    public float getDistance() { return distance; }
-    public void setDistance(float distance) { this.distance = distance; }
+    public double getDistance() { return this.distance; }
+    public void setDistance(double distance) { this.distance = distance; }
     public float getDamageMultiplier() { return damageMultiplier; }
     public void setDamageMultiplier(float damageMultiplier) { this.damageMultiplier = damageMultiplier; }
 }

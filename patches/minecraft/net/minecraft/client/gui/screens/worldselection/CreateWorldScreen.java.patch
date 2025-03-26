@@ -1,14 +1,14 @@
 --- a/net/minecraft/client/gui/screens/worldselection/CreateWorldScreen.java
 +++ b/net/minecraft/client/gui/screens/worldselection/CreateWorldScreen.java
-@@ -168,6 +_,7 @@
-     ) {
-         queueLoadScreen(p_369292_, PREPARING_WORLD_DATA);
-         PackRepository packrepository = new PackRepository(new ServerPacksSource(p_369292_.directoryValidator()));
+@@ -171,6 +_,7 @@
+         WorldDataConfiguration worlddataconfiguration = SharedConstants.IS_RUNNING_IN_IDE
+             ? new WorldDataConfiguration(new DataPackConfig(List.of("vanilla", "tests"), List.of()), FeatureFlags.DEFAULT_FLAGS)
+             : WorldDataConfiguration.DEFAULT;
 +        net.minecraftforge.event.ForgeEventFactory.addPackFindersServer(packrepository::addPackFinder);
-         WorldLoader.InitConfig worldloader$initconfig = createDefaultLoadConfig(packrepository, WorldDataConfiguration.DEFAULT);
+         WorldLoader.InitConfig worldloader$initconfig = createDefaultLoadConfig(packrepository, worlddataconfiguration);
          CompletableFuture<WorldCreationContext> completablefuture = WorldLoader.load(
              worldloader$initconfig,
-@@ -468,7 +_,7 @@
+@@ -471,7 +_,7 @@
                                          if (p_269627_) {
                                              p_270552_.accept(this.uiState.getSettings().dataConfiguration());
                                          } else {
@@ -17,7 +17,7 @@
                                          }
                                      },
                                      Component.translatable("dataPack.validation.failed"),
-@@ -582,6 +_,7 @@
+@@ -585,6 +_,7 @@
          if (path != null) {
              if (this.tempDataPackRepository == null) {
                  this.tempDataPackRepository = ServerPacksSource.createPackRepository(path, this.packValidator);

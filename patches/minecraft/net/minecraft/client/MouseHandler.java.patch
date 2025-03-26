@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/MouseHandler.java
 +++ b/net/minecraft/client/MouseHandler.java
-@@ -85,6 +_,7 @@
+@@ -90,6 +_,7 @@
                  this.activeButton = -1;
              }
  
@@ -8,7 +8,7 @@
              if (this.minecraft.getOverlay() == null) {
                  if (this.minecraft.screen == null) {
                      if (!this.mouseGrabbed && flag) {
-@@ -98,7 +_,7 @@
+@@ -103,7 +_,7 @@
                          screen.afterMouseAction();
  
                          try {
@@ -17,7 +17,7 @@
                                  return;
                              }
                          } catch (Throwable throwable1) {
-@@ -112,7 +_,7 @@
+@@ -116,7 +_,7 @@
                          }
                      } else {
                          try {
@@ -26,18 +26,18 @@
                                  return;
                              }
                          } catch (Throwable throwable) {
-@@ -147,6 +_,7 @@
+@@ -150,6 +_,7 @@
                  }
              }
          }
 +        net.minecraftforge.client.event.ForgeEventFactoryClient.onMouseButtonPost(p_91532_, p_91533_, p_91534_);
      }
  
-     private void onScroll(long p_91527_, double p_91528_, double p_91529_) {
-@@ -160,7 +_,9 @@
+     public void fillMousePositionDetails(CrashReportCategory p_398230_, Window p_398216_) {
+@@ -189,7 +_,9 @@
                  if (this.minecraft.screen != null) {
-                     double d3 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
-                     double d4 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+                     double d3 = this.getScaledXPos(this.minecraft.getWindow());
+                     double d4 = this.getScaledYPos(this.minecraft.getWindow());
 -                    this.minecraft.screen.mouseScrolled(d3, d4, d1, d2);
 +                    if (net.minecraftforge.client.event.ForgeEventFactoryClient.onScreenMouseScrollPre(this.minecraft.screen, d3, d4, d1, d2)) return;
 +                    if (this.minecraft.screen.mouseScrolled(d3, d4, d1, d2)) return;
@@ -45,7 +45,7 @@
                      this.minecraft.screen.afterMouseAction();
                  } else if (this.minecraft.player != null) {
                      Vector2i vector2i = this.scrollWheelHandler.onMouseScroll(d1, d2);
-@@ -169,6 +_,7 @@
+@@ -198,6 +_,7 @@
                      }
  
                      int i = vector2i.y == 0 ? -vector2i.x : vector2i.y;
@@ -53,8 +53,8 @@
                      if (this.minecraft.player.isSpectator()) {
                          if (this.minecraft.gui.getSpectatorGui().isMenuActive()) {
                              this.minecraft.gui.getSpectatorGui().onMouseScrolled(-i);
-@@ -274,7 +_,7 @@
-                     double d5 = this.accumulatedDY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+@@ -303,7 +_,7 @@
+                     double d5 = getScaledYPos(window, this.accumulatedDY);
  
                      try {
 -                        screen.mouseDragged(d2, d3, this.activeButton, d4, d5);
@@ -62,7 +62,7 @@
                      } catch (Throwable throwable) {
                          CrashReport crashreport1 = CrashReport.forThrowable(throwable, "mouseDragged event handler");
                          screen.fillCrashDetails(crashreport1);
-@@ -349,6 +_,14 @@
+@@ -393,6 +_,14 @@
  
      public double ypos() {
          return this.ypos;

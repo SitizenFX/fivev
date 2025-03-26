@@ -24,20 +24,19 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class JsonUtils
-{
+public class JsonUtils {
     // http://stackoverflow.com/questions/7706772/deserializing-immutablelist-using-gson/21677349#21677349
-    public enum ImmutableListTypeAdapter implements JsonDeserializer<ImmutableList<?>>, JsonSerializer<ImmutableList<?>>
-    {
+    public enum ImmutableListTypeAdapter implements JsonDeserializer<ImmutableList<?>>, JsonSerializer<ImmutableList<?>> {
         INSTANCE;
 
         @Override
-        public ImmutableList<?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException
-        {
+        public ImmutableList<?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
             final Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
             final Type parametrizedType = listOf(typeArguments[0]).getType();
             final List<?> list = context.deserialize(json, parametrizedType);
@@ -45,8 +44,7 @@ public class JsonUtils
         }
 
         @Override
-        public JsonElement serialize(ImmutableList<?> src, Type type, JsonSerializationContext context)
-        {
+        public JsonElement serialize(ImmutableList<?> src, Type type, JsonSerializationContext context) {
             final Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
             final Type parametrizedType = listOf(typeArguments[0]).getType();
             return context.serialize(src, parametrizedType);
@@ -54,18 +52,15 @@ public class JsonUtils
     }
 
     @SuppressWarnings({ "serial", "unchecked" })
-    private static <E> TypeToken<List<E>> listOf(final Type arg)
-    {
+    private static <E> TypeToken<List<E>> listOf(final Type arg) {
         return new TypeToken<List<E>>() {}.where(new TypeParameter<E>() {}, (TypeToken<E>) TypeToken.of(arg));
     }
 
-    public enum ImmutableMapTypeAdapter implements JsonDeserializer<ImmutableMap<String, ?>>, JsonSerializer<ImmutableMap<String, ?>>
-    {
+    public enum ImmutableMapTypeAdapter implements JsonDeserializer<ImmutableMap<String, ?>>, JsonSerializer<ImmutableMap<String, ?>> {
         INSTANCE;
 
         @Override
-        public ImmutableMap<String, ?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException
-        {
+        public ImmutableMap<String, ?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
             final Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
             final Type parameterizedType = mapOf(typeArguments[1]).getType();
             final Map<String, ?> map = context.deserialize(json, parameterizedType);
@@ -73,8 +68,7 @@ public class JsonUtils
         }
 
         @Override
-        public JsonElement serialize(ImmutableMap<String, ?> src, Type type, JsonSerializationContext context)
-        {
+        public JsonElement serialize(ImmutableMap<String, ?> src, Type type, JsonSerializationContext context) {
             final Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
             final Type parameterizedType = mapOf(typeArguments[1]).getType();
             return context.serialize(src, parameterizedType);
@@ -82,20 +76,14 @@ public class JsonUtils
     }
 
     @Nullable
-    public static CompoundTag readNBT(JsonObject json, String key)
-    {
-        if (net.minecraft.util.GsonHelper.isValidNode(json, key))
-        {
-            try
-            {
-                return TagParser.parseTag(net.minecraft.util.GsonHelper.getAsString(json, key));
-            } catch (CommandSyntaxException e)
-            {
-                throw new JsonSyntaxException("Malformed NBT tag", e);
-            }
-        } else
-        {
+    public static CompoundTag readNBT(JsonObject json, String key) {
+        if (!net.minecraft.util.GsonHelper.isValidNode(json, key))
             return null;
+
+        try {
+            return TagParser.parseCompoundFully(GsonHelper.getAsString(json, key));
+        } catch (CommandSyntaxException e) {
+            throw new JsonSyntaxException("Malformed NBT tag", e);
         }
     }
 

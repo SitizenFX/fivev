@@ -6,9 +6,9 @@
          Map<RandomSupport.Seed128bit, ResourceLocation> map = new Object2ObjectOpenHashMap<>();
 -        this.subProviders.forEach(p_341016_ -> p_341016_.provider().apply(p_331092_).generate((p_358218_, p_358219_) -> {
 +        this.getTables().forEach(p_341016_ -> p_341016_.provider().apply(p_331092_).generate((p_358218_, p_358219_) -> {
-                 ResourceLocation resourcelocation = sequenceIdForLootTable(p_358218_);
-                 ResourceLocation resourcelocation1 = map.put(RandomSequence.seedForKey(resourcelocation), resourcelocation);
-                 if (resourcelocation1 != null) {
+             ResourceLocation resourcelocation = sequenceIdForLootTable(p_358218_);
+             ResourceLocation resourcelocation1 = map.put(RandomSequence.seedForKey(resourcelocation), resourcelocation);
+             if (resourcelocation1 != null) {
 @@ -78,18 +_,8 @@
          HolderGetter.Provider holdergetter$provider = new RegistryAccess.ImmutableRegistryAccess(List.of(writableregistry)).freeze();
          ValidationContext validationcontext = new ValidationContext(problemreporter$collector, LootContextParamSets.ALL_PARAMS, holdergetter$provider);
@@ -21,10 +21,10 @@
 -        writableregistry.listElements()
 -            .forEach(
 -                p_358221_ -> p_358221_.value()
--                        .validate(
--                            validationcontext.setContextKeySet(p_358221_.value().getParamSet())
--                                .enterElement("{" + p_358221_.key().location() + "}", p_358221_.key())
--                        )
+-                    .validate(
+-                        validationcontext.setContextKeySet(p_358221_.value().getParamSet())
+-                            .enterElement("{" + p_358221_.key().location() + "}", p_358221_.key())
+-                    )
 -            );
          Multimap<String, String> multimap = problemreporter$collector.get();
          if (!multimap.isEmpty()) {
@@ -50,4 +50,4 @@
 +        ));
      }
  
-     public static record SubProviderEntry(Function<HolderLookup.Provider, LootTableSubProvider> provider, ContextKeySet paramSet) {
+     public record SubProviderEntry(Function<HolderLookup.Provider, LootTableSubProvider> provider, ContextKeySet paramSet) {

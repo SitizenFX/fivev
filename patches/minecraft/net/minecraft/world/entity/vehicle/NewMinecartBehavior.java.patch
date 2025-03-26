@@ -9,7 +9,7 @@
              Pair<Vec3i, Vec3i> pair = AbstractMinecart.exits(railshape);
              Vec3 vec3 = new Vec3(pair.getFirst()).scale(0.5);
              Vec3 vec31 = new Vec3(pair.getSecond()).scale(0.5);
-@@ -262,11 +_,11 @@
+@@ -260,11 +_,11 @@
              if (flag) {
                  this.minecart.resetFallDistance();
                  this.minecart.setOldPosAndRot();
@@ -23,7 +23,7 @@
                  Vec3 vec31 = this.calculateTrackSpeed(p_369629_, vec3.horizontal(), newminecartbehavior$trackiteration, blockpos, blockstate, railshape);
                  if (newminecartbehavior$trackiteration.firstIteration) {
                      newminecartbehavior$trackiteration.movementLeft = vec31.horizontalDistance();
-@@ -395,7 +_,7 @@
+@@ -393,7 +_,7 @@
      }
  
      private Vec3 calculateHaltTrackSpeed(Vec3 p_364212_, BlockState p_362846_) {
@@ -32,7 +32,7 @@
              return p_364212_.length() < 0.03 ? Vec3.ZERO : p_364212_.scale(0.5);
          } else {
              return p_364212_;
-@@ -403,7 +_,7 @@
+@@ -401,7 +_,7 @@
      }
  
      private Vec3 calculateBoostTrackSpeed(Vec3 p_366761_, BlockPos p_361866_, BlockState p_368734_) {
@@ -41,7 +41,7 @@
              if (p_366761_.length() > 0.01) {
                  return p_366761_.normalize().scale(p_366761_.length() + 0.06);
              } else {
-@@ -455,7 +_,7 @@
+@@ -453,7 +_,7 @@
                  BlockState blockstate = this.level().getBlockState(BlockPos.containing(vec36));
                  if (flag) {
                      if (BaseRailBlock.isRail(blockstate)) {

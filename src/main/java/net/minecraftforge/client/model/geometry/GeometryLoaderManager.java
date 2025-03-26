@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
  * Provides a lookup.
  */
 public final class GeometryLoaderManager {
-    private static ImmutableMap<ResourceLocation, IGeometryLoader<?>> LOADERS;
+    private static ImmutableMap<ResourceLocation, IGeometryLoader> LOADERS;
     private static String LOADER_LIST;
 
     /**
      * Finds the {@link IGeometryLoader} for a given name, or null if not found.
      */
     @Nullable
-    public static IGeometryLoader<?> get(ResourceLocation name) {
+    public static IGeometryLoader get(ResourceLocation name) {
         return LOADERS.get(name);
     }
 
@@ -41,7 +41,7 @@ public final class GeometryLoaderManager {
 
     @ApiStatus.Internal
     public static void init() {
-        var loaders = new HashMap<ResourceLocation, IGeometryLoader<?>>();
+        var loaders = new HashMap<ResourceLocation, IGeometryLoader>();
         var event = new ModelEvent.RegisterGeometryLoaders(loaders);
         ModLoader.get().postEventWrapContainerInModOrder(event);
         LOADERS = ImmutableMap.copyOf(loaders);

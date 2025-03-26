@@ -6,7 +6,6 @@
 package net.minecraftforge.debug.gameplay.item;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.Items;
@@ -15,6 +14,7 @@ import net.minecraftforge.event.GatherComponentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -35,7 +35,7 @@ public class GatherComponentsEventTest extends BaseTestMod {
         }
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void onTestForFood(GameTestHelper helper) {
         helper.assertTrue(Items.IRON_NUGGET.components().has(DataComponents.FOOD), "Iron Nugget is not edible, failed to apply DataComponents.FOOD to it.");
         helper.assertFalse(Items.IRON_INGOT.components().has(DataComponents.FOOD), "Iron Ingot is edible, should not have DataComponents.FOOD");

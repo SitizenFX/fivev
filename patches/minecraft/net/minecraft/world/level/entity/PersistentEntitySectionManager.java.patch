@@ -30,7 +30,7 @@
              return true;
          }
      }
-@@ -367,11 +_,13 @@
+@@ -369,11 +_,13 @@
  
      class Callback implements EntityInLevelCallback {
          private final T entity;
@@ -44,7 +44,7 @@
              this.currentSectionKey = p_157615_;
              this.currentSection = p_157616_;
          }
-@@ -390,9 +_,13 @@
+@@ -392,9 +_,13 @@
                  PersistentEntitySectionManager.this.removeSectionIfEmpty(this.currentSectionKey, this.currentSection);
                  EntitySection<T> entitysection = PersistentEntitySectionManager.this.sectionStorage.getOrCreateSection(i);
                  entitysection.add(this.entity);

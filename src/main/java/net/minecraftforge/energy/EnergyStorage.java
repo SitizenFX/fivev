@@ -91,8 +91,6 @@ public class EnergyStorage implements IEnergyStorage, INBTSerializable<Tag> {
 
     @Override
     public void deserializeNBT(HolderLookup.Provider registryAccess, Tag nbt) {
-        if (!(nbt instanceof IntTag intNbt))
-            throw new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation");
-        this.energy = intNbt.getAsInt();
+        this.energy = nbt.asInt().orElseThrow(() -> new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation"));
     }
 }

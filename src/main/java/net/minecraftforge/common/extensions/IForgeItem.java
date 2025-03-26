@@ -228,18 +228,11 @@ public interface IForgeItem {
     }
 
     /**
-     * Called to tick this items in a players inventory, the indexes are the global slot index.
+     * Called to tick this items in a entitie's inventory, the slotIndex may be -1 for non player entities as they may not have a slot index.
+     * See {@link EntityEquipment#tick(Entity)}
      */
-    default void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-        // For compatibility reasons we have to use non-local index values, I think this is a vanilla bug but lets maintain compatibility
-        var inv = player.getInventory();
-        int vanillaIndex = slotIndex;
-        if (slotIndex >= inv.items.size()) {
-            vanillaIndex -= inv.items.size();
-            if (vanillaIndex >= inv.armor.size())
-                vanillaIndex -= inv.armor.size();
-        }
-        stack.inventoryTick(level, player, vanillaIndex, selectedIndex == vanillaIndex);
+    default void inventoryTick(ItemStack stack, Level level, Entity entity, @Nullable EquipmentSlot slot, int slotIndex) {
+        stack.inventoryTick(level, entity, slot);
     }
 
     /**
@@ -460,9 +453,11 @@ public interface IForgeItem {
      * @param entity   The LivingEntity holding the shield
      * @param attacker The LivingEntity holding the ItemStack
      * @return True if this ItemStack can disable the shield in question.
+     * @deprecated Overriding this does nothing! Use {@link net.minecraft.core.component.DataComponents#WEAPON}.
      */
+    @Deprecated(forRemoval = true, since = "1.21.5")
     default boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
-        return attacker.canDisableShield();
+        return attacker.getSecondsToDisableBlocking() > 0.0F;
     }
 
     /**

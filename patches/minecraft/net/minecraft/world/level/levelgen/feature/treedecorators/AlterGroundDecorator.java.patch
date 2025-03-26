@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/levelgen/feature/treedecorators/AlterGroundDecorator.java
 +++ b/net/minecraft/world/level/levelgen/feature/treedecorators/AlterGroundDecorator.java
-@@ -70,7 +_,9 @@
+@@ -59,7 +_,9 @@
          for (int i = 2; i >= -3; i--) {
              BlockPos blockpos = p_225975_.above(i);
              if (Feature.isGrassOrDirt(p_225974_.level(), blockpos)) {

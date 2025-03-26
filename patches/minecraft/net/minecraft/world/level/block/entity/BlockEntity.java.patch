@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
-@@ -26,7 +_,7 @@
+@@ -32,7 +_,7 @@
  import net.minecraft.world.level.block.state.BlockState;
  import org.slf4j.Logger;
  
 -public abstract class BlockEntity {
 +public abstract class BlockEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<BlockEntity> implements net.minecraftforge.common.extensions.IForgeBlockEntity {
+     private static final Codec<BlockEntityType<?>> TYPE_CODEC = BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec();
      private static final Logger LOGGER = LogUtils.getLogger();
      private final BlockEntityType<?> type;
-     @Nullable
-@@ -37,10 +_,12 @@
+@@ -44,10 +_,12 @@
      private DataComponentMap components = DataComponentMap.EMPTY;
  
      public BlockEntity(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
@@ -22,7 +22,7 @@
      }
  
      private void validateBlockState(BlockState p_345558_) {
-@@ -50,7 +_,7 @@
+@@ -57,7 +_,7 @@
      }
  
      public boolean isValidBlockState(BlockState p_345570_) {
@@ -30,16 +30,17 @@
 +        return this.getType().isValid(p_345570_);
      }
  
-     public static BlockPos getPosFromTag(CompoundTag p_187473_) {
-@@ -71,6 +_,7 @@
+     public static BlockPos getPosFromTag(ChunkPos p_396083_, CompoundTag p_187473_) {
+@@ -89,6 +_,8 @@
      }
  
      protected void loadAdditional(CompoundTag p_331149_, HolderLookup.Provider p_333170_) {
-+        if (getCapabilities() != null && p_331149_.contains("ForgeCaps")) deserializeCaps(p_333170_, p_331149_.getCompound("ForgeCaps"));
++        var caps = p_331149_.getCompound("ForgeCaps");
++        if (getCapabilities() != null && caps.isPresent()) deserializeCaps(p_333170_, caps.get());
      }
  
      public final void loadWithComponents(CompoundTag p_331756_, HolderLookup.Provider p_335164_) {
-@@ -86,6 +_,7 @@
+@@ -101,6 +_,7 @@
      }
  
      protected void saveAdditional(CompoundTag p_187471_, HolderLookup.Provider p_327783_) {
@@ -47,7 +48,7 @@
      }
  
      public final CompoundTag saveWithFullMetadata(HolderLookup.Provider p_331193_) {
-@@ -208,6 +_,13 @@
+@@ -210,6 +_,13 @@
  
      public void setRemoved() {
          this.remove = true;

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/entity/EntityRenderer.java
 +++ b/net/minecraft/client/renderer/entity/EntityRenderer.java
-@@ -104,8 +_,9 @@
+@@ -109,8 +_,9 @@
              renderLeash(p_114488_, p_114489_, entityrenderstate$leashstate);
          }
  
@@ -12,7 +12,7 @@
          }
      }
  
-@@ -272,7 +_,7 @@
+@@ -278,7 +_,7 @@
          }
  
          p_367427_.distanceToCameraSq = this.entityRenderDispatcher.distanceToSqr(p_367571_);
@@ -21,3 +21,11 @@
          if (flag) {
              p_367427_.nameTag = this.getNameTag(p_367571_);
              p_367427_.nameTagAttachment = p_367571_.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0, p_367571_.getYRot(p_363243_));
+@@ -372,6 +_,7 @@
+     }
+ 
+     protected void extractAdditionalHitboxes(T p_392955_, Builder<HitboxRenderState> p_395671_, float p_395030_) {
++        net.minecraft.client.renderer.entity.EnderDragonRenderer.extractAdditionalHitboxexGeneric(p_392955_, p_395671_, p_395030_); // Forge: Extract for our generic multi-part entity system
+     }
+ 
+     @Nullable

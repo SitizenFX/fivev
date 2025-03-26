@@ -6,16 +6,15 @@
 package net.minecraftforge.debug.gameplay.redstone;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 
 /**
@@ -34,11 +33,11 @@ public class UpdateOrder extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(template = "update_order:update_order", rotationSteps = 0)
+    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 0)
     public static void south(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
-        var chest = helper.<ChestBlockEntity>getBlockEntity(chestPos);
+        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
         chest.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(PISTON_DELAY, () -> {
@@ -48,11 +47,11 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(template = "update_order:update_order", rotationSteps = 1)
+    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 1)
     public static void west(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
-        var chest = helper.<ChestBlockEntity>getBlockEntity(chestPos);
+        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
         chest.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(PISTON_DELAY, () -> {
@@ -62,11 +61,11 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(template = "update_order:update_order", rotationSteps = 2)
+    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 2)
     public static void north(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
-        var chest = helper.<ChestBlockEntity>getBlockEntity(chestPos);
+        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
         chest.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(4, () -> {
@@ -76,11 +75,11 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(template = "update_order:update_order", rotationSteps = 3)
+    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 3)
     public static void east(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
-        var chest = helper.<ChestBlockEntity>getBlockEntity(chestPos);
+        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
         chest.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(PISTON_DELAY, () -> {
@@ -90,7 +89,7 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(template = "update_order:upward_update")
+    @GameTest(data = @GameTest.Data( structure = "update_order:upward_update"))
     public static void up(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 2);
         var expectedPos = new BlockPos(2, 1, 0);
@@ -98,7 +97,7 @@ public class UpdateOrder extends BaseTestMod {
         helper.assertBlockPresent(Blocks.BARREL, chestPos);
         helper.assertBlockPresent(Blocks.AIR, expectedPos);
         helper.assertBlockPresent(Blocks.AIR, unexpectedPos);
-        var chest = helper.<BarrelBlockEntity>getBlockEntity(chestPos);
+        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
         chest.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(10, () -> { // There are a lot of things happening, give it a few ticks

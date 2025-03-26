@@ -8,13 +8,13 @@ package net.minecraftforge.debug.client;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ public class LateBoundIdMapperTest extends BaseTestMod {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void compound(GameTestHelper helper) {
         var ID_MAPPER = ItemTintSources.ID_MAPPER;
 

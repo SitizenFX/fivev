@@ -1,9 +1,9 @@
 --- a/net/minecraft/world/item/MobBucketItem.java
 +++ b/net/minecraft/world/item/MobBucketItem.java
-@@ -26,13 +_,18 @@
+@@ -18,13 +_,18 @@
+ import net.minecraft.world.level.material.Fluid;
  
  public class MobBucketItem extends BucketItem {
-     private static final MapCodec<TropicalFish.Variant> VARIANT_FIELD_CODEC = TropicalFish.Variant.CODEC.fieldOf("BucketVariantTag");
 -    private final EntityType<? extends Mob> type;
 -    private final SoundEvent emptySound;
 +    private final java.util.function.Supplier<? extends EntityType<? extends Mob>> entityTypeSupplier;
@@ -24,12 +24,12 @@
      }
  
      @Override
-@@ -45,11 +_,11 @@
+@@ -37,11 +_,11 @@
  
      @Override
-     protected void playEmptySound(@Nullable Player p_151151_, LevelAccessor p_151152_, BlockPos p_151153_) {
--        p_151152_.playSound(p_151151_, p_151153_, this.emptySound, SoundSource.NEUTRAL, 1.0F, 1.0F);
-+        p_151152_.playSound(p_151151_, p_151153_, this.getEmptySound(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+     protected void playEmptySound(@Nullable LivingEntity p_391719_, LevelAccessor p_151152_, BlockPos p_151153_) {
+-        p_151152_.playSound(p_391719_, p_151153_, this.emptySound, SoundSource.NEUTRAL, 1.0F, 1.0F);
++        p_151152_.playSound(p_391719_, p_151153_, this.getEmptySound(), SoundSource.NEUTRAL, 1.0F, 1.0F);
      }
  
      private void spawn(ServerLevel p_151142_, ItemStack p_151143_, BlockPos p_151144_) {
@@ -38,18 +38,9 @@
          if (mob instanceof Bucketable bucketable) {
              CustomData customdata = p_151143_.getOrDefault(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
              bucketable.loadFromBucketTag(customdata.copyTag());
-@@ -64,7 +_,7 @@
- 
-     @Override
-     public void appendHoverText(ItemStack p_151155_, Item.TooltipContext p_329546_, List<Component> p_151157_, TooltipFlag p_151158_) {
--        if (this.type == EntityType.TROPICAL_FISH) {
-+        if (this.getFishType() == EntityType.TROPICAL_FISH) {
-             CustomData customdata = p_151155_.getOrDefault(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
-             if (customdata.isEmpty()) {
-                 return;
-@@ -92,5 +_,13 @@
-                 p_151157_.add(mutablecomponent);
-             }
+@@ -52,5 +_,13 @@
+             p_151142_.addFreshEntityWithPassengers(mob);
+             mob.playAmbientSound();
          }
 +    }
 +

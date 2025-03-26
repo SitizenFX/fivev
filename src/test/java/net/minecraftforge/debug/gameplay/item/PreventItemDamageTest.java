@@ -8,7 +8,6 @@ package net.minecraftforge.debug.gameplay.item;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,6 +23,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -46,7 +46,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         this.testItem(lookup -> FAKE_SHIELD.get().getDefaultInstance());
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void player_fake_shield_took_modified_damage(GameTestHelper helper) {
         helper.makeFloor();
 
@@ -62,8 +62,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         helper.<LivingEntityUseItemEvent.Start>addEventListener(event -> {
             if (event.getEntity() != player) return;
 
-            if (event.getItem() != shield)
-                helper.fail("Player is using an item, but it's not the fake shield! Check the game test impl.");
+            helper.assertTrue(event.getItem() == shield, () -> "Player is using an item, but it's not the fake shield! Check the game test impl.");
 
             // Artificially pass 5 seconds from start of the shield
             // This is because the first 5 ticks, the player is still vulnerable
@@ -73,8 +72,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         helper.<PlayerDestroyItemEvent>addEventListener(event -> {
             if (event.getEntity() != player) return;
 
-            if (event.getOriginal() != shield)
-                helper.fail("Player destroyed an item, but it's not the fake shield! Check the game test impl.");
+            helper.assertTrue(event.getOriginal() == shield, () -> "Player destroyed an item, but it's not the fake shield! Check the game test impl.");
 
             firedPlayerDestroyItem.set(true);
         });
@@ -107,7 +105,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         helper.succeed();
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void fake_shield_damage_item_impl(GameTestHelper helper) {
         helper.makeFloor();
 

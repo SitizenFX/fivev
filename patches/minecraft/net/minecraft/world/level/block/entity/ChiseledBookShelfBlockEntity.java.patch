@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/ChiseledBookShelfBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/ChiseledBookShelfBlockEntity.java
-@@ -158,4 +_,28 @@
+@@ -160,4 +_,28 @@
      public void removeComponentsFromTag(CompoundTag p_329882_) {
          p_329882_.remove("Items");
      }

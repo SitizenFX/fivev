@@ -8,8 +8,8 @@
 +public class SugarCaneBlock extends Block implements net.minecraftforge.common.IPlantable {
      public static final MapCodec<SugarCaneBlock> CODEC = simpleCodec(SugarCaneBlock::new);
      public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
-     protected static final float AABB_OFFSET = 6.0F;
-@@ -58,12 +_,15 @@
+     private static final VoxelShape SHAPE = Block.column(12.0, 0.0, 16.0);
+@@ -57,12 +_,15 @@
  
              if (i < 3) {
                  int j = p_222548_.getValue(AGE);
@@ -17,15 +17,15 @@
                  if (j == 15) {
                      p_222549_.setBlockAndUpdate(p_222550_.above(), this.defaultBlockState());
 +                    net.minecraftforge.common.ForgeHooks.onCropsGrowPost(p_222549_, p_222550_.above(), this.defaultBlockState());
-                     p_222549_.setBlock(p_222550_, p_222548_.setValue(AGE, Integer.valueOf(0)), 4);
+                     p_222549_.setBlock(p_222550_, p_222548_.setValue(AGE, 0), 260);
                  } else {
-                     p_222549_.setBlock(p_222550_, p_222548_.setValue(AGE, Integer.valueOf(j + 1)), 4);
+                     p_222549_.setBlock(p_222550_, p_222548_.setValue(AGE, j + 1), 260);
                  }
 +                }
              }
          }
      }
-@@ -88,6 +_,8 @@
+@@ -87,6 +_,8 @@
  
      @Override
      protected boolean canSurvive(BlockState p_57175_, LevelReader p_57176_, BlockPos p_57177_) {
@@ -34,7 +34,7 @@
          BlockState blockstate = p_57176_.getBlockState(p_57177_.below());
          if (blockstate.is(this)) {
              return true;
-@@ -98,7 +_,7 @@
+@@ -97,7 +_,7 @@
                  for (Direction direction : Direction.Plane.HORIZONTAL) {
                      BlockState blockstate1 = p_57176_.getBlockState(blockpos.relative(direction));
                      FluidState fluidstate = p_57176_.getFluidState(blockpos.relative(direction));
@@ -43,7 +43,7 @@
                          return true;
                      }
                  }
-@@ -111,5 +_,15 @@
+@@ -110,5 +_,15 @@
      @Override
      protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_57186_) {
          p_57186_.add(AGE);

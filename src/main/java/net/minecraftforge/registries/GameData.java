@@ -264,9 +264,11 @@ public class GameData {
         LOGGER.debug(REGISTRIES, "Freezing registries");
         for (var reg : BuiltInRegistries.REGISTRY) {
             if (reg instanceof NamespacedWrapper<?> named) {
-                // This is called after we fire our register events, but before doesn't load any tags.
+                // This is called after we fire our register events, but before the game loads any tags.
                 // So lets skip the validation for this pass and just make every unbound tag empty
                 // Tags will be bound later when tag data is reloaded/synced
+                if (named.isFrozen())
+                    named.unfreeze();
                 named.bindAllUnboundTagsToEmpty();
                 named.freeze();
             } else if (reg instanceof MappedRegistry maped)

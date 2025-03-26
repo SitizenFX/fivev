@@ -1,30 +1,32 @@
 --- a/net/minecraft/client/Screenshot.java
 +++ b/net/minecraft/client/Screenshot.java
-@@ -54,14 +_,24 @@
-             file2 = new File(file1, p_92307_);
-         }
+@@ -43,6 +_,13 @@
+                     file2 = new File(file1, p_92297_);
+                 }
  
-+        var event = net.minecraftforge.client.event.ForgeEventFactoryClient.onScreenshot(nativeimage, file2);
-+        if (event.isCanceled()) {
-+           p_92311_.accept(event.getCancelMessage());
-+           return;
-+        }
-+        final File target = event.getScreenshotFile();
++                var event = net.minecraftforge.client.event.ForgeEventFactoryClient.onScreenshot(p_389141_, file2);
++                if (event.isCanceled()) {
++                    p_92301_.accept(event.getCancelMessage());
++                    return;
++                }
++                final File target = event.getScreenshotFile();
 +
-         Util.ioPool()
-             .execute(
-                 () -> {
-                     try {
--                        nativeimage.writeToFile(file2);
--                        Component component = Component.literal(file2.getName())
-+                        nativeimage.writeToFile(target);
-+                        Component component = Component.literal(target.getName())
-                             .withStyle(ChatFormatting.UNDERLINE)
--                            .withStyle(p_168608_ -> p_168608_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file2.getAbsolutePath())));
-+                            .withStyle(p_168608_ -> p_168608_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, target.getAbsolutePath())));
-+                        if (event.getResultMessage() != null)
-+                            p_92311_.accept(event.getResultMessage());
-+                        else
-                         p_92311_.accept(Component.translatable("screenshot.success", component));
-                     } catch (Exception exception) {
-                         LOGGER.warn("Couldn't save screenshot", (Throwable)exception);
+                 Util.ioPool()
+                     .execute(
+                         () -> {
+@@ -50,10 +_,13 @@
+                                 NativeImage $$4x = p_389141_;
+ 
+                                 try {
+-                                    p_389141_.writeToFile(file2);
+-                                    Component component = Component.literal(file2.getName())
++                                    p_389141_.writeToFile(target);
++                                    Component component = Component.literal(target.getName())
+                                         .withStyle(ChatFormatting.UNDERLINE)
+                                         .withStyle(p_389149_ -> p_389149_.withClickEvent(new ClickEvent.OpenFile(file2.getAbsoluteFile())));
++                                    if (event.getResultMessage() != null)
++                                        p_92301_.accept(event.getResultMessage());
++                                    else
+                                     p_92301_.accept(Component.translatable("screenshot.success", component));
+                                 } catch (Throwable throwable1) {
+                                     if (p_389141_ != null) {

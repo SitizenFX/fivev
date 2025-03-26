@@ -28,9 +28,9 @@
      }
  
      @Override
-@@ -38,4 +_,29 @@
-     public boolean firstPerson() {
-         return this == FIRST_PERSON_LEFT_HAND || this == FIRST_PERSON_RIGHT_HAND;
+@@ -42,4 +_,29 @@
+     public boolean leftHand() {
+         return this == FIRST_PERSON_LEFT_HAND || this == THIRD_PERSON_LEFT_HAND;
      }
 +
 +    private final boolean isModded;

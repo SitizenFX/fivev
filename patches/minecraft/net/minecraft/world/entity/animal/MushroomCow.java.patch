@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/MushroomCow.java
 +++ b/net/minecraft/world/entity/animal/MushroomCow.java
-@@ -109,7 +_,7 @@
+@@ -114,7 +_,7 @@
  
              this.playSound(soundevent, 1.0F, 1.0F);
              return InteractionResult.SUCCESS;
@@ -9,7 +9,7 @@
              if (this.level() instanceof ServerLevel serverlevel) {
                  this.shear(serverlevel, SoundSource.PLAYERS, itemstack);
                  this.gameEvent(GameEvent.SHEAR, p_28941_);
-@@ -164,15 +_,26 @@
+@@ -169,15 +_,26 @@
  
      @Override
      public void shear(ServerLevel p_369641_, SoundSource p_28924_, ItemStack p_364876_) {
@@ -39,7 +39,7 @@
      }
  
      @Override
-@@ -232,6 +_,15 @@
+@@ -255,6 +_,15 @@
          }
  
          return mushroomcow$variant2;

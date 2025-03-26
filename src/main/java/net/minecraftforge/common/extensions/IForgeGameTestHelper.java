@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.minecraft.core.Registry;
@@ -49,6 +50,12 @@ public interface IForgeGameTestHelper {
         return (GameTestHelper) this;
     }
 
+    int getTickAsInt();
+
+    default GameTestAssertException throwing(String message) {
+        return new GameTestAssertException(Component.literal(message), this.getTickAsInt());
+    }
+
     default void say(String message) {
         this.say(message, Style.EMPTY);
     }
@@ -73,14 +80,22 @@ public interface IForgeGameTestHelper {
         return ForgeI18n.getPattern(message) != null ? Component.translatable(message) : Component.literal(message);
     }
 
+    default void assertTrue(boolean value, String message) {
+        this.assertTrue(value, () -> message);
+    }
+
     default void assertTrue(boolean value, Supplier<String> message) {
         if (!value)
-            throw new GameTestAssertException(message.get());
+            throw new GameTestAssertException(Component.literal(message.get()), this.getTickAsInt());
+    }
+
+    default void assertFalse(boolean value, String message) {
+        this.assertFalse(value, () -> message);
     }
 
     default void assertFalse(boolean value, Supplier<String> message) {
         if (value)
-            throw new GameTestAssertException(message.get());
+            throw new GameTestAssertException(Component.literal(message.get()), this.getTickAsInt());
     }
 
     default <N> void assertValueEqual(N expected, N actual, String name, String message) {
@@ -89,7 +104,7 @@ public interface IForgeGameTestHelper {
 
     default <N> void assertValueEqual(N expected, N actual, String name, Supplier<String> message) {
         if (!Objects.equals(expected, actual))
-            throw new GameTestAssertException("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, expected, actual));
+            throw this.throwing("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, expected, actual));
     }
 
     default <N> void assertValueEqual(N[] expected, N[] actual, String name, String message) {
@@ -98,7 +113,7 @@ public interface IForgeGameTestHelper {
 
     default <N> void assertValueEqual(N[] expected, N[] actual, String name, Supplier<String> message) {
         if (!Objects.deepEquals(expected, actual))
-            throw new GameTestAssertException("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, Arrays.toString(expected), Arrays.toString(actual)));
+            throw this.throwing("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, Arrays.toString(expected), Arrays.toString(actual)));
     }
 
     default <N> void assertValueNotEqual(N expected, N actual, String name, String message) {
@@ -107,7 +122,7 @@ public interface IForgeGameTestHelper {
 
     default <N> void assertValueNotEqual(N expected, N actual, String name, Supplier<String> message) {
         if (Objects.equals(expected, actual))
-            throw new GameTestAssertException("%s -- Expected %s to NOT be %s, but was".formatted(message.get(), name, expected));
+            throw this.throwing("%s -- Expected %s to NOT be %s, but was".formatted(message.get(), name, expected));
     }
 
     default <N> void assertValueNotEqual(N[] expected, N[] actual, String name, String message) {
@@ -116,7 +131,7 @@ public interface IForgeGameTestHelper {
 
     default <N> void assertValueNotEqual(N[] expected, N[] actual, String name, Supplier<String> message) {
         if (!Objects.deepEquals(expected, actual))
-            throw new GameTestAssertException("%s -- Expected %s to NOT be %s, but was".formatted(message.get(), name, Arrays.toString(expected)));
+            throw this.throwing("%s -- Expected %s to NOT be %s, but was".formatted(message.get(), name, Arrays.toString(expected)));
     }
 
     default <E> Registry<E> registryLookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
@@ -145,7 +160,7 @@ public interface IForgeGameTestHelper {
         var server = level.getServer();
 
         var listener = new ServerGamePacketListenerImpl(server, connection, player, cookie);
-        var info = GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(server.registryAccess()));
+        var info = GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(server.registryAccess()), listener);
         connection.setupInboundProtocol(info, listener);
         return player;
     }
@@ -258,13 +273,26 @@ public interface IForgeGameTestHelper {
         return new BoolFlag(name);
     }
 
+    default void fail(String message) {
+        self().fail(Component.literal(message));
+    }
+
     public static class Flag<T> {
         private final String name;
-        @Nullable
-        protected T value = null;
+        private final Function<String, ? extends RuntimeException> thrower;
+        protected @Nullable T value = null;
 
         public Flag(String name) {
+            this(name, RuntimeException::new);
+        }
+
+        public Flag(String name, Function<String, ? extends RuntimeException> thrower) {
             this.name = name;
+            this.thrower = thrower;
+        }
+
+        protected final RuntimeException throwing(String message) {
+            return this.thrower.apply(message);
         }
 
         public void set(T value) {
@@ -287,7 +315,7 @@ public interface IForgeGameTestHelper {
         public void assertUnset(Supplier<String> message) {
             if (this.value != null) {
                 String s = message != null ? message.get() + " -- " : "";
-                throw new GameTestAssertException(s + "Expected " + name + " to be null, but was " + this.value);
+                throw this.throwing(s + "Expected " + name + " to be null, but was " + this.value);
             }
         }
 
@@ -302,7 +330,7 @@ public interface IForgeGameTestHelper {
         public void assertSet(Supplier<String> message) {
             if (this.value == null) {
                 String s = message != null ? message.get() + " -- " : "";
-                throw new GameTestAssertException(s + "Flag " + name + " was never set");
+                throw this.throwing(s + "Flag " + name + " was never set");
             }
         }
 
@@ -318,7 +346,7 @@ public interface IForgeGameTestHelper {
             assertSet(message);
             if (expected != null && !expected.equals(this.value)) {
                 String s = message != null ? message.get() + " -- " : "";
-                throw new GameTestAssertException(s + "Expected " + name + " to be " + expected + ", but was " + this.value);
+                throw this.throwing(s + "Expected " + name + " to be " + expected + ", but was " + this.value);
             }
         }
     }

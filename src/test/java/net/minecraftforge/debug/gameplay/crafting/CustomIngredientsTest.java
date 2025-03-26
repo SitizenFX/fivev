@@ -21,7 +21,6 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -46,6 +45,7 @@ import net.minecraftforge.common.util.INBTBuilder;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.test.BaseTestMod;
 
@@ -131,7 +131,7 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
         return ret;
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void partial_nbt(GameTestHelper helper) {
         var both = named().merge(damaged());
         var wood = stack(Items.WOODEN_PICKAXE);
@@ -174,7 +174,7 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
         assertRecipeMiss(helper, RecipeType.CRAFTING, container.apply(diamond_tag));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void compound(GameTestHelper helper) {
         Function<ItemStack, CraftingInput> container = (stack) ->
             SimpleCraftingContainer.builder()
@@ -190,7 +190,7 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
         assertRecipeMiss(helper, RecipeType.CRAFTING, container.apply(stack(Items.REDSTONE)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void strict(GameTestHelper helper) {
         Function<ItemStack, CraftingInput> container = (stack) ->
             SimpleCraftingContainer.builder()
@@ -203,7 +203,7 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
         assertRecipeMiss(helper, RecipeType.CRAFTING, container.apply(named(Items.NETHERITE_PICKAXE)));
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void intersection(GameTestHelper helper) {
         Function<ItemStack, CraftingInput> container = (stack) ->
             SimpleCraftingContainer.builder()
@@ -219,7 +219,7 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
     }
 
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void difference(GameTestHelper helper) {
         Function<ItemStack, CraftingInput> container = (stack) ->
             SimpleCraftingContainer.builder()

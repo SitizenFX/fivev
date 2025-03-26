@@ -75,7 +75,7 @@
 +                    });
                      Predicate<ResourceLocation> predicate = p_255496_ -> registrylookup.get(ResourceKey.create(this.registryKey, p_255496_)).isPresent();
                      Predicate<ResourceLocation> predicate1 = p_274776_ -> this.builders.containsKey(p_274776_)
-                             || p_325926_.parent.contains(TagKey.create(this.registryKey, p_274776_));
+                         || p_325926_.parent.contains(TagKey.create(this.registryKey, p_274776_));
 @@ -82,7 +_,7 @@
                                      ResourceLocation resourcelocation = p_325931_.getKey();
                                      TagBuilder tagbuilder = p_325931_.getValue();

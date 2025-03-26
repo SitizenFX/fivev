@@ -587,8 +587,11 @@ public interface IForgeBlock {
      * @param pos Block position in level
      * @param direction The direction that the fire is coming from
      * @param igniter The entity that lit the fire
+     * @return {@code true} if the block <strong>SHOULD BE REMOVED</strong>
      */
-    default void onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {}
+    default boolean onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
+        return false;
+    }
 
     /**
      * Called when fire is updating on a neighbor block.

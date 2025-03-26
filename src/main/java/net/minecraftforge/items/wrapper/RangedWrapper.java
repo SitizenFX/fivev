@@ -15,13 +15,11 @@ import org.jetbrains.annotations.NotNull;
  * Shifting of slot indices is handled automatically for you.
  */
 public class RangedWrapper implements IItemHandlerModifiable {
-
     private final IItemHandlerModifiable compose;
     private final int minSlot;
     private final int maxSlot;
 
-    public RangedWrapper(IItemHandlerModifiable compose, int minSlot, int maxSlotExclusive)
-    {
+    public RangedWrapper(IItemHandlerModifiable compose, int minSlot, int maxSlotExclusive) {
         Preconditions.checkArgument(maxSlotExclusive > minSlot, "Max slot must be greater than min slot");
         this.compose = compose;
         this.minSlot = minSlot;
@@ -29,81 +27,60 @@ public class RangedWrapper implements IItemHandlerModifiable {
     }
 
     @Override
-    public int getSlots()
-    {
+    public int getSlots() {
         return maxSlot - minSlot;
     }
 
     @Override
     @NotNull
-    public ItemStack getStackInSlot(int slot)
-    {
+    public ItemStack getStackInSlot(int slot) {
         if (checkSlot(slot))
-        {
             return compose.getStackInSlot(slot + minSlot);
-        }
 
         return ItemStack.EMPTY;
     }
 
     @Override
     @NotNull
-    public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate)
-    {
+    public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (checkSlot(slot))
-        {
             return compose.insertItem(slot + minSlot, stack, simulate);
-        }
 
         return stack;
     }
 
     @Override
     @NotNull
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
+    public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (checkSlot(slot))
-        {
             return compose.extractItem(slot + minSlot, amount, simulate);
-        }
 
         return ItemStack.EMPTY;
     }
 
     @Override
-    public void setStackInSlot(int slot, @NotNull ItemStack stack)
-    {
+    public void setStackInSlot(int slot, @NotNull ItemStack stack) {
         if (checkSlot(slot))
-        {
             compose.setStackInSlot(slot + minSlot, stack);
-        }
     }
 
     @Override
-    public int getSlotLimit(int slot)
-    {
+    public int getSlotLimit(int slot) {
         if (checkSlot(slot))
-        {
             return compose.getSlotLimit(slot + minSlot);
-        }
 
         return 0;
     }
 
     @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack)
-    {
+    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         if (checkSlot(slot))
-        {
             return compose.isItemValid(slot + minSlot, stack);
-        }
 
         return false;
     }
 
-    private boolean checkSlot(int localSlot)
-    {
+    private boolean checkSlot(int localSlot) {
         return localSlot + minSlot < maxSlot;
     }
-
 }

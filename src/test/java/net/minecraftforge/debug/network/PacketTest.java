@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import io.netty.channel.embedded.EmbeddedChannel;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +24,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.network.Channel.VersionTest;
 import net.minecraftforge.network.ChannelBuilder;
@@ -48,7 +49,7 @@ public class PacketTest extends BaseTestMod {
         TestChannel.registerMessages();
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void send_to_player(GameTestHelper helper) {
         // Send a test packet directly to a player
         ServerPlayer target = mockPlayer(helper);
@@ -56,8 +57,8 @@ public class PacketTest extends BaseTestMod {
         try {
             var distro = PacketDistributor.PLAYER.with(target);
             TestChannel.CHANNEL.send(new TestPacket("player target"), distro);
-            helper.assertValueEqual(count(target), 1, "Target packet count");
-            helper.assertValueEqual(count(bystander), 0, "Bystander packet count");
+            helper.assertValueEqual(count(target), 1, Component.literal("Target packet count"));
+            helper.assertValueEqual(count(bystander), 0, Component.literal("Bystander packet count"));
 
             helper.succeed();
         } finally {
@@ -66,7 +67,7 @@ public class PacketTest extends BaseTestMod {
         }
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void send_to_nearby(GameTestHelper helper) {
         // Send a test packet to all players near a target point
 
@@ -74,14 +75,14 @@ public class PacketTest extends BaseTestMod {
         ServerPlayer bystander = mockPlayer(helper);
         try {
             var center = helper.absoluteVec(Vec3.ZERO);
-            target.moveTo(center); // Move to center
-            bystander.moveTo(center.add(0, 10, 0)); // Move 10 blocks away
+            target.snapTo(center); // Move to center
+            bystander.snapTo(center.add(0, 10, 0)); // Move 10 blocks away
             var point = new PacketDistributor.TargetPoint(center.x(), center.y(), center.z(), 1/* Only within 1 block */, helper.getLevel().dimension());
             var distro = PacketDistributor.NEAR.with(point);
 
             TestChannel.CHANNEL.send(new TestPacket("point target"), distro);
-            helper.assertValueEqual(count(target), 1, "Target packet count");
-            helper.assertValueEqual(count(bystander), 0, "Bystander packet count");
+            helper.assertValueEqual(count(target), 1, Component.literal("Target packet count"));
+            helper.assertValueEqual(count(bystander), 0, Component.literal("Bystander packet count"));
 
             helper.succeed();
         } finally {
@@ -90,7 +91,7 @@ public class PacketTest extends BaseTestMod {
         }
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void send_to_all(GameTestHelper helper) {
         // Send a test packet to all players
         ServerPlayer target = mockPlayer(helper);
@@ -99,8 +100,8 @@ public class PacketTest extends BaseTestMod {
             var distro = PacketDistributor.ALL.noArg();
 
             TestChannel.CHANNEL.send(new TestPacket("everyone!"), distro);
-            helper.assertValueEqual(count(target), 1, "Target packet count");
-            helper.assertValueEqual(count(bystander), 1, "Bystander packet count");
+            helper.assertValueEqual(count(target), 1, Component.literal("Target packet count"));
+            helper.assertValueEqual(count(bystander), 1, Component.literal("Bystander packet count"));
 
             helper.succeed();
         } finally {

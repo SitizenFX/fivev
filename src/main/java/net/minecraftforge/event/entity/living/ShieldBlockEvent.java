@@ -8,6 +8,7 @@ package net.minecraftforge.event.entity.living;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 /**
@@ -18,70 +19,56 @@ import net.minecraftforge.eventbus.api.Cancelable;
  * at least for players.
  */
 @Cancelable
-public class ShieldBlockEvent extends LivingEvent
-{
+public class ShieldBlockEvent extends LivingEvent {
     private final DamageSource source;
     private final float originalBlocked;
     private float dmgBlocked;
     private boolean shieldTakesDamage = true;
+    private final ItemStack blockedWith;
 
-    public ShieldBlockEvent(LivingEntity blocker, DamageSource source, float blocked)
-    {
+    public ShieldBlockEvent(LivingEntity blocker, DamageSource source, float blocked, ItemStack blockedWith) {
         super(blocker);
         this.source = source;
         this.originalBlocked = blocked;
         this.dmgBlocked = blocked;
+        this.blockedWith = blockedWith;
     }
 
-    /**
-     * @return The damage source.
-     */
-    public DamageSource getDamageSource()
-    {
+    /** @return The damage source. */
+    public DamageSource getDamageSource() {
         return this.source;
     }
 
-    /**
-     * @return The original amount of damage blocked, which is the same as the original
-     * incoming damage value.
-     */
-    public float getOriginalBlockedDamage()
-    {
+    /** @return The original amount of damage blocked, which is the same as the original incoming damage value. */
+    public float getOriginalBlockedDamage() {
         return this.originalBlocked;
     }
 
-    /**
-     * @return The current amount of damage blocked, as a result of this event.
-     */
-    public float getBlockedDamage()
-    {
+    /** @return The current amount of damage blocked, as a result of this event. */
+    public float getBlockedDamage() {
         return this.dmgBlocked;
     }
 
-    /**
-     * Controls if {@link LivingEntity#hurtCurrentlyUsedShield} is called.
-     * @return If the shield item will take durability damage or not.
-     */
-    public boolean shieldTakesDamage()
-    {
+    /** @return If the shield item will take durability damage or not. */
+    public boolean shieldTakesDamage() {
         return this.shieldTakesDamage;
     }
 
     /**
-     * Set how much damage is blocked by this action.<br>
-     * Note that initially the blocked amount is the entire attack.<br>
+     * Sets how much damage is blocked by this action.
+     * <p>Note that initially the blocked amount is the entire attack.</p>
      */
-    public void setBlockedDamage(float blocked)
-    {
+    public void setBlockedDamage(float blocked) {
         this.dmgBlocked = Mth.clamp(blocked, 0, this.originalBlocked);
     }
 
-    /**
-     * Set if the shield will take durability damage or not.
-     */
-    public void setShieldTakesDamage(boolean damage)
-    {
+    /** Sets if the shield will take durability damage or not. */
+    public void setShieldTakesDamage(boolean damage) {
         this.shieldTakesDamage = damage;
     }
 
+    /** @return The item that was used to block damage. */
+    public ItemStack getBlockedWith() {
+        return this.blockedWith;
+    }
 }

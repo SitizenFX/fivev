@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-@@ -126,6 +_,13 @@
+@@ -122,6 +_,13 @@
                  Vec3 vec3 = this.oldPosition();
                  if (entity instanceof ServerPlayer serverplayer) {
                      if (serverplayer.connection.isAcceptingMessages()) {
@@ -14,7 +14,7 @@
                          if (this.random.nextFloat() < 0.05F && serverlevel.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                              Endermite endermite = EntityType.ENDERMITE.create(serverlevel, EntitySpawnReason.TRIGGERED);
                              if (endermite != null) {
-@@ -152,7 +_,7 @@
+@@ -148,7 +_,7 @@
                          if (serverplayer1 != null) {
                              serverplayer1.resetFallDistance();
                              serverplayer1.resetCurrentImpulseContext();

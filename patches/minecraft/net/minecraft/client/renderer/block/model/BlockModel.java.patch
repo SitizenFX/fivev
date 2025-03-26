@@ -1,52 +1,45 @@
 --- a/net/minecraft/client/renderer/block/model/BlockModel.java
 +++ b/net/minecraft/client/renderer/block/model/BlockModel.java
-@@ -49,6 +_,7 @@
-     public UnbakedModel parent;
-     @Nullable
-     private final ResourceLocation parentLocation;
-+    public final net.minecraftforge.client.model.geometry.BlockGeometryBakingContext customData = new net.minecraftforge.client.model.geometry.BlockGeometryBakingContext(this);
- 
-     public static BlockModel fromStream(Reader p_111462_) {
-         return GsonHelper.fromJson(GSON, p_111462_, BlockModel.class);
-@@ -85,6 +_,8 @@
-     @Override
-     public void resolveDependencies(ResolvableModel.Resolver p_377823_) {
-         if (this.parentLocation != null) {
-+            if (customData.hasCustomGeometry())
-+                customData.getCustomGeometry().resolveDependencies(p_377823_, customData);
-             this.parent = p_377823_.resolve(this.parentLocation);
-         }
-     }
-@@ -110,14 +_,20 @@
-     public BakedModel bake(
-         TextureSlots p_378598_, ModelBaker p_378458_, ModelState p_111453_, boolean p_111455_, boolean p_377435_, ItemTransforms p_378085_
-     ) {
-+        if (this.customData.getCustomGeometry() != null)
-+            return this.customData.getCustomGeometry().bake(customData, p_378458_, p_378598_, p_111453_);
+@@ -28,8 +_,20 @@
+     @Nullable Boolean ambientOcclusion,
+     @Nullable ItemTransforms transforms,
+     TextureSlots.Data textureSlots,
+-    @Nullable ResourceLocation parent
++    @Nullable ResourceLocation parent,
++    @Nullable net.minecraftforge.client.model.ForgeBlockModelData forgeData
+ ) implements UnbakedModel {
++    public BlockModel(
++        @Nullable UnbakedGeometry geometry,
++        @Nullable UnbakedModel.GuiLight guiLight,
++        @Nullable Boolean ambientOcclusion,
++        @Nullable ItemTransforms transforms,
++        TextureSlots.Data textureSlots,
++        @Nullable ResourceLocation parent
++    ) {
++        this(geometry, guiLight, ambientOcclusion, transforms, textureSlots, parent, null);
++    }
 +
-+        var wrapped = net.minecraftforge.client.ForgeHooksClient.wrapRenderType(p_378458_, this.customData.getRenderType(), this.customData.getRenderTypeFast());
-+
-         return this.elements.isEmpty() && this.parent != null
--            ? this.parent.bake(p_378598_, p_378458_, p_111453_, p_111455_, p_377435_, p_378085_)
--            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_);
-+            ? this.parent.bake(p_378598_, wrapped, p_111453_, p_111455_, p_377435_, p_378085_)
-+            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_, wrapped.renderType(), wrapped.renderTypeFast());
-     }
- 
-     @Nullable
      @VisibleForTesting
-     List<BlockElement> getElements() {
-+        if (customData.hasCustomGeometry()) return java.util.Collections.emptyList();
-         return this.elements;
-     }
- 
-@@ -147,7 +_,8 @@
+     static final Gson GSON = new GsonBuilder()
+         .registerTypeAdapter(BlockModel.class, new BlockModel.Deserializer())
+@@ -97,8 +_,9 @@
+                 unbakedmodel$guilight = UnbakedModel.GuiLight.getByName(GsonHelper.getAsString(jsonobject, "gui_light"));
              }
  
++            var forgeData = net.minecraftforge.client.ForgeHooksClient.deserializeBlockModel(jsonobject, p_111500_);
              ResourceLocation resourcelocation = s.isEmpty() ? null : ResourceLocation.parse(s);
--            return new BlockModel(resourcelocation, list, textureslots$data, obool, unbakedmodel$guilight, itemtransforms);
-+            var ret = new BlockModel(resourcelocation, list, textureslots$data, obool, unbakedmodel$guilight, itemtransforms);
-+            return net.minecraftforge.client.ForgeHooksClient.deserializeBlockModel(ret, ret.getElements(), jsonobject, p_111500_);
+-            return new BlockModel(unbakedgeometry, unbakedmodel$guilight, obool, itemtransforms, textureslots$data, resourcelocation);
++            return new BlockModel(unbakedgeometry, unbakedmodel$guilight, obool, itemtransforms, textureslots$data, resourcelocation, forgeData);
          }
  
          private TextureSlots.Data getTextureMap(JsonObject p_111510_) {
+@@ -121,6 +_,9 @@
+ 
+         @Nullable
+         protected UnbakedGeometry getElements(JsonDeserializationContext p_111507_, JsonObject p_111508_) {
++            var geo = net.minecraftforge.client.ForgeHooksClient.deserializeBlockModelGeometry(p_111508_, p_111507_);
++            if (geo != null)
++                return geo;
+             if (!p_111508_.has("elements")) {
+                 return null;
+             } else {

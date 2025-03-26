@@ -9,7 +9,6 @@ import cpw.mods.modlauncher.api.LamdbaExceptionUtils.Supplier_WithExceptions;
 import net.minecraftforge.fml.loading.StringUtils;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;

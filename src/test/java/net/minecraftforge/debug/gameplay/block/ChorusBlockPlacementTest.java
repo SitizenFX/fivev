@@ -7,18 +7,16 @@ package net.minecraftforge.debug.gameplay.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -37,7 +35,7 @@ public class ChorusBlockPlacementTest extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(template = "forge:empty3x3x3")
+    @GameTest
     public static void custom_placeable_block(GameTestHelper helper) {
         var custom = helper.setAssertAndGetBlock(BlockPos.ZERO, BLOCK.get());
         helper.assertTrue(custom.is(Tags.Blocks.CHORUS_ADDITIONALLY_GROWS_ON), () -> "Block %s is not placeable on chorus".formatted(custom.getBlock()));

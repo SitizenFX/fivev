@@ -46,7 +46,7 @@ public class ConfigCommand {
                 context.getSource().sendSuccess(() -> Component.translatable("commands.config.getwithtype",
                         modId, type,
                         Component.literal(f.getName()).withStyle(ChatFormatting.UNDERLINE).
-                                withStyle((style) -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, f.getAbsolutePath())))
+                                withStyle((style) -> style.withClickEvent(new ClickEvent.OpenFile(f.getAbsolutePath())))
                 ), true);
             } else {
                 context.getSource().sendSuccess(() -> Component.translatable("commands.config.noconfig", modId, type),

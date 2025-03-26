@@ -31,7 +31,7 @@
  
      public boolean destroyBlock(BlockPos p_9281_) {
          BlockState blockstate1 = this.level.getBlockState(p_9281_);
--        if (!this.player.getMainHandItem().getItem().canAttackBlock(blockstate1, this.level, p_9281_, this.player)) {
+-        if (!this.player.getMainHandItem().canDestroyBlock(blockstate1, this.level, p_9281_, this.player)) {
 +        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(level, gameModeForPlayer, player, p_9281_);
 +        if (exp == -1) {
              return false;
@@ -53,7 +53,7 @@
 -                }
 -
 +                BlockState blockstate = blockstate1;
-                 if (this.isCreative()) {
+                 if (this.player.preventsBlockDrops()) {
 +                    removeBlock(p_9281_, false);
                      return true;
                  } else {
@@ -140,5 +140,5 @@
 +            if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || (!p_9268_.isEmpty() && !p_9266_.getCooldowns().isOnCooldown(p_9268_))) {
 +                if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.DENY) return InteractionResult.PASS;
                  InteractionResult interactionresult2;
-                 if (this.isCreative()) {
+                 if (p_9266_.hasInfiniteMaterials()) {
                      int i = p_9268_.getCount();
