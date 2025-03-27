@@ -18,7 +18,6 @@ import java.util.List;
 
 /**
  * Abstract scroll panel class.
- * TODO: [Forge][Rendering] ScrollPanel could potentially be replaced by AbstractScrollArea
  */
 public abstract class ScrollPanel extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
     private final Minecraft client;
@@ -146,22 +145,8 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
      * Draws the background of the scroll panel. This runs AFTER Scissors are enabled.
      */
     protected void drawBackground(GuiGraphics guiGraphics, float partialTick) {
-//        BufferBuilder worldr = tess.getBuilder();
-
-        if (this.client.level != null) {
+         if (this.client.level != null)
             this.drawGradientRect(guiGraphics, this.left, this.top, this.right, this.bottom, bgColorFrom, bgColorTo);
-         } /* else { // Draw dark dirt background
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            RenderSystem.setShaderTexture(0, Screen.BACKGROUND_LOCATION);
-            final float texScale = 32.0F;
-            worldr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            worldr.vertex(this.left,  this.bottom, 0.0D).uv(this.left  / texScale, (this.bottom + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-            worldr.vertex(this.right, this.bottom, 0.0D).uv(this.right / texScale, (this.bottom + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-            worldr.vertex(this.right, this.top,    0.0D).uv(this.right / texScale, (this.top    + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-            worldr.vertex(this.left,  this.top,    0.0D).uv(this.left  / texScale, (this.top    + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-            tess.end();
-        }
-        */
     }
 
     /**
@@ -262,7 +247,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.enableScissor(left,  top, width,  height);
+        guiGraphics.enableScissor(left, top, left + width, top + height);
 
         this.drawBackground(guiGraphics, partialTick);
 

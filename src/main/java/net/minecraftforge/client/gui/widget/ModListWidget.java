@@ -40,18 +40,24 @@ public class ModListWidget extends ObjectSelectionList<ModListWidget.ModEntry> {
         return this.listWidth;
     }
 
+    @Override
+    protected int scrollBarX() {
+        return this.getRowRight() - 8;
+    }
+
+    @Override
+    protected void renderSelection(GuiGraphics gui, int top, int rowWidth, int height, int borderColor, int backgroundColor) {
+        int barOffset = this.scrollbarVisible() ? 6 : 0;
+        int left  = this.getX() + (this.width - rowWidth) / 2;
+        int right = this.getX() + (this.width + rowWidth) / 2 - barOffset;
+        gui.fill(left,     top - 2, right,     top + height + 2, borderColor);
+        gui.fill(left + 1, top - 1, right - 1, top + height + 1, backgroundColor);
+    }
+
     public void refreshList() {
         this.clearEntries();
         parent.buildModList(this::addEntry, mod->new ModEntry(mod, this.parent));
     }
-
-    /*
-    @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.parent.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-    }
-    */
 
     public class ModEntry extends ObjectSelectionList.Entry<ModEntry> {
         private final IModInfo modInfo;
@@ -68,20 +74,21 @@ public class ModListWidget extends ObjectSelectionList<ModListWidget.ModEntry> {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isMouseOver, float partialTick)
-        {
+        public void render(GuiGraphics guiGraphics, int entryIdx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
             Component name = Component.literal(stripControlCodes(modInfo.getDisplayName()));
             Component version = Component.literal(stripControlCodes(MavenVersionStringHelper.artifactVersionToString(modInfo.getVersion())));
             VersionChecker.CheckResult vercheck = VersionChecker.getResult(modInfo);
             Font font = this.parent.getFontRenderer();
-            guiGraphics.drawString(font, Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(name,    listWidth))), left + 3, top + 2, 0xFFFFFF, false);
-            guiGraphics.drawString(font, Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(version, listWidth))), left + 3, top + 2 + font.lineHeight, 0xCCCCCC, false);
+            var barOffset = ModListWidget.this.scrollbarVisible() ? 6 : 0;
+            guiGraphics.drawString(font, Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(name,    listWidth - 6 - barOffset))), left + 3, top + 2, 0xFFFFFF, false);
+            guiGraphics.drawString(font, Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(version, listWidth - 6 - barOffset))), left + 3, top + 2 + font.lineHeight, 0xCCCCCC, false);
             if (vercheck.status().shouldDraw()) {
-                //TODO: Consider adding more icons for visualization
+                //TODO: [Forge][ModList] Consider adding more icons for visualization
                 RenderSystem.setShaderColor(1, 1, 1, 1);
                 guiGraphics.pose().pushPose();
-                guiGraphics.blit(RenderType::guiTextured, VERSION_CHECK_ICONS, getX() + width - 12, top + entryHeight / 4, vercheck.status().getSheetOffset() * 8, (vercheck.status().isAnimated() && ((System.currentTimeMillis() / 800 & 1)) == 1) ? 8 : 0, 8, 8, 64, 16);
+                guiGraphics.blit(RenderType::guiTextured, VERSION_CHECK_ICONS, getX() + width - 12 - barOffset, top + entryHeight / 4, vercheck.status().getSheetOffset() * 8, (vercheck.status().isAnimated() && ((System.currentTimeMillis() / 800 & 1)) == 1) ? 8 : 0, 8, 8, 64, 16);
                 guiGraphics.pose().popPose();
+
             }
         }
 

@@ -33,7 +33,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.gui.components.StringWidget;
+
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -82,6 +83,7 @@ public class ModListScreen extends Screen {
     private static final int PADDING = 6;
     private static final int BUTTON_MARGIN = 1;
     private static final int NUM_BUTTONS = SortType.values().length;
+    private static final int BUTTON_HEIGHT = 20;
 
     private final Screen parentScreen;
 
@@ -95,6 +97,7 @@ public class ModListScreen extends Screen {
 
     private String lastFilterText = "";
 
+    private StringWidget searchText;
     private EditBox search;
 
     private boolean sorted = false;
@@ -161,7 +164,6 @@ public class ModListScreen extends Screen {
         @Override
         protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, int mouseX, int mouseY) {
             if (logoPath != null) {
-                //RenderSystem.enableBlend();
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 // Draw the logo image inscribed in a rectangle with width entryWidth (minus some padding) and height 50
                 int headerHeight = 50;
@@ -170,11 +172,8 @@ public class ModListScreen extends Screen {
             }
 
             for (FormattedCharSequence line : lines) {
-                if (line != null) {
-                    //RenderSystem.enableBlend();
+                if (line != null)
                     guiGraphics.drawString(ModListScreen.this.font, line, left + PADDING, relativeY, 0xFFFFFF);
-                    //RenderSystem.disableBlend();
-                }
                 relativeY += font.lineHeight;
             }
 
@@ -225,40 +224,49 @@ public class ModListScreen extends Screen {
 
     @Override
     public void init() {
+        var font = getFontRenderer();
+
         for (IModInfo mod : mods) {
-            listWidth = Math.max(listWidth,getFontRenderer().width(mod.getDisplayName()) + 10);
-            listWidth = Math.max(listWidth,getFontRenderer().width(MavenVersionStringHelper.artifactVersionToString(mod.getVersion())) + 5);
+            listWidth = Math.max(listWidth, font.width(mod.getDisplayName()) + 10);
+            listWidth = Math.max(listWidth, font.width(MavenVersionStringHelper.artifactVersionToString(mod.getVersion())) + 5);
         }
+
         listWidth = Math.max(Math.min(listWidth, width / 3), 100);
         listWidth += listWidth % NUM_BUTTONS != 0 ? (NUM_BUTTONS - listWidth % NUM_BUTTONS) : 0;
 
-        int modInfoWidth = this.width - this.listWidth - (PADDING * 3);
-        int doneButtonWidth = Math.min(modInfoWidth, 200);
-        int y = this.height - 20 - PADDING;
-        int fullButtonHeight = PADDING + 20 + PADDING;
+        final int fullButtonHeight = PADDING + BUTTON_HEIGHT + PADDING;
+        final int modInfoWidth = this.width - this.listWidth - (PADDING * 3);
+        final int doneButtonWidth = Math.min(modInfoWidth, 200);
 
+        int y = this.height - BUTTON_HEIGHT - PADDING;
         doneButton = Button.builder(Component.translatable("gui.done"), b -> ModListScreen.this.onClose())
-                .bounds(((listWidth + PADDING + this.width - doneButtonWidth) / 2), y, doneButtonWidth, 20)
+                .bounds(((listWidth + PADDING + this.width - doneButtonWidth) / 2), y, doneButtonWidth, BUTTON_HEIGHT)
                 .build();
 
         openModsFolderButton = Button.builder(Component.translatable("fml.menu.mods.openmodsfolder"), b -> Util.getPlatform().openFile(FMLPaths.MODSDIR.get().toFile()))
-                .bounds(6, y, this.listWidth, 20)
+                .bounds(6, y, this.listWidth, BUTTON_HEIGHT)
                 .build();
 
-        y -= 20 + PADDING;
+        y -= BUTTON_HEIGHT + PADDING;
         configButton = Button.builder(Component.translatable("fml.menu.mods.config"), b -> ModListScreen.this.displayModConfig())
-                .bounds(6, y, this.listWidth, 20)
+                .bounds(6, y, this.listWidth, BUTTON_HEIGHT)
                 .build();
 
         y -= 14 + PADDING;
         search = new EditBox(getFontRenderer(), PADDING + 1, y, listWidth - 2, 14, Component.translatable("fml.menu.mods.search"));
 
-        this.modList = new ModListWidget(this, listWidth, fullButtonHeight, search.getY() - getFontRenderer().lineHeight * 4 - PADDING);
+        y -= font.lineHeight;
+        int width = font.width(search.getMessage().getVisualOrderText());
+        searchText = new StringWidget(search.getX() + (search.getWidth() /2) - (width / 2), y, width, font.lineHeight, search.getMessage(), font);
+
+        int height = y - (PADDING + BUTTON_HEIGHT + PADDING) - PADDING;
+        this.modList = new ModListWidget(this, listWidth, fullButtonHeight, height);
         this.modList.setX(6);
         this.modInfo = new InfoPanel(this.minecraft, modInfoWidth, this.height - PADDING - fullButtonHeight, PADDING);
 
         this.addRenderableWidget(modList);
         this.addRenderableWidget(modInfo);
+        this.addRenderableWidget(searchText);
         this.addRenderableWidget(search);
         this.addRenderableWidget(doneButton);
         this.addRenderableWidget(configButton);
@@ -268,20 +276,20 @@ public class ModListScreen extends Screen {
         search.setCanLoseFocus(true);
         configButton.active = false;
 
-        final int width = listWidth / NUM_BUTTONS;
+        width = listWidth / NUM_BUTTONS;
         int x = PADDING;
         addRenderableWidget(SortType.NORMAL.button = Button.builder(SortType.NORMAL.getButtonText(), b -> resortMods(SortType.NORMAL))
-                .bounds(x, PADDING, width - BUTTON_MARGIN, 20)
+                .bounds(x, PADDING, width - BUTTON_MARGIN, BUTTON_HEIGHT)
                 .build());
 
         x += width + BUTTON_MARGIN;
         addRenderableWidget(SortType.A_TO_Z.button = Button.builder(SortType.A_TO_Z.getButtonText(), b -> resortMods(SortType.A_TO_Z))
-                .bounds(x, PADDING, width - BUTTON_MARGIN, 20)
+                .bounds(x, PADDING, width - BUTTON_MARGIN, BUTTON_HEIGHT)
                 .build());
 
         x += width + BUTTON_MARGIN;
         addRenderableWidget(SortType.Z_TO_A.button = Button.builder(SortType.Z_TO_A.getButtonText(), b -> resortMods(SortType.Z_TO_A))
-                .bounds(x, PADDING, width - BUTTON_MARGIN, 20)
+                .bounds(x, PADDING, width - BUTTON_MARGIN, BUTTON_HEIGHT)
                 .build());
 
         resortMods(SortType.NORMAL);
@@ -354,15 +362,10 @@ public class ModListScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.modList.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.modInfo != null)
             this.modInfo.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        Component text = Component.translatable("fml.menu.mods.search");
-        int x = modList.getX() + (modList.getWidth() / 2) - (getFontRenderer().width(text) / 2);
-        this.search.render(guiGraphics, mouseX , mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawString(getFontRenderer(), text.getVisualOrderText(), x, search.getY() - getFontRenderer().lineHeight, 0xFFFFFF, false);
     }
 
     public Minecraft getMinecraftInstance() {
