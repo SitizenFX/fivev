@@ -1,18 +1,9 @@
 --- a/net/minecraft/resources/DelegatingOps.java
 +++ b/net/minecraft/resources/DelegatingOps.java
-@@ -218,12 +_,30 @@
- 
-     @Override
-     public ListBuilder<T> listBuilder() {
--        return new DelegatingOps.DelegateListBuilder(this.delegate.listBuilder());
-+        return new ListBuilder.Builder<>(this);
+@@ -226,6 +_,24 @@
+         return new DelegatingOps.DelegateRecordBuilder(this.delegate.mapBuilder());
      }
  
-     @Override
-     public RecordBuilder<T> mapBuilder() {
-         return new DelegatingOps.DelegateRecordBuilder(this.delegate.mapBuilder());
-+    }
-+
 +    // Forge start
 +    java.util.Map<ResourceLocation, Object> ctx = new java.util.HashMap<>();
 +
@@ -29,6 +20,8 @@
 +    public <R> R withContext(ResourceLocation key, Object ctx) {
 +        this.ctx.put(key, ctx);
 +        return (R)this;
-     }
- 
++    }
++
      protected class DelegateListBuilder implements ListBuilder<T> {
+         private final ListBuilder<T> original;
+ 
