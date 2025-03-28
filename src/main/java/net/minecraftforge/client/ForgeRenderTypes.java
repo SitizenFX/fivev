@@ -412,7 +412,8 @@ public enum ForgeRenderTypes {
         /**
          * Use {@link #TEXT_INTENSITY_SEE_THROUGH} instead.
          */
-        @Deprecated
+        @SuppressWarnings("unused")
+        @Deprecated(forRemoval = true, since = "1.21.5")
         public static Function<ResourceLocation, RenderType> TEXT_INTENSITY_SEETHROUGH = TEXT_INTENSITY_SEE_THROUGH;
         private static RenderType getTextIntensitySeeThrough(ResourceLocation locationIn) {
             return create(

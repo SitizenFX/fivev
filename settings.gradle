@@ -124,7 +124,7 @@ include ':forge'
 project(":forge").projectDir = file("projects/forge")
 project(':forge').buildFileName = '../../build_forge.gradle'
 
-if (!System.env.TEAMCITY_VERSION) {
+if (false && !System.env.TEAMCITY_VERSION) {
     include ':clean'
     project(':clean').projectDir = file('projects/clean')
     project(':clean').buildFileName = '../../build_clean.gradle'

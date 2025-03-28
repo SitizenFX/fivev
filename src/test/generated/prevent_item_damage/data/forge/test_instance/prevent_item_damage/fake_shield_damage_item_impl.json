@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:prevent_item_damage/fake_shield_damage_item_impl",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

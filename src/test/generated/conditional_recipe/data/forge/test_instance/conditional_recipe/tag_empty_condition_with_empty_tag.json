@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:conditional_recipe/tag_empty_condition_with_empty_tag",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

@@ -24,7 +24,6 @@ import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -46,10 +45,10 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + CustomIngredientsTest.MODID)
+@GameTestNamespace("forge")
 @Mod(CustomIngredientsTest.MODID)
 public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
     static final String MODID = "custom_ingredients";
@@ -75,10 +74,6 @@ public class CustomIngredientsTest extends BaseTestMod implements INBTBuilder {
         gen.addProvider(event.includeServer(), blockTags);
         gen.addProvider(event.includeServer(), new ItemTagsGen(out, look, blockTags, exist));
         gen.addProvider(event.includeServer(), new Recipes.Runner(out, event.getLookupProvider()));
-    }
-
-    private static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     private static TagKey<Item> tag(String name) {

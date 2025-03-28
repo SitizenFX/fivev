@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import net.minecraftforge.client.gui.widget.ScrollPanel;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.mojang.blaze3d.vertex.Tesselator;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;

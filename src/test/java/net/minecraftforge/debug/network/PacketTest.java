@@ -25,7 +25,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.network.Channel.VersionTest;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.ForgePayload;
@@ -33,8 +33,8 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.SimpleChannel;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + PacketTest.MODID)
 @Mod(PacketTest.MODID)
+@GameTestNamespace("forge")
 public class PacketTest extends BaseTestMod {
     static final String MODID = "packet";
 

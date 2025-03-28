@@ -175,6 +175,15 @@ public final class RegistryObject<T> implements Supplier<T> {
         this.updateReference(registryName);
     }
 
+    /** Internal constructor used for {@link DeferredRegisterData} */
+    RegistryObject(final ResourceLocation name, final ResourceKey<? extends Registry<? super T>> registry, final String modid) {
+        this.name = name;
+        @SuppressWarnings("unchecked")
+        var typed = (ResourceKey<Registry<T>>)registry;
+        this.key = ResourceKey.create(typed, name);
+        this.optionalRegistry = true;
+    }
+
     /**
      * Retrieves the wrapped object in the registry.
      * This value will automatically be updated when the backing registry is updated.
@@ -263,6 +272,11 @@ public final class RegistryObject<T> implements Supplier<T> {
             updateReference(vanillaRegistry);
         else
             this.value = null;
+    }
+
+    void updateReference(T value, Supplier<Holder<T>> holder) {
+        this.value = value;
+        this.holder = holder;
     }
 
     private static boolean registryExists(ResourceLocation registryName) {

@@ -14,14 +14,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.test.ManifestProvider;
 import net.minecraftforge.test.ModuleProvider;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 @Mod(ClosedTestsMod.MODID)
-@GameTestHolder("forge.module.closed")
+@GameTestNamespace("forge")
 public class ClosedTestsMod extends BaseTestMod {
     public static final String MODID = "closed_module_test";
 

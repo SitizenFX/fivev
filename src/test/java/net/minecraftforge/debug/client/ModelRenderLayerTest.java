@@ -37,7 +37,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 import com.google.gson.JsonElement;
 
 @Mod(ModelRenderLayerTest.MODID)
-@GameTestHolder("forge." + ModelRenderLayerTest.MODID)
+@GameTestNamespace("forge")
 public class ModelRenderLayerTest extends BaseTestMod {
     public static final String MODID = "model_render_type";
     private static final String BLOCK_NAME = "cutout_block";

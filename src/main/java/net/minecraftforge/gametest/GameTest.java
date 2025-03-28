@@ -6,39 +6,23 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import net.minecraft.gametest.framework.GameTestEnvironments;
 import net.minecraft.world.level.block.Rotation;
 
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface GameTest {
     String name() default "";
-    String function() default "";
-    Type type() default Type.BLOCK;
-    Data data() default @Data;
 
-
-
-    int rotationSteps() default 0;
-
-
-    public enum Type {
-        BLOCK,
-        FUNCTION;
-    }
-
-    /**
-     * Annotation definitions for {@link net.minecraft.gametest.framework.TestData}
-     */
-    public @interface Data {
-        String environment() default "";
-        String structure() default "forge:empty3x3";
-        int maxTicks() default Integer.MAX_VALUE;
-        int setupTicks() default 0;
-        boolean required() default false;
-        Rotation rotation() default Rotation.NONE;
-        boolean manualOnly() default false;
-        int maxAttempts() default 1;
-        int requiredSuccesses() default 1;
-        boolean skyAccess() default false;
-    }
+    static final String DEFAULT_STRUCTURE = "forge:empty3x3x3";
+    String environment() default GameTestEnvironments.DEFAULT;
+    String structure() default DEFAULT_STRUCTURE;
+    int maxTicks() default 100;
+    int setupTicks() default 0;
+    boolean required() default true;
+    Rotation rotation() default Rotation.NONE;
+    boolean manualOnly() default false;
+    int maxAttempts() default 1;
+    int requiredSuccesses() default 1;
+    boolean skyAccess() default false;
 }

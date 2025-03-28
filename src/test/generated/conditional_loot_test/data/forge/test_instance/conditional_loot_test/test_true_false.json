@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:conditional_loot_test/test_true_false",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

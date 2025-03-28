@@ -24,14 +24,14 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 
 @Mod(ShearsLootTests.MODID)
-@GameTestHolder("forge." + ShearsLootTests.MODID)
+@GameTestNamespace("forge")
 public class ShearsLootTests extends BaseTestMod {
     public static final String MODID = "shears_loot";
 

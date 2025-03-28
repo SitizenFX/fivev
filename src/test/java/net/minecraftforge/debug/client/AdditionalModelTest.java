@@ -29,7 +29,6 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
@@ -51,7 +50,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
@@ -66,8 +65,8 @@ import java.util.stream.Stream;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+@GameTestNamespace("forge")
 @Mod(AdditionalModelTest.MODID)
-@GameTestHolder("forge." + AdditionalModelTest.MODID)
 public class AdditionalModelTest extends BaseTestMod {
     public static final String MODID = "additional_model";
 
@@ -78,10 +77,6 @@ public class AdditionalModelTest extends BaseTestMod {
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MODID);
     private static final RegistryObject<Item> PIG_HEAD_ITEM = ITEMS.register("pig_head", () -> new Item(new Item.Properties().setId(ITEMS.key("pig_head"))));
-
-    private static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
 
     public AdditionalModelTest(FMLJavaModLoadingContext context) {
         super(context, false);

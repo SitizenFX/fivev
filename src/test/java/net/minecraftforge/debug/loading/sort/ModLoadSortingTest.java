@@ -13,10 +13,10 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + ModLoadSortingTest.MODID)
+@GameTestNamespace("forge")
 @Mod(ModLoadSortingTest.MODID)
 public class ModLoadSortingTest extends BaseTestMod {
     static final String MODID = "load_sort_test";

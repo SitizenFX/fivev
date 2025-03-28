@@ -9,11 +9,11 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
+@GameTestNamespace("forge")
 @Mod(AutomaticModuleMod.MODID)
-@GameTestHolder("forge.module.automatic")
 public class AutomaticModuleMod extends BaseTestMod {
     public static final String MODID = "automatic_module";
 

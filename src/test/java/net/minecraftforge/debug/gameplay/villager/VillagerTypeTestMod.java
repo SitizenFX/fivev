@@ -21,14 +21,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 
 import java.util.Map;
 
-@GameTestHolder("forge." + VillagerTypeTestMod.MOD_ID)
+@GameTestNamespace("forge")
 @Mod(VillagerTypeTestMod.MOD_ID)
 public class VillagerTypeTestMod extends BaseTestMod {
     public static final String MOD_ID = "villager_type_test";
@@ -55,7 +55,7 @@ public class VillagerTypeTestMod extends BaseTestMod {
         helper.assertValueEqual(type, TEST_VILLAGER_TYPE.get(), Component.literal("Loaded entry does not contain expected value"));
 
         Holder<Biome> biome = access.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
-        helper.assertValueEqual(VillagerType.byBiome(biome), TEST_VILLAGER_TYPE.get(), Component.literal("VillagerType.byBiome did not return the expected value"));
+        helper.assertValueEqual(VillagerType.byBiome(biome), TEST_VILLAGER_TYPE.getKey(), Component.literal("VillagerType.byBiome did not return the expected value"));
 
         helper.succeed();
     }

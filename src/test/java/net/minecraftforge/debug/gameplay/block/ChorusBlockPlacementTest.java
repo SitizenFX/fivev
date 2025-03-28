@@ -17,13 +17,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + ChorusBlockPlacementTest.MOD_ID)
+@GameTestNamespace("forge")
 @Mod(ChorusBlockPlacementTest.MOD_ID)
 public class ChorusBlockPlacementTest extends BaseTestMod {
     static final String MOD_ID = "chorus_block_placement";

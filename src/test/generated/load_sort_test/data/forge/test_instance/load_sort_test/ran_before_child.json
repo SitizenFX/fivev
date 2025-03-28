@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:load_sort_test/ran_before_child",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

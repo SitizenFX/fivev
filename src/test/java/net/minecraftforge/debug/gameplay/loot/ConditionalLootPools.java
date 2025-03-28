@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+@GameTestNamespace("forge")
 @Mod(ConditionalLootPools.MODID)
-@GameTestHolder("forge." + ConditionalLootPools.MODID)
 public class ConditionalLootPools extends BaseTestMod {
     public static final String MODID = "conditional_loot_test";
 

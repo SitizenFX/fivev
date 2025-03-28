@@ -1,6 +1,50 @@
 --- a/net/minecraft/core/RegistrySetBuilder.java
 +++ b/net/minecraft/core/RegistrySetBuilder.java
-@@ -74,6 +_,10 @@
+@@ -22,7 +_,8 @@
+ import net.minecraft.tags.TagKey;
+ import org.apache.commons.lang3.mutable.MutableObject;
+ 
+-public class RegistrySetBuilder {
++public class RegistrySetBuilder implements net.minecraftforge.common.extensions.IForgeRegistrySetBuilder {
++    private final it.unimi.dsi.fastutil.objects.Object2IntMap<ResourceKey<? extends Registry<?>>> indexes = new it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap<>();
+     private final List<RegistrySetBuilder.RegistryStub<?>> entries = new ArrayList<>();
+ 
+     static <T> HolderGetter<T> wrapContextLookup(final HolderLookup.RegistryLookup<T> p_255625_) {
+@@ -66,14 +_,43 @@
+     public <T> RegistrySetBuilder add(
+         ResourceKey<? extends Registry<T>> p_256446_, Lifecycle p_256394_, RegistrySetBuilder.RegistryBootstrap<T> p_256638_
+     ) {
+-        this.entries.add(new RegistrySetBuilder.RegistryStub<>(p_256446_, p_256394_, p_256638_));
++        add(new RegistrySetBuilder.RegistryStub<>(p_256446_, p_256394_, p_256638_));
+         return this;
+     }
+ 
++    // Forge: This merges two entries in this builder together, so that we can reuse vanilla boostrap methods, or potentially other modder's methods.
++    private <T> RegistrySetBuilder.RegistryStub<T> add(RegistrySetBuilder.RegistryStub<T> entry) {
++        int idx = indexes.getOrDefault(entry.key(), -1);
++        if (idx != -1) {
++            var _oldB = ((RegistrySetBuilder.RegistryStub<T>)this.entries.get(idx)).bootstrap();
++            var _newB = entry.bootstrap();
++            var _new = new RegistrySetBuilder.RegistryStub<>(entry.key(), entry.lifecycle(), ctx -> {
++                _oldB.run(ctx);
++                _newB.run(ctx);
++            });
++            this.entries.set(idx, _new);
++            return _new;
++        } else {
++            this.indexes.put(entry.key(), this.entries.size());
++            this.entries.add(entry);
++            return entry;
++        }
++    }
++
++    public RegistrySetBuilder copy() {
++        var ret = new RegistrySetBuilder();
++        this.entries.forEach(ret::add);
++        return ret;
++    }
++
+     public <T> RegistrySetBuilder add(ResourceKey<? extends Registry<T>> p_256261_, RegistrySetBuilder.RegistryBootstrap<T> p_256010_) {
          return this.add(p_256261_, Lifecycle.stable(), p_256010_);
      }
  

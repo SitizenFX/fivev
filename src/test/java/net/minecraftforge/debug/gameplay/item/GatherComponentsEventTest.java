@@ -15,10 +15,10 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + GatherComponentsEventTest.MOD_ID)
+@GameTestNamespace("forge")
 @Mod(GatherComponentsEventTest.MOD_ID)
 public class GatherComponentsEventTest extends BaseTestMod {
     public static final String MOD_ID = "gather_components_test_event";
@@ -36,7 +36,7 @@ public class GatherComponentsEventTest extends BaseTestMod {
     }
 
     @GameTest
-    public static void onTestForFood(GameTestHelper helper) {
+    public static void is_food(GameTestHelper helper) {
         helper.assertTrue(Items.IRON_NUGGET.components().has(DataComponents.FOOD), "Iron Nugget is not edible, failed to apply DataComponents.FOOD to it.");
         helper.assertFalse(Items.IRON_INGOT.components().has(DataComponents.FOOD), "Iron Ingot is edible, should not have DataComponents.FOOD");
         helper.succeed();

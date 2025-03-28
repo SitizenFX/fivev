@@ -18,7 +18,6 @@ import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
@@ -41,10 +40,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + ConditionalRecipeTest.MODID)
+@GameTestNamespace("forge")
 @Mod(ConditionalRecipeTest.MODID)
 public class ConditionalRecipeTest extends BaseTestMod {
     static final String MODID = "conditional_recipe";
@@ -60,10 +59,6 @@ public class ConditionalRecipeTest extends BaseTestMod {
         var testBlockTags = new TestBlockTags(gen.getPackOutput(), event.getLookupProvider(), event.getExistingFileHelper());
         gen.addProvider(event.includeServer(), testBlockTags);
         gen.addProvider(event.includeServer(), new TestItemTags(gen.getPackOutput(), event.getLookupProvider(), testBlockTags.contentsGetter(), event.getExistingFileHelper()));
-    }
-
-    private static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     private static <C extends RecipeInput, T extends Recipe<C>> void assertFalse(GameTestHelper helper, RecipeType<T> type, C container) {

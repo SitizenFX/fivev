@@ -27,7 +27,6 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -50,7 +49,6 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -132,7 +130,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.VersionChecker;
 import net.minecraftforge.network.NetworkContext;
 import net.minecraftforge.network.NetworkInitialization;
 import net.minecraftforge.network.NetworkRegistry;
@@ -291,50 +288,6 @@ public class ForgeHooksClient {
         } else {
             return base + name;
         }
-    }
-
-    /**
-     * Initialization of Forge Renderers.
-     */
-    static {
-        //FluidRegistry.renderIdFluid = RenderingRegistry.getNextAvailableRenderId();
-        //RenderingRegistry.registerBlockHandler(RenderBlockFluid.instance);
-    }
-
-    private static VersionChecker.Status getForgeVersionStatus() {
-        final class LazyInit {
-            private static final VersionChecker.Status INSTANCE = ForgeVersion.getStatus();
-
-            static {
-                forgeStatusLine = switch (INSTANCE) {
-                    // case FAILED -> " Version check failed";
-                    // case UP_TO_DATE -> "Forge up to date";
-                    // case AHEAD -> "Using non-recommended Forge build, issues may arise.";
-                    case OUTDATED, BETA_OUTDATED -> I18n.get("forge.update.newversion", ForgeVersion.getTarget());
-                    default -> null;
-                };
-            }
-
-            private LazyInit() {}
-        }
-
-        return LazyInit.INSTANCE;
-    }
-
-    // NO-OP method, kept for bin-compat. Used in TitleScreen.java
-    @Deprecated(forRemoval = true, since = "1.21.4")
-    public static void renderMainMenu(TitleScreen gui, GuiGraphics graphics, Font font, int width, int height, int alpha) {
-        /*
-        VersionChecker.Status status = getForgeVersionStatus();
-
-        if (status == VersionChecker.Status.BETA || status == VersionChecker.Status.BETA_OUTDATED) {
-            // Render a warning at the top of the screen
-            Component line = Component.translatable("forge.update.beta.1", ChatFormatting.RED, ChatFormatting.RESET).withStyle(ChatFormatting.RED);
-            graphics.drawCenteredString(font, line, width / 2, 4, 0xFFFFFF | alpha);
-            line = Component.translatable("forge.update.beta.2");
-            graphics.drawCenteredString(font, line, width / 2, 4 + (font.lineHeight + 1), 0xFFFFFF | alpha);
-        }
-         */
     }
 
     public static String forgeStatusLine;

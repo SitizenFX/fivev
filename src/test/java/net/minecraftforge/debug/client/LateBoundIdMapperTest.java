@@ -9,13 +9,12 @@ import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 import javax.annotation.Nullable;
 
@@ -26,16 +25,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 @Mod(LateBoundIdMapperTest.MODID)
-@GameTestHolder("forge." + LateBoundIdMapperTest.MODID)
+@GameTestNamespace("forge")
 public class LateBoundIdMapperTest extends BaseTestMod {
     public LateBoundIdMapperTest(FMLJavaModLoadingContext context) {
         super(context);
     }
 
     public static final String MODID = "late_bound_id_mapper";
-    private static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
 
     @GameTest
     public static void compound(GameTestHelper helper) {

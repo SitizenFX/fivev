@@ -231,7 +231,6 @@ patcher {
             args '--launchTarget', 'forge_dev_client_data',
                  '--mod', 'forge',
                  '--all',
-                 '--validate',
                  '--output', rootProject.file('src/main/generated/'),
                  '--existing', sourceSets.main.resources.srcDirs[0],
                  '--assetsDir', downloadAssets.output,

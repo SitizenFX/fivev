@@ -37,7 +37,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Mod(CriterionTest.MOD_ID)
-@GameTestHolder("forge.custom_criterions")
+@GameTestNamespace("forge")
 public final class CriterionTest extends BaseTestMod {
     public static final String MOD_ID = "criterion_test";
     private static final DeferredRegister<CriterionTrigger<?>> TRIGGERS = DeferredRegister.create(BuiltInRegistries.TRIGGER_TYPES.key(), MOD_ID);

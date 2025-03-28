@@ -87,7 +87,7 @@ public interface IForgeBlockEntity extends ICapabilityProvider {
              bb = AABB.encapsulatingFullBlocks(pos.offset(-1, 0, -1), pos.offset(1, 0, 1));
          } else if (block == Blocks.STRUCTURE_BLOCK) {
              bb = INFINITE_EXTENT_AABB;
-         } else if (block != null && block != Blocks.BEACON) {
+         } else if (block != null && block != Blocks.BEACON && block != Blocks.TEST_INSTANCE_BLOCK) {
              AABB cbb = null;
              try {
                  VoxelShape collisionShape = state.getCollisionShape(self().getLevel(), pos);

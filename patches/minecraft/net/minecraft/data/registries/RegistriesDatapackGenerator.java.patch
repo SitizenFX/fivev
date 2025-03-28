@@ -36,7 +36,18 @@
                      PackOutput.PathProvider packoutput$pathprovider = this.output.createRegistryElementsPathProvider(resourcekey);
                      return CompletableFuture.allOf(
                          p_358460_.listElements()
-+                            .filter(holder -> this.namespacePredicate.test(holder.key().location().getNamespace()))
++                            .filter(holder -> shouldDump(holder.key()))
                              .map(
                                  p_256105_ -> dumpValue(
                                      packoutput$pathprovider.json(p_256105_.key().location()),
+@@ -65,6 +_,10 @@
+                     );
+                 }
+             );
++    }
++
++    protected boolean shouldDump(ResourceKey<?> key) {
++        return this.namespacePredicate.test(key.location().getNamespace());
+     }
+ 
+     private static <E> CompletableFuture<?> dumpValue(

@@ -14,10 +14,10 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
-@GameTestHolder("forge." + ForcedChunkLoadingTest.MOD_ID)
+@GameTestNamespace("forge")
 @Mod(ForcedChunkLoadingTest.MOD_ID)
 public class ForcedChunkLoadingTest extends BaseTestMod {
     static final String MOD_ID = "forced_chunk_loading";

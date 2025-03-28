@@ -28,11 +28,37 @@ public class DatapackBuiltinEntriesProvider extends RegistriesDatapackGenerator 
      *
      * @param output the target directory of the data generator
      * @param registries a future of patched registries
+     * @param modId The mod id to generate the dynamic registry objects of
+     */
+    public DatapackBuiltinEntriesProvider(PackOutput output, CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries, String modId) {
+        this(output, registries, Set.of(modId));
+    }
+
+    /**
+     * Constructs a new datapack provider which generates all registry objects
+     * from the provided mods using the holder.
+     *
+     * @param output the target directory of the data generator
+     * @param registries a future of patched registries
      * @param modIds a set of mod ids to generate the dynamic registry objects of
      */
     public DatapackBuiltinEntriesProvider(PackOutput output, CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries, Set<String> modIds) {
         super(output, registries.thenApply(RegistrySetBuilder.PatchedRegistries::patches), modIds);
         this.fullRegistries = registries.thenApply(RegistrySetBuilder.PatchedRegistries::full);
+    }
+
+    /**
+     * Constructs a new datapack provider which generates all registry objects
+     * from the provided mods using the holder. All entries that need to be
+     * bootstrapped are provided within the {@link RegistrySetBuilder}.
+     *
+     * @param output the target directory of the data generator
+     * @param registries a future of a lookup for registries and their objects
+     * @param registryBuilder a builder containing the dynamic registry objects added by this provider
+     * @param modId The mod id to generate the dynamic registry objects of
+     */
+    public DatapackBuiltinEntriesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, RegistrySetBuilder registryBuilder, String modId) {
+        this(output, registries, registryBuilder, Set.of(modId));
     }
 
     /**

@@ -7,34 +7,41 @@ package net.minecraftforge.debug.gameplay.item;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
+@GameTestNamespace("forge")
 @Mod(PreventItemDamageTest.MOD_ID)
-@GameTestHolder("forge." + PreventItemDamageTest.MOD_ID)
 public class PreventItemDamageTest extends BaseTestMod {
     static final String MOD_ID = "prevent_item_damage";
 
@@ -133,7 +140,23 @@ public class PreventItemDamageTest extends BaseTestMod {
 
     private static final class FakeShieldItem extends ShieldItem {
         public FakeShieldItem() {
-            super(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10));
+            super(new Item.Properties()
+                .setId(ITEMS.key("fake_shield"))
+                .durability(10)
+                .equippableUnswappable(EquipmentSlot.OFFHAND)
+                .component(
+                    DataComponents.BLOCKS_ATTACKS,
+                    new BlocksAttacks(
+                        0F,
+                        0F,
+                        List.of(new BlocksAttacks.DamageReduction(360.0F, Optional.empty(), 0.0F, 1.0F)),
+                        new BlocksAttacks.ItemDamageFunction(3.0F, 1.0F, 1.0F),
+                        Optional.of(DamageTypeTags.BYPASSES_SHIELD),
+                        Optional.of(SoundEvents.SHIELD_BLOCK),
+                        Optional.of(SoundEvents.SHIELD_BREAK)
+                    )
+                )
+            );
         }
 
         @Override

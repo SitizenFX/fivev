@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:forced_chunk_loading/force_far_away_chunk",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

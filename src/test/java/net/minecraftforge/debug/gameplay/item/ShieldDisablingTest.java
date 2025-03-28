@@ -22,13 +22,13 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
 import java.util.function.Function;
 
+@GameTestNamespace("forge")
 @Mod(ShieldDisablingTest.MOD_ID)
-@GameTestHolder("forge." + ShieldDisablingTest.MOD_ID)
 public final class ShieldDisablingTest extends BaseTestMod {
     public static final String MOD_ID = "shield_disabling";
 

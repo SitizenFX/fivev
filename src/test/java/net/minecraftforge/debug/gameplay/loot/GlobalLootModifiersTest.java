@@ -68,7 +68,7 @@ import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -79,7 +79,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-@GameTestHolder("forge.global_loot_modifiers")
+@GameTestNamespace("forge")
 @Mod(GlobalLootModifiersTest.MODID)
 public class GlobalLootModifiersTest extends BaseTestMod {
     public static final String MODID = "global_loot_test";

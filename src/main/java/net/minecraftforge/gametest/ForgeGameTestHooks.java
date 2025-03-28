@@ -6,46 +6,31 @@
 package net.minecraftforge.gametest;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestEnvironments;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.GameTestInstance;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.forgespi.language.ModFileScanData;
-import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.Type;
-
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 /**
  * Internal class used to glue mods into the game test framework.
  * Modders should use the supplied annotations and DeferredRegister
  */
-@SuppressWarnings("unused")
 @ApiStatus.Internal
 public class ForgeGameTestHooks {
-    private static boolean registeredGametests = false;
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final Type GAME_TEST_HOLDER = Type.getType(GameTestHolder.class);
+    private static MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
     public static boolean isGametestEnabled() {
         return !FMLLoader.isProduction() && (SharedConstants.IS_RUNNING_IN_IDE || isGametestServer() || Boolean.getBoolean("forge.enableGameTest"));
@@ -55,78 +40,45 @@ public class ForgeGameTestHooks {
         return !FMLLoader.isProduction() && Boolean.getBoolean("forge.gameTestServer");
     }
 
-/*
-    @SuppressWarnings("deprecation")
-    public static void registerGametests() {
-        if (!registeredGametests && isGametestEnabled() && ModLoader.isLoadingStateValid()) {
-            Set<String> enabledNamespaces = getEnabledNamespaces();
-            LOGGER.info("Enabled Gametest Namespaces: {}", enabledNamespaces);
-
-            Set<Method> gameTestMethods = new HashSet<>();
-            RegisterGameTestsEvent event = new RegisterGameTestsEvent(gameTestMethods);
-
-            ModLoader.get().postEvent(event);
-
-            ModList.get().getAllScanData().stream()
-                .map(ModFileScanData::getAnnotations)
-                .flatMap(Collection::stream)
-                .filter(a -> GAME_TEST_HOLDER.equals(a.annotationType()))
-                .forEach(a -> addGameTestMethods(a, gameTestMethods));
-
-            for (Method gameTestMethod : gameTestMethods) {
-                GameTestRegistry.register(gameTestMethod, enabledNamespaces);
-            }
-
-            registeredGametests = true;
-        }
-    }
-
-    private static Set<String> getEnabledNamespaces() {
-        String enabledNamespacesStr = System.getProperty("forge.enabledGameTestNamespaces");
-        if (enabledNamespacesStr == null)
-            return Set.of();
-
-        return Arrays.stream(enabledNamespacesStr.split(",")).filter(s -> !s.isBlank()).collect(Collectors.toUnmodifiableSet());
-    }
-
-    private static void addGameTestMethods(AnnotationData annotationData, Set<Method> gameTestMethods) {
-        try {
-            Class<?> clazz = Class.forName(annotationData.clazz().getClassName(), true, ForgeGameTestHooks.class.getClassLoader());
-
-            gameTestMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
-        } catch (ClassNotFoundException e) {
-            // Should not be possible
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String getTestName(Method method, GameTest meta) {
-        var name = method.getName().toLowerCase(Locale.ENGLISH);
-        return getPrefixed(method, name);
-    }
-
-    private static String getPrefixed(Method method, String name) {
-        var prefix = getPrefix(method);
-        return prefix == null ? name : prefix + '.' + name;
-    }
 
     @Nullable
-    private static String getPrefix(Method method) {
+    private static boolean shouldPrefix(Method method) {
         var cls = method.getDeclaringClass();
-        var shouldPrefix = !method.isAnnotationPresent(GameTestDontPrefix.class) &&
-                           !cls.isAnnotationPresent(GameTestDontPrefix.class);
-        if (!shouldPrefix)
-            return null;
+        return !method.isAnnotationPresent(GameTestDontPrefix.class) &&
+               !cls.isAnnotationPresent(GameTestDontPrefix.class);
+    }
 
-        return getPrefix(cls);
+    private static String snake(String input) {
+        var result = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                if (!result.isEmpty())
+                    result.append('_');
+                result.append(Character.toLowerCase(c));
+            } else
+                result.append(c);
+        }
+        return result.toString();
     }
 
     private static String getPrefix(Class<?> cls) {
         var prefix = cls.getAnnotation(GameTestPrefix.class);
         if (prefix != null)
-            return prefix.value();
+            return prefix.value() + '/';
 
-        var holder = cls.getAnnotation(GameTestHolder.class);
+        var mod = cls.getAnnotation(Mod.class);
+        if (mod != null) {
+            var holder = cls.getAnnotation(GameTestNamespace.class);
+            if (holder != null && !holder.value().isEmpty())
+                return mod.value() + '/';
+        }
+
+
+        return cls.getSimpleName().toLowerCase(Locale.ENGLISH);
+    }
+
+    private static String getNamespace(Class<?> cls) {
+        var holder = cls.getAnnotation(GameTestNamespace.class);
         if (holder != null && !holder.value().isEmpty())
             return holder.value();
 
@@ -134,21 +86,32 @@ public class ForgeGameTestHooks {
         if (mod != null)
             return mod.value();
 
-        return cls.getSimpleName().toLowerCase(Locale.ENGLISH);
+        throw new IllegalArgumentException("Could not find modid for " + cls.getName());
     }
 
-    private static ResourceLocation key(String namespace, String path) {
-        return path.indexOf(':') == -1 ? ResourceLocation.parse(path) : ResourceLocation.fromNamespaceAndPath(namespace, path);
+    private static ResourceLocation key(String namespace, String prefix, String path) {
+        if (path.indexOf(':') != -1) {
+            var rl = ResourceLocation.parse(path);
+            if (!prefix.isEmpty())
+                return rl.withPrefix(prefix);
+            return rl;
+        }
+
+        return ResourceLocation.fromNamespaceAndPath(namespace, prefix + path);
     }
 
-    public static Map<ResourceLocation, GameTestInstance> gatherTests(Class<?> root) {
-        String prefix = getPrefix(root);
-        var seen = new HashSet<ResourceLocation>();
+    public record TestReference(Consumer<GameTestHelper> consumer, TestData<ResourceLocation> data) {}
 
+    public static Map<ResourceLocation, TestReference> gatherTests(Class<?> root, Object instance) {
+        var ret = new HashMap<ResourceLocation, TestReference>();
+        var seen = new HashSet<String>();
+        String class_prefix = getPrefix(root);
+        String namespace = getNamespace(root);
         Class<?> cls = root;
+
         while (cls != Object.class) {
             for (var method : cls.getDeclaredMethods()) {
-                if (cls != root && Modifier.isStatic(method.getModifiers()))
+                if (!Modifier.isPublic(method.getModifiers()) || (cls != root && Modifier.isStatic(method.getModifiers())))
                     continue;
 
                 var gametest = method.getAnnotation(GameTest.class);
@@ -160,40 +123,73 @@ public class ForgeGameTestHooks {
                 if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != GameTestHelper.class)
                     throw new IllegalStateException("Invalid @GameTest function " + owner + " incorrect arguments");
 
-                var testName = key(prefix, gametest.name().isEmpty() ? method.getName() : gametest.name());
-                if (!seen.add(testName)) {
-                    if (!Modifier.isStatic(method.getModifiers()))
-                        continue;
-                    throw new IllegalStateException("Failed to register test, already seen " + testName + ", for " + owner);
-                }
+                // We don't want parent methods
+                if (!seen.add(method.getName()))
+                    continue;
 
-                if (gametest.type() == GameTest.Type.FUNCTION) {
-                    var funcName = key(prefix, gametest.function());
-                    var func = BuiltInRegistries.TEST_FUNCTION.get(funcName).orElse(null);
+                var prefix = shouldPrefix(method) ? class_prefix : "";
+                var name = key(namespace, prefix, gametest.name().isEmpty() ? snake(method.getName()) : gametest.name());
 
-                    if (func == null)
-                        throw new IllegalStateException("Could not find referenced function `" + funcName + "` for " + owner);
+                var structure = GameTest.DEFAULT_STRUCTURE.equals(gametest.structure())
+                    ? ResourceLocation.parse(gametest.structure())
+                    : key(namespace, "", gametest.structure());
 
-                    var data = getTestData(prefix, owner, gametest.data());
+                var env = GameTestEnvironments.DEFAULT.equals(gametest.environment())
+                    ? ResourceLocation.withDefaultNamespace(gametest.environment())
+                    : key(namespace, "", gametest.environment());
 
+                var data = new TestData<ResourceLocation>(
+                    env,
+                    structure,
+                    gametest.maxTicks(),
+                    gametest.setupTicks(),
+                    gametest.required(),
+                    gametest.rotation(),
+                    gametest.manualOnly(),
+                    gametest.maxAttempts(),
+                    gametest.requiredSuccesses(),
+                    gametest.skyAccess()
+                );
 
-                } else if (gametest.type() == GameTest.Type.BLOCK) {
+                MethodHandle handle = unreflect(method, owner);
 
+                Consumer<GameTestHelper> func;
+                if (Modifier.isStatic(method.getModifiers())) {
+                    func = ctx -> {
+                        try {
+                            handle.invoke(ctx);
+                        } catch (Throwable e) {
+                            sneakyThrow(e);
+                        }
+                    };
                 } else {
-                    throw new IllegalStateException("Could not determine GameTest type for " + root.getName() + " -> " + gametest.type());
+                    func = ctx -> {
+                        try {
+                            handle.invoke(instance, ctx);
+                        } catch (Throwable e) {
+                            sneakyThrow(e);
+                        }
+                    };
                 }
 
-
-
-
+                ret.put(name, new TestReference(func, data));
             }
+
             cls = cls.getSuperclass();
+        }
+        return ret;
+    }
+
+    private static MethodHandle unreflect(Method method, String owner) {
+        try {
+            return LOOKUP.unreflect(method);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("Failed to unreflect " + owner, e);
         }
     }
 
-    private static TestData<?> getTestData(String prefix, String owner, GameTest.Data data) {
-        var envName = key(prefix, data.environment());
-        var env = BuiltInRegistries.TEST_ENVIRONMENT
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
+        throw (E)e;
     }
-*/
 }

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:update_order/east",
+  "max_ticks": 100,
+  "rotation": "counterclockwise_90",
+  "structure": "update_order:update_order"
+}

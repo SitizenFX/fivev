@@ -13,11 +13,11 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
 @Mod(TagsTest.MODID)
-@GameTestHolder("forge.crafting.tags")
+@GameTestNamespace("forge")
 public class TagsTest extends BaseTestMod {
     public static final String MODID = "tags_test";
 

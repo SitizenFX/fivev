@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:update_order/north",
+  "max_ticks": 100,
+  "rotation": "180",
+  "structure": "update_order:update_order"
+}

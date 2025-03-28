@@ -10,12 +10,14 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.test.BaseTestMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 
 /**
  * Redstone update orders are important in many contraptions as there are pistons and other things that could conflict with each other.
@@ -24,7 +26,7 @@ import net.minecraftforge.gametest.GameTestHolder;
  * Partial verification/fix for https://github.com/MinecraftForge/MinecraftForge/issues/9973
  */
 @Mod(UpdateOrder.MODID)
-@GameTestHolder("forge." + UpdateOrder.MODID)
+@GameTestNamespace("forge")
 public class UpdateOrder extends BaseTestMod {
     public static final String MODID = "update_order";
     private static final int PISTON_DELAY = 4;
@@ -33,7 +35,7 @@ public class UpdateOrder extends BaseTestMod {
         super(context);
     }
 
-    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 0)
+    @GameTest(structure = "update_order:update_order")
     public static void south(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
@@ -47,7 +49,7 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 1)
+    @GameTest(structure = "update_order:update_order", rotation = Rotation.CLOCKWISE_90)
     public static void west(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
@@ -61,7 +63,7 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 2)
+    @GameTest(structure = "update_order:update_order", rotation = Rotation.CLOCKWISE_180)
     public static void north(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
@@ -75,7 +77,7 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(data = @GameTest.Data( structure = "update_order:update_order" ), rotationSteps = 3)
+    @GameTest(structure = "update_order:update_order", rotation = Rotation.COUNTERCLOCKWISE_90)
     public static void east(GameTestHelper helper) {
         var chestPos = new BlockPos(0, 1, 0);
         helper.assertBlockPresent(Blocks.CHEST, chestPos);
@@ -89,16 +91,16 @@ public class UpdateOrder extends BaseTestMod {
         });
     }
 
-    @GameTest(data = @GameTest.Data( structure = "update_order:upward_update"))
+    @GameTest(structure = "update_order:upward_update")
     public static void up(GameTestHelper helper) {
-        var chestPos = new BlockPos(0, 1, 2);
+        var barrelPos = new BlockPos(0, 1, 2);
         var expectedPos = new BlockPos(2, 1, 0);
         var unexpectedPos = new BlockPos(0, 4, 0);
-        helper.assertBlockPresent(Blocks.BARREL, chestPos);
+        helper.assertBlockPresent(Blocks.BARREL, barrelPos);
         helper.assertBlockPresent(Blocks.AIR, expectedPos);
         helper.assertBlockPresent(Blocks.AIR, unexpectedPos);
-        var chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
-        chest.setItem(0, new ItemStack(Items.DIRT));
+        var barrel = helper.getBlockEntity(barrelPos, BarrelBlockEntity.class);
+        barrel.setItem(0, new ItemStack(Items.DIRT));
 
         helper.runAfterDelay(10, () -> { // There are a lot of things happening, give it a few ticks
             helper.assertBlockNotPresent(Blocks.WHITE_WOOL, unexpectedPos);

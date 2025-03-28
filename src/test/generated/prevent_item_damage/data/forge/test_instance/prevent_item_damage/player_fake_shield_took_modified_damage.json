@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "environment": "minecraft:default",
+  "function": "forge:prevent_item_damage/player_fake_shield_took_modified_damage",
+  "max_ticks": 100,
+  "structure": "forge:empty3x3x3"
+}

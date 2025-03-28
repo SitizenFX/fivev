@@ -29,7 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-@GameTestHolder("forge." + ItemCapabilityTest.MOD_ID)
+@GameTestNamespace("forge")
 @Mod(ItemCapabilityTest.MOD_ID)
 public class ItemCapabilityTest extends BaseTestMod {
     public static final String MOD_ID = "item_caps";
@@ -66,7 +66,7 @@ public class ItemCapabilityTest extends BaseTestMod {
     }
 
     @GameTest
-    public static void testItemCap(GameTestHelper helper) {
+    public static void item_capability(GameTestHelper helper) {
 
         helper.registerEventListener(ItemCapabilityTest.class);
 
