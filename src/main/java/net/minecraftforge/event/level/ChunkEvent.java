@@ -22,24 +22,20 @@ import org.jetbrains.annotations.ApiStatus;
  * <br>
  * All children of this event are fired on the {@link MinecraftForge#EVENT_BUS}.<br>
  **/
-public class ChunkEvent extends LevelEvent
-{
+public class ChunkEvent extends LevelEvent {
     private final ChunkAccess chunk;
 
-    public ChunkEvent(ChunkAccess chunk)
-    {
+    public ChunkEvent(ChunkAccess chunk) {
         super(chunk.getWorldForge());
         this.chunk = chunk;
     }
 
-    public ChunkEvent(ChunkAccess chunk, LevelAccessor level)
-    {
+    public ChunkEvent(ChunkAccess chunk, LevelAccessor level) {
         super(level);
         this.chunk = chunk;
     }
 
-    public ChunkAccess getChunk()
-    {
+    public ChunkAccess getChunk() {
         return chunk;
     }
 
@@ -56,13 +52,11 @@ public class ChunkEvent extends LevelEvent
      * <br>
      * This event is fired on the {@link MinecraftForge#EVENT_BUS}.<br>
      **/
-    public static final class Load extends ChunkEvent
-    {
+    public static final class Load extends ChunkEvent {
         private final boolean newChunk;
 
         @ApiStatus.Internal
-        public Load(ChunkAccess chunk, boolean newChunk)
-        {
+        public Load(ChunkAccess chunk, boolean newChunk) {
             super(chunk);
             this.newChunk = newChunk;
         }
@@ -74,8 +68,7 @@ public class ChunkEvent extends LevelEvent
          *
          * @return whether the Chunk is newly generated
          */
-        public boolean isNewChunk()
-        {
+        public boolean isNewChunk() {
             return newChunk;
         }
     }
@@ -91,10 +84,27 @@ public class ChunkEvent extends LevelEvent
      * <br>
      * This event is fired on the {@link MinecraftForge#EVENT_BUS}.<br>
      **/
-    public static final class Unload extends ChunkEvent
-    {
-        public Unload(ChunkAccess chunk)
-        {
+    public static final class Unload extends ChunkEvent {
+        public Unload(ChunkAccess chunk) {
+            super(chunk);
+        }
+    }
+    
+    /**
+     * ChunkEvent.LightingCalculated is fired when MinecraftForge flags that lighting is correct in a chunk.<br>
+     * This event is fired during light propagation in ThreadedLevelLightEngine.CompletableFuture(), specifically upon setting 
+     * the ChunkAccess isLightCorrect to true.<br>
+     * <br>
+     * The game test for this event is lighting_event_test in net.minecraftforge.debug.chunk<br>
+     * <br>
+     * This event is not {@link Cancelable}.<br>
+     * <br>
+     * This event does not have a result. {@link HasResult} <br>
+     * <br>
+     * This event is fired on the {@link MinecraftForge#EVENT_BUS}.<br>
+     **/
+    public static final class LightingCalculated extends ChunkEvent {
+        public LightingCalculated(ChunkAccess chunk) {
             super(chunk);
         }
     }

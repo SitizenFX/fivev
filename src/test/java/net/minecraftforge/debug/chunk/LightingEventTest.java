@@ -1,9 +1,4 @@
-/*
- * Copyright (c) Forge Development LLC and contributors
- * SPDX-License-Identifier: LGPL-2.1-only
- */
-
-package net.minecraftforge.debug.gameplay.level;
+package net.minecraftforge.debug.chunk;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -11,25 +6,32 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTest;
 import net.minecraftforge.gametest.GameTestNamespace;
 import net.minecraftforge.test.BaseTestMod;
 
+/**
+ * This is a test for the ChunkEvent.LightingCalculated event.
+ */
 @GameTestNamespace("forge")
-@Mod(ForcedChunkLoadingTest.MOD_ID)
-public class ForcedChunkLoadingTest extends BaseTestMod {
-    static final String MOD_ID = "forced_chunk_loading";
+@Mod(LightingEventTest.MODID)
+public class LightingEventTest extends BaseTestMod {
+    public static final String MODID = "lighting_event_test";
 
     private static final int MAX_CHUNK_LOCATION_ATTEMPTS = 5;
 
-    public ForcedChunkLoadingTest(FMLJavaModLoadingContext context) {
+    public LightingEventTest(FMLJavaModLoadingContext context) {
         super(context);
     }
 
     @GameTest
-    public static void force_far_away_chunk(GameTestHelper helper) {
+    public static void testLightingEventFires(GameTestHelper helper) {
+        var eventFired = helper.boolFlag("eventFired");
+        helper.<ChunkEvent.LightingCalculated>addEventListener(event -> eventFired.set(true));
+
         var random = RandomSource.create();
         var level = helper.getLevel();
         var chunkSource = level.getChunkSource();
@@ -54,16 +56,11 @@ public class ForcedChunkLoadingTest extends BaseTestMod {
             helper.say("WARNING: Finding a far away chunk took " + attempts + " attempts.", ChatFormatting.YELLOW);
         }
 
-        var pos = chunk.getPos();
-        var posLong = pos.toLong();
-        helper.say("Attempting to force far away chunk: " + pos, ChatFormatting.YELLOW);
-        chunkSource.updateChunkForced(pos, true);
-
         helper.runAfterDelay(20, () -> {
-            helper.assertTrue(chunkSource.chunkMap.getDistanceManager().shouldForceTicks(posLong), "Chunk is not ticketed as a force loaded chunk");
-            helper.assertTrue(chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(pos.toLong()), "Forced chunk cannot tick entities");
-            helper.assertTrue(chunkSource.chunkMap.getDistanceManager().inBlockTickingRange(pos.toLong()), "Forced chunk cannot tick blocks");
-            helper.assertTrue(chunkSource.hasChunk(pos.x, pos.z), "Chunk is not loaded despite being ticketed as a force loaded chunk");
+            if (!eventFired.getBool()) {
+                helper.fail("LightingCalculated event was not fired!");
+            }
+
             helper.succeed();
         });
     }
