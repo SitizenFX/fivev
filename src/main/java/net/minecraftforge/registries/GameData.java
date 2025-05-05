@@ -269,7 +269,6 @@ public class GameData {
                 // Tags will be bound later when tag data is reloaded/synced
                 if (named.isFrozen())
                     named.unfreeze();
-                named.bindAllUnboundTagsToEmpty();
                 named.freeze();
             } else if (reg instanceof MappedRegistry maped)
                 maped.freeze();
