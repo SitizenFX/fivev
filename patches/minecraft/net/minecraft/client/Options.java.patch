@@ -10,6 +10,14 @@
                  ? Optional.empty()
                  : Optional.of(p_232011_),
              Codec.STRING
+@@ -683,6 +_,7 @@
+     public boolean onboardAccessibility = true;
+     public boolean syncWrites;
+     public boolean startedCleanly = true;
++    private final Map<String, String> unknownKeys = new java.util.HashMap<>();
+ 
+     public OptionInstance<Boolean> darkMojangStudiosBackground() {
+         return this.darkMojangStudiosBackground;
 @@ -1050,6 +_,7 @@
      }
  
@@ -18,15 +26,16 @@
          this.minecraft = p_92138_;
          this.optionsFile = new File(p_92139_, "options.txt");
          boolean flag = Runtime.getRuntime().maxMemory() >= 1000000000L;
-@@ -1181,12 +_,22 @@
+@@ -1181,15 +_,28 @@
          this.onboardAccessibility = p_168428_.process("onboardAccessibility", this.onboardAccessibility);
          p_168428_.process("menuBackgroundBlurriness", this.menuBackgroundBlurriness);
          this.startedCleanly = p_168428_.process("startedCleanly", this.startedCleanly);
-+        processOptionsForge(p_168428_);
++        processOptionsKeysOnly(p_168428_);
++        processOptionsEnd(p_168428_);
 +    }
  
-+    // FORGE: split off to allow reloading options after mod loading is done
-+    private void processOptionsForge(Options.FieldAccess p_168428_) {
++    // FORGE: split off to allow reloading keys after mod loading is done
++    private void processOptionsKeysOnly(Options.FieldAccess p_168428_) {
          for (KeyMapping keymapping : this.keyMappings) {
 -            String s = keymapping.saveString();
 +            String s = keymapping.saveString() + (keymapping.getKeyModifier() != net.minecraftforge.client.settings.KeyModifier.NONE ? ":" + keymapping.getKeyModifier() : "");
@@ -41,7 +50,12 @@
 +                }
              }
          }
++    }
  
++    private void processOptionsEnd(Options.FieldAccess p_168428_) {
+         for (SoundSource soundsource : SoundSource.values()) {
+             p_168428_.process("soundCategory_" + soundsource.getName(), this.soundSourceVolumes.get(soundsource));
+         }
 @@ -1204,6 +_,10 @@
      }
  
@@ -58,11 +72,54 @@
              }
  
 -            this.processOptions(
-+            java.util.function.Consumer<FieldAccess> processor = limited ? this::processOptionsForge : this::processOptions;
++            java.util.function.Consumer<FieldAccess> processor = limited ? this::processOptionsKeysOnly : this::processOptions;
 +            processor.accept(
                  new Options.FieldAccess() {
                      @Nullable
                      private String getValue(String p_394210_) {
+@@ -1310,6 +_,17 @@
+             );
+             compoundtag1.getString("fullscreenResolution").ifPresent(p_389133_ -> this.fullscreenVideoModeString = p_389133_);
+             KeyMapping.resetMapping();
++
++            if (limited) {
++                this.unknownKeys.clear();
++            } else {
++                var knownKeys = Arrays.stream(this.keyMappings).map(k -> "key_" + k.getName()).collect(Collectors.toSet());
++                for (var entry : compoundtag1.entrySet()) {
++                    if (entry.getKey().startsWith("key_") && entry.getValue().asString().isPresent() && !knownKeys.contains(entry.getKey()))
++                        this.unknownKeys.put(entry.getKey(), entry.getValue().asString().get());
++                }
++            }
++
+         } catch (Exception exception) {
+             LOGGER.error("Failed to load options", (Throwable)exception);
+         }
+@@ -1337,9 +_,11 @@
+     public void save() {
+         try (final PrintWriter printwriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.optionsFile), StandardCharsets.UTF_8))) {
+             printwriter.println("version:" + SharedConstants.getCurrentVersion().getDataVersion().getVersion());
++            var seen = new java.util.HashSet<String>();
+             this.processOptions(
+                 new Options.FieldAccess() {
+                     public void writePrefix(String p_168491_) {
++                        seen.add(p_168491_);
+                         printwriter.print(p_168491_);
+                         printwriter.print(':');
+                     }
+@@ -1395,6 +_,12 @@
+             if (s != null) {
+                 printwriter.println("fullscreenResolution:" + s);
+             }
++            // Forge add any unknown keys so that Mods can add keybindings between vanilla loading/saving its config.
++            for (var entry : this.unknownKeys.entrySet()) {
++                if (!seen.contains(entry.getKey()))
++                    printwriter.println(entry.getKey() + ":" + entry.getValue());
++            }
++
+         } catch (Exception exception) {
+             LOGGER.error("Failed to save options", (Throwable)exception);
+         }
 @@ -1433,6 +_,7 @@
      }
  
