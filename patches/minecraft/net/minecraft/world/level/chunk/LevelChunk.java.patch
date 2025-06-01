@@ -17,15 +17,6 @@
      }
  
      public LevelChunk(ServerLevel p_196850_, ProtoChunk p_196851_, @Nullable LevelChunk.PostLoadProcessor p_196852_) {
-@@ -291,7 +_,7 @@
-                     profilerfiller.pop();
-                 }
- 
--                boolean flag4 = !blockstate.is(block);
-+                boolean flag4 = !blockstate.is(block) || !p_62866_.hasBlockEntity();
-                 boolean flag2 = (p_393998_ & 64) != 0;
-                 boolean flag3 = (p_393998_ & 256) == 0;
-                 if (flag4 && blockstate.hasBlockEntity()) {
 @@ -312,7 +_,7 @@
                  if (!levelchunksection.getBlockState(j, k, l).is(block)) {
                      return null;
