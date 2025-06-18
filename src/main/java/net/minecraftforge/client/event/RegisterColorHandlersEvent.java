@@ -10,8 +10,8 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ColorResolver;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -25,9 +25,9 @@ import org.jetbrains.annotations.ApiStatus;
  * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
  *
  * @see RegisterColorHandlersEvent.Block
- * @see RegisterColorHandlersEvent.Item
+ * @see RegisterColorHandlersEvent.ColorResolvers
  */
-public abstract sealed class RegisterColorHandlersEvent extends Event implements IModBusEvent {
+public abstract sealed class RegisterColorHandlersEvent implements IModBusEvent {
     @ApiStatus.Internal
     protected RegisterColorHandlersEvent() {}
 
@@ -40,6 +40,10 @@ public abstract sealed class RegisterColorHandlersEvent extends Event implements
      * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
      */
     public static final class Block extends RegisterColorHandlersEvent {
+        public static EventBus<Block> getBus(BusGroup modBusGroup) {
+            return IModBusEvent.getBus(modBusGroup, Block.class);
+        }
+
         private final BlockColors blockColors;
 
         @ApiStatus.Internal
@@ -73,6 +77,10 @@ public abstract sealed class RegisterColorHandlersEvent extends Event implements
      * {@link net.minecraft.world.level.BlockAndTintGetter#getBlockTint(BlockPos, ColorResolver)}.
      */
     public static final class ColorResolvers extends RegisterColorHandlersEvent {
+        public static EventBus<ColorResolvers> getBus(BusGroup modBusGroup) {
+            return IModBusEvent.getBus(modBusGroup, ColorResolvers.class);
+        }
+
         private final ImmutableList.Builder<ColorResolver> builder;
 
         @ApiStatus.Internal

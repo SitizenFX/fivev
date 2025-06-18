@@ -29,13 +29,13 @@ public class LightingEventTest extends BaseTestMod {
     private static final int MAX_CHUNK_LOCATION_ATTEMPTS = 5;
 
     public LightingEventTest(FMLJavaModLoadingContext context) {
-        super(context);
+        super(context, false, false);
     }
 
     @GameTest
     public static void testLightingEventFires(GameTestHelper helper) {
         var eventFired = helper.boolFlag("eventFired");
-        helper.<ChunkEvent.LightingCalculated>addEventListener(event -> eventFired.set(true));
+        helper.addEventListener(ChunkEvent.LightingCalculated.BUS, event -> eventFired.set(true));
 
         var random = RandomSource.create();
         var level = helper.getLevel();
