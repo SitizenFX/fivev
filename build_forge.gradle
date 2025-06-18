@@ -168,7 +168,7 @@ patcher {
 
     runs {
         forge_client {
-            property 'eventbus.checkTypesOnDispatch', 'true'
+            property 'eventbus.api.strictRuntimeChecks', 'true'
             property 'org.lwjgl.system.SharedLibraryExtractDirectory', 'lwjgl_dll'
 
             args '--launchTarget', 'forge_dev_client',
