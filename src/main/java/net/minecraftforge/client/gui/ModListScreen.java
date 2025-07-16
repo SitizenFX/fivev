@@ -52,6 +52,7 @@ import net.minecraftforge.fml.loading.StringUtils;
 import net.minecraftforge.forgespi.language.IModInfo;
 
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import org.slf4j.Logger;
@@ -498,5 +499,13 @@ public class ModListScreen extends Screen {
     @Override
     public void onClose() {
         this.minecraft.setScreen(this.parentScreen);
+    }
+
+    @Override
+    protected void handleClickEvent(Minecraft mc, ClickEvent event) {
+        if (mc.player == null)
+            defaultHandleClickEvent(event, mc, this);
+        else
+            defaultHandleGameClickEvent(event, mc, this);
     }
 }
