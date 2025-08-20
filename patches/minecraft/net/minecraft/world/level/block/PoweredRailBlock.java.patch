@@ -39,7 +39,7 @@
      protected boolean isSameRailWithPower(Level p_55226_, BlockPos p_55227_, boolean p_55228_, int p_55229_, RailShape p_55230_) {
          BlockState blockstate = p_55226_.getBlockState(p_55227_);
 -        if (!blockstate.is(this)) {
-+        if (!(blockstate.getBlock() instanceof PoweredRailBlock other)) {
++        if (!(blockstate.getBlock() instanceof PoweredRailBlock other) || this.isActivatorRail() != other.isActivatorRail()) {
              return false;
          } else {
 -            RailShape railshape = blockstate.getValue(SHAPE);
