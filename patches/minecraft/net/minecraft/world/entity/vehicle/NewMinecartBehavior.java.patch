@@ -28,7 +28,7 @@
  
      private Vec3 calculateHaltTrackSpeed(Vec3 p_364212_, BlockState p_362846_) {
 -        if (p_362846_.is(Blocks.POWERED_RAIL) && !p_362846_.getValue(PoweredRailBlock.POWERED)) {
-+        if (p_362846_.getBlock() instanceof PoweredRailBlock && !p_362846_.getValue(PoweredRailBlock.POWERED)) {
++        if (p_362846_.getBlock() instanceof PoweredRailBlock powered && !powered.isActivatorRail() && !p_362846_.getValue(PoweredRailBlock.POWERED)) {
              return p_364212_.length() < 0.03 ? Vec3.ZERO : p_364212_.scale(0.5);
          } else {
              return p_364212_;
@@ -37,7 +37,7 @@
  
      private Vec3 calculateBoostTrackSpeed(Vec3 p_366761_, BlockPos p_361866_, BlockState p_368734_) {
 -        if (p_368734_.is(Blocks.POWERED_RAIL) && p_368734_.getValue(PoweredRailBlock.POWERED)) {
-+        if (p_368734_.getBlock() instanceof PoweredRailBlock && p_368734_.getValue(PoweredRailBlock.POWERED)) {
++        if (p_368734_.getBlock() instanceof PoweredRailBlock powered && !powered.isActivatorRail() && p_368734_.getValue(PoweredRailBlock.POWERED)) {
              if (p_366761_.length() > 0.01) {
                  return p_366761_.normalize().scale(p_366761_.length() + 0.06);
              } else {

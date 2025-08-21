@@ -18,7 +18,7 @@
          boolean flag1 = false;
 -        if (blockstate.is(Blocks.POWERED_RAIL)) {
 +        BaseRailBlock baserailblock = (BaseRailBlock)blockstate.getBlock();
-+        if (blockstate.getBlock() instanceof PoweredRailBlock) {
++        if (blockstate.getBlock() instanceof PoweredRailBlock powered && !powered.isActivatorRail()) {
              flag = blockstate.getValue(PoweredRailBlock.POWERED);
              flag1 = !flag;
          }
