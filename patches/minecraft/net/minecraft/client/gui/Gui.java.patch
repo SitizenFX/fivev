@@ -9,6 +9,25 @@
      private final SubtitleOverlay subtitleOverlay;
      private final SpectatorGui spectatorGui;
      private final PlayerTabOverlay tabList;
+@@ -194,6 +_,7 @@
+             () -> new JumpableVehicleBarRenderer(p_330021_)
+         );
+         this.resetTitleTimes();
++        net.minecraftforge.client.gui.overlay.ForgeLayeredDraw.init(this, p_330021_);
+     }
+ 
+     public void resetTitleTimes() {
+@@ -204,6 +_,10 @@
+ 
+     public void render(GuiGraphics p_282884_, DeltaTracker p_342095_) {
+         if (this.minecraft.screen == null || !(this.minecraft.screen instanceof ReceivingLevelScreen)) {
++            if (Boolean.valueOf(true)) {
++                net.minecraftforge.client.gui.overlay.ForgeLayeredDraw.beginRender(p_282884_, p_342095_);
++                return;
++            }
+             if (!this.minecraft.options.hideGui) {
+                 this.renderCameraOverlays(p_282884_, p_342095_);
+                 this.renderCrosshair(p_282884_, p_342095_);
 @@ -377,7 +_,7 @@
              int i = Mth.floor(this.minecraft.mouseHandler.getScaledXPos(window));
              int j = Mth.floor(this.minecraft.mouseHandler.getScaledYPos(window));
@@ -38,7 +57,7 @@
 @@ -598,6 +_,10 @@
      }
  
-     private void renderSelectedItemName(GuiGraphics p_283501_) {
+     public void renderSelectedItemName(GuiGraphics p_283501_) {
 +        renderSelectedItemName(p_283501_, 0);
 +    }
 +
@@ -71,7 +90,7 @@
              }
          }
  
-@@ -1148,7 +_,7 @@
+@@ -1146,7 +_,7 @@
              ItemStack itemstack = this.minecraft.player.getInventory().getSelectedItem();
              if (itemstack.isEmpty()) {
                  this.toolHighlightTimer = 0;
