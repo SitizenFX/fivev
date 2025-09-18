@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.mojang.logging.LogUtils;
+import net.minecraftforge.fml.loading.LoadingModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -47,9 +49,14 @@ public class RuntimeEnumExtender implements ILaunchPluginService {
     private static final EnumSet<Phase> YAY = EnumSet.of(Phase.AFTER);
     private static final EnumSet<Phase> NAY = EnumSet.noneOf(Phase.class);
 
+    private static final class LazyInit {
+        private LazyInit() {}
+        private static final boolean ANY_MODS = LoadingModList.get().getMods().size() > 2; // 2: forge, minecraft
+    }
+
     @Override
     public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty) {
-        if (isEmpty)
+        if (isEmpty || !LazyInit.ANY_MODS)
             return NAY;
 
         String internalName = classType.getInternalName();
@@ -67,6 +74,11 @@ public class RuntimeEnumExtender implements ILaunchPluginService {
 
         if (!classNode.interfaces.contains(MARKER_IFACE.getInternalName()))
             return ComputeFlags.NO_REWRITE;
+
+        if (!classNode.name.startsWith("net/minecraft/")) {
+            LOGGER.warn("IExtensibleEnum found on non-Minecraft class: {}", classType.getClassName());
+            LOGGER.warn("This behaviour is deprecated for removal and will have no effect in a future MC release. Please use a record with static final field instances instead.");
+        }
 
         Type array = Type.getType("[" + classType.getDescriptor());
         String arrayDesc = array.getDescriptor();
