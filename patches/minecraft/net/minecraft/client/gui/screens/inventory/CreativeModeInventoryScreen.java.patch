@@ -18,7 +18,7 @@
              this.refreshSearchResults();
          } else {
              this.menu.items.addAll(p_261591_);
-@@ -329,6 +_,35 @@
+@@ -329,6 +_,36 @@
      protected void init() {
          if (this.minecraft.player.hasInfiniteMaterials()) {
              super.init();
@@ -26,6 +26,7 @@
 +            int tabIndex = 0;
 +            List<CreativeModeTab> currentPage = new java.util.ArrayList<>();
 +            for (CreativeModeTab sortedCreativeModeTab : net.minecraftforge.common.CreativeModeTabRegistry.getSortedCreativeModeTabs()) {
++               if (!sortedCreativeModeTab.shouldDisplay()) continue;
 +               currentPage.add(sortedCreativeModeTab);
 +               tabIndex++;
 +               if (tabIndex == 10) {
