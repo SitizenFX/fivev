@@ -10,6 +10,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 
 /**
@@ -19,9 +20,10 @@ import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
  * Note: The shield item stack "should" be available from {@link LivingEntity#getUseItem()}
  * at least for players.
  */
-public final class ShieldBlockEvent extends LivingEvent implements Cancellable {
+public final class ShieldBlockEvent extends MutableEvent implements Cancellable, LivingEvent {
     public static final CancellableEventBus<ShieldBlockEvent> BUS = CancellableEventBus.create(ShieldBlockEvent.class);
 
+    private final LivingEntity blocker;
     private final DamageSource source;
     private final float originalBlocked;
     private float dmgBlocked;
@@ -29,11 +31,16 @@ public final class ShieldBlockEvent extends LivingEvent implements Cancellable {
     private final ItemStack blockedWith;
 
     public ShieldBlockEvent(LivingEntity blocker, DamageSource source, float blocked, ItemStack blockedWith) {
-        super(blocker);
+        this.blocker = blocker;
         this.source = source;
         this.originalBlocked = blocked;
         this.dmgBlocked = blocked;
         this.blockedWith = blockedWith;
+    }
+
+    @Override
+    public LivingEntity getEntity() {
+        return this.blocker;
     }
 
     /** @return The damage source. */

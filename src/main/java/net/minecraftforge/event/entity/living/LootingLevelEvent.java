@@ -9,20 +9,28 @@ import net.minecraft.world.entity.LivingEntity;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import org.jetbrains.annotations.Nullable;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-public final class LootingLevelEvent extends LivingEvent {
+@NullMarked
+public final class LootingLevelEvent extends MutableEvent implements LivingEvent {
     public static final EventBus<LootingLevelEvent> BUS = EventBus.create(LootingLevelEvent.class);
 
-    @Nullable
-    private final DamageSource damageSource;
+    private final LivingEntity entity;
+    private final @Nullable DamageSource damageSource;
 
     private int lootingLevel;
 
     public LootingLevelEvent(LivingEntity entity, @Nullable DamageSource damageSource, int lootingLevel) {
-        super(entity);
+        this.entity = entity;
         this.damageSource = damageSource;
         this.lootingLevel = lootingLevel;
+    }
+
+    @Override
+    public LivingEntity getEntity() {
+        return entity;
     }
 
     @Nullable

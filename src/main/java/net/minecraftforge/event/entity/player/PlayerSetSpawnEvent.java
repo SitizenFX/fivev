@@ -7,9 +7,11 @@ package net.minecraftforge.event.entity.player;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +20,10 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * The event can be canceled, which will prevent the spawn point from being changed.
  */
-public final class PlayerSetSpawnEvent extends PlayerEvent implements Cancellable {
+public final class PlayerSetSpawnEvent extends MutableEvent implements Cancellable, PlayerEvent {
     public static final CancellableEventBus<PlayerSetSpawnEvent> BUS = CancellableEventBus.create(PlayerSetSpawnEvent.class);
 
+    private final Player player;
     private final @Nullable ServerPlayer.RespawnConfig config;
 
     @Deprecated(forRemoval = true, since = "1.21.5")
@@ -31,13 +34,23 @@ public final class PlayerSetSpawnEvent extends PlayerEvent implements Cancellabl
     private final @Nullable BlockPos newSpawn;
 
     public PlayerSetSpawnEvent(ServerPlayer player, @Nullable ServerPlayer.RespawnConfig config) {
-        super(player);
+        this.player = player;
         this.config = config;
 
-        boolean hasConfig = config != null;
-        this.forced = hasConfig && config.forced();
-        this.spawnLevel = hasConfig ? config.dimension() : Level.OVERWORLD;
-        this.newSpawn = hasConfig ? config.pos() : null;
+        if (config == null) {
+            this.forced = false;
+            this.spawnLevel = Level.OVERWORLD;
+            this.newSpawn = null;
+        } else {
+            this.forced = config.forced();
+            this.spawnLevel = config.respawnData().dimension();
+            this.newSpawn = config.respawnData().pos();
+        }
+    }
+
+    @Override
+    public Player getEntity() {
+        return player;
     }
 
     /** @return The config for the player respawn */

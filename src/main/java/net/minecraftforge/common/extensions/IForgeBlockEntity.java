@@ -114,7 +114,7 @@ public interface IForgeBlockEntity extends ICapabilityProvider {
      default void requestModelDataUpdate() {
          BlockEntity te = self();
          Level level = te.getLevel();
-         if (level != null && level.isClientSide) {
+         if (level != null && level.isClientSide()) {
              var modelDataManager = level.getModelDataManager();
              if (modelDataManager != null) {
                  modelDataManager.requestRefresh(te);
@@ -136,10 +136,9 @@ public interface IForgeBlockEntity extends ICapabilityProvider {
     /**
      * Returns whether this {@link BlockEntity} has custom outline rendering behavior.
      *
-     * @param player the local player currently viewing this {@code BlockEntity}
      * @return {@code true} to enable outline processing
      */
-    default boolean hasCustomOutlineRendering(Player player) {
+    default boolean hasCustomOutlineRendering() {
         return false;
     }
 }

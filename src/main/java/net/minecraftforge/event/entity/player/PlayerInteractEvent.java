@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Result;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -35,14 +36,17 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 /**
  * PlayerInteractEvent is fired when a player interacts in some way.
  * All subclasses are fired on {@link MinecraftForge#EVENT_BUS}.
  * See the individual documentation on each subevent for more details.
  **/
-public sealed class PlayerInteractEvent extends PlayerEvent {
+public sealed abstract class PlayerInteractEvent implements PlayerEvent, InheritableEvent {
     public static final EventBus<PlayerInteractEvent> BUS = EventBus.create(PlayerInteractEvent.class);
 
+    private final Player player;
     private final InteractionHand hand;
     private final BlockPos pos;
     @Nullable
@@ -50,10 +54,15 @@ public sealed class PlayerInteractEvent extends PlayerEvent {
     private InteractionResult cancellationResult = InteractionResult.PASS;
 
     private PlayerInteractEvent(Player player, InteractionHand hand, BlockPos pos, @Nullable Direction face) {
-        super(Preconditions.checkNotNull(player, "Null player in PlayerInteractEvent!"));
+        this.player = Objects.requireNonNull(player, "Null player in PlayerInteractEvent!");
         this.hand = Preconditions.checkNotNull(hand, "Null hand in PlayerInteractEvent!");
         this.pos = Preconditions.checkNotNull(pos, "Null position in PlayerInteractEvent!");
         this.face = face;
+    }
+
+    @Override
+    public Player getEntity() {
+        return player;
     }
 
     /**
@@ -362,7 +371,7 @@ public sealed class PlayerInteractEvent extends PlayerEvent {
      * @return The effective, i.e. logical, side of this interaction. This will be {@link LogicalSide#CLIENT} on the client thread, and {@link LogicalSide#SERVER} on the server thread.
      */
     public LogicalSide getSide() {
-        return getLevel().isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER;
+        return getLevel().isClientSide() ? LogicalSide.CLIENT : LogicalSide.SERVER;
     }
 
     /**

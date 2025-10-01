@@ -41,6 +41,7 @@ import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
@@ -50,6 +51,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
+import net.minecraftforge.eventbus.api.event.RecordEvent;
 
 public interface IForgeGameTestHelper {
     private GameTestHelper self() {
@@ -144,22 +147,24 @@ public interface IForgeGameTestHelper {
         return this.self().getLevel().registryAccess().lookupOrThrow(registryKey);
     }
 
+    /**
+     * Create a mock server player in creative mode
+     */
     default ServerPlayer makeMockServerPlayer() {
-        return makeMockServerPlayer(true);
+        return makeMockServerPlayer(GameType.CREATIVE);
     }
 
+    /**
+     * Create a mock server player in creative mode
+     */
     default ServerPlayer makeMockServerPlayer(boolean creative) {
+        return makeMockServerPlayer(creative ? GameType.CREATIVE : GameType.SURVIVAL);
+    }
+
+    default ServerPlayer makeMockServerPlayer(GameType type) {
         var level = self().getLevel();
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-mock-player"), false);
-        var player = new ServerPlayer(level.getServer(), level, cookie.gameProfile(), cookie.clientInformation()) {
-            public boolean isSpectator() {
-                return false;
-            }
-
-            public boolean isCreative() {
-                return creative;
-            }
-        };
+        var player = new ServerPlayer(level.getServer(), level, cookie.gameProfile(), cookie.clientInformation());
         var connection = new Connection(PacketFlow.SERVERBOUND);
         @SuppressWarnings("unused") // The constructor has side effects
         var channel = new EmbeddedChannel(connection);
@@ -168,6 +173,7 @@ public interface IForgeGameTestHelper {
         var listener = new ServerGamePacketListenerImpl(server, connection, player, cookie);
         var info = GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(server.registryAccess()), listener);
         connection.setupInboundProtocol(info, listener);
+        player.setGameMode(type);
         return player;
     }
 
@@ -175,6 +181,22 @@ public interface IForgeGameTestHelper {
      * Registers an event listener that will be unregistered when the test is finished running.
      */
     default <E extends InheritableEvent> void addEventListener(EventBus<E> bus, Consumer<E> consumer) {
+        var key = bus.addListener(consumer);
+        self().addCleanup(success -> bus.removeListener(key));
+    }
+
+    /**
+     * Registers an event listener that will be unregistered when the test is finished running.
+     */
+    default <E extends MutableEvent> void addMutableListener(EventBus<E> bus, Consumer<E> consumer) {
+        var key = bus.addListener(consumer);
+        self().addCleanup(success -> bus.removeListener(key));
+    }
+
+    /**
+     * Registers an event listener that will be unregistered when the test is finished running.
+     */
+    default <E extends RecordEvent> void addRecordListener(EventBus<E> bus, Consumer<E> consumer) {
         var key = bus.addListener(consumer);
         self().addCleanup(success -> bus.removeListener(key));
     }

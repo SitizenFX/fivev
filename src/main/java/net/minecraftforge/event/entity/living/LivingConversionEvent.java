@@ -12,50 +12,53 @@ import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 /**
  * Currently known conversions:
- *   Pig -> Zombie Piglin when struck by lightning
- *   Villager -> Zombie Villager when killed by a zombie
- *   Zombie -> Drowned when under water
- *   Husk -> Zombie when under water
- *   Zombie Villager -> Villager
- *   Hoglin -> Zogline when in overworld
- *   Piglin/Piglin Brute -> Zombie Pigman when in overworld
- *   Villager -> Witch when struck by lightning
- *   Skeleton -> Stray when sitting in snow
- *   Tadpole -> Frog when it grows up
- *   Mushroom Cow -> Cow when sheared
+ * <ul>
+ *     <li>Pig -> Zombie Piglin when struck by lightning</li>
+ *     <li>Villager -> Zombie Villager when killed by a zombie</li>
+ *     <li>Zombie -> Drowned when under water</li>
+ *     <li>Husk -> Zombie when under water</li>
+ *     <li>Zombie Villager -> Villager</li>
+ *     <li>Hoglin -> Zoglin when in overworld</li>
+ *     <li>Piglin/Piglin Brute -> Zombie Pigman when in overworld</li>
+ *     <li>Villager -> Witch when struck by lightning</li>
+ *     <li>Skeleton -> Stray when sitting in snow</li>
+ *     <li>Tadpole -> Frog when it grows up</li>
+ *     <li>Mushroom Cow -> Cow when sheared</li>
+ * </ul>
  */
-public sealed class LivingConversionEvent extends LivingEvent implements InheritableEvent {
-    public static final EventBus<LivingConversionEvent> BUS = EventBus.create(LivingConversionEvent.class);
-
-    public LivingConversionEvent(LivingEntity entity) {
-        super(entity);
-    }
+public sealed interface LivingConversionEvent extends LivingEvent, InheritableEvent {
+    EventBus<LivingConversionEvent> BUS = EventBus.create(LivingConversionEvent.class);
 
     /**
      * LivingConversionEvent.Pre is triggered when an entity is trying
      * to replace itself with another entity
-     *
+     * <br>
      * This event may trigger every tick even if it was cancelled last tick
      * for entities like Zombies and Hoglins. To prevent it, the conversion
      * timer needs to be changed or reset
-     *
-     * This event is {@link Cancelable}
-     * If cancelled, the replacement will not occur
+     * <br>
+     * This event is {@linkplain Cancellable}. If cancelled, the replacement will not occur
      */
-    public static final class Pre extends LivingConversionEvent implements Cancellable {
+    final class Pre implements Cancellable, LivingConversionEvent {
         public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
+        private final LivingEntity entity;
         private final EntityType<? extends LivingEntity> outcome;
-        private final Consumer<Integer> timer;
+        private final IntConsumer timer;
 
-        public Pre(LivingEntity entity, EntityType<? extends LivingEntity> outcome, Consumer<Integer> timer) {
-            super(entity);
+        public Pre(LivingEntity entity, EntityType<? extends LivingEntity> outcome, IntConsumer timer) {
+            this.entity = entity;
             this.outcome = outcome;
             this.timer = timer;
+        }
+
+        @Override
+        public LivingEntity getEntity() {
+            return entity;
         }
 
         /**
@@ -84,24 +87,10 @@ public sealed class LivingConversionEvent extends LivingEvent implements Inherit
      * LivingConversionEvent.Post is triggered when an entity is replacing
      * itself with another entity.
      * The old living entity is likely to be removed right after this event.
+     *
+     * @param getOutcome Gets the finalized new entity (with all data like potion effect and equipments set)
      */
-    public static final class Post extends LivingConversionEvent {
+    record Post(LivingEntity getEntity, LivingEntity getOutcome) implements LivingConversionEvent {
         public static final EventBus<Post> BUS = EventBus.create(Post.class);
-
-        private final LivingEntity outcome;
-
-        public Post(LivingEntity entity, LivingEntity outcome) {
-            super(entity);
-            this.outcome = outcome;
-        }
-
-        /**
-         * Gets the finalized new entity (with all data like potion
-         * effect and equipments set)
-         * @return the finalized new entity
-         */
-        public LivingEntity getOutcome() {
-            return outcome;
-        }
     }
 }

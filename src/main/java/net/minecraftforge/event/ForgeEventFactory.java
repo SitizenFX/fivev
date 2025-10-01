@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
@@ -55,6 +56,7 @@ import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -204,16 +206,7 @@ import net.minecraftforge.fml.LogicalSide;
 
 @ApiStatus.Internal
 public final class ForgeEventFactory {
-    private static final ModLoader ML = ModLoader.get();
-
     private ForgeEventFactory() {}
-
-    /**
-     * Post an event to the {@link ModLoader#get()} event bus
-     */
-    private static <T extends IModBusEvent> void postModBus(T e) {
-        ML.postEvent(e);
-    }
 
     public static boolean onMultiBlockPlace(@Nullable Entity entity, List<BlockSnapshot> blockSnapshots, Direction direction) {
         var snap = blockSnapshots.getFirst();
@@ -240,7 +233,7 @@ public final class ForgeEventFactory {
     }
 
     public static void onPlayerDestroyItem(Player player, @NotNull ItemStack stack, @Nullable InteractionHand hand) {
-        onPlayerDestroyItem(player, stack, LivingEntity.getSlotForHand(hand));
+        onPlayerDestroyItem(player, stack, hand.asEquipmentSlot());
     }
 
     public static void onPlayerDestroyItem(Player player, @NotNull ItemStack stack, @Nullable EquipmentSlot slot) {
@@ -414,10 +407,6 @@ public final class ForgeEventFactory {
         PlayerEvent.SaveToFile.BUS.post(new PlayerEvent.SaveToFile(player, playerDirectory, uuidString));
     }
 
-    public static void firePlayerLoadingEvent(Player player, PlayerDataStorage playerFileData, String uuidString) {
-        PlayerEvent.LoadFromFile.BUS.post(new PlayerEvent.LoadFromFile(player, playerFileData.getPlayerDataFolder(), uuidString));
-    }
-
     @Nullable
     public static BlockState onToolUse(BlockState originalState, UseOnContext context, ToolAction toolAction, boolean simulate) {
         var event = new BlockToolModificationEvent(originalState, context, toolAction, simulate);
@@ -431,7 +420,7 @@ public final class ForgeEventFactory {
         var event = new BonemealEvent(player, level, pos, state, stack);
         if (BonemealEvent.BUS.post(event)) return -1;
         if (event.getResult() == Result.ALLOW) {
-            if (!level.isClientSide)
+            if (!level.isClientSide())
                 stack.shrink(1);
             return 1;
         }
@@ -695,20 +684,15 @@ public final class ForgeEventFactory {
         return SleepFinishedTimeEvent.BUS.fire(new SleepFinishedTimeEvent(level, newTime, minTime)).getNewTime();
     }
 
-    @Deprecated(forRemoval = true, since = "1.21.4")
-    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, RegistryAccess registryAccess) {
-        return AddReloadListenerEvent.BUS.fire(new AddReloadListenerEvent(serverResources, registryAccess)).getListeners();
-    }
-
-    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, HolderLookup.Provider lookupProvider, @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess) {
-        return AddReloadListenerEvent.BUS.fire(new AddReloadListenerEvent(serverResources, lookupProvider, registryAccess)).getListeners();
+    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, HolderLookup.Provider lookupProvider) {
+        return AddReloadListenerEvent.BUS.fire(new AddReloadListenerEvent(serverResources, lookupProvider)).getListeners();
     }
 
     public static void onCommandRegister(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection environment, CommandBuildContext context) {
         RegisterCommandsEvent.BUS.post(new RegisterCommandsEvent(dispatcher, environment, context));
     }
 
-    public static boolean canLivingConvert(LivingEntity entity, EntityType<? extends LivingEntity> outcome, Consumer<Integer> timer) {
+    public static boolean canLivingConvert(LivingEntity entity, EntityType<? extends LivingEntity> outcome, IntConsumer timer) {
         return !LivingConversionEvent.Pre.BUS.post(new LivingConversionEvent.Pre(entity, outcome, timer));
     }
 
@@ -740,9 +724,9 @@ public final class ForgeEventFactory {
         return EntityTeleportEvent.ChorusFruit.BUS.fire(new EntityTeleportEvent.ChorusFruit(entity, targetX, targetY, targetZ));
     }
 
-    public static boolean onPermissionChanged(GameProfile gameProfile, int newLevel, PlayerList playerList) {
+    public static boolean onPermissionChanged(NameAndId gameProfile, int newLevel, PlayerList playerList) {
         var oldLevel = playerList.getServer().getProfilePermissions(gameProfile);
-        var player = playerList.getPlayer(gameProfile.getId());
+        var player = playerList.getPlayer(gameProfile.id());
         if (newLevel != oldLevel && player != null)
             return PermissionsChangedEvent.BUS.post(new PermissionsChangedEvent(player, newLevel, oldLevel));
         return false;
@@ -785,11 +769,11 @@ public final class ForgeEventFactory {
     }
 
     public static void onPreLevelTick(Level level, BooleanSupplier haveTime) {
-        TickEvent.LevelTickEvent.Pre.BUS.post(new TickEvent.LevelTickEvent.Pre(level.isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER, level, haveTime));
+        TickEvent.LevelTickEvent.Pre.BUS.post(new TickEvent.LevelTickEvent.Pre(level.isClientSide() ? LogicalSide.CLIENT : LogicalSide.SERVER, level, haveTime));
     }
 
     public static void onPostLevelTick(Level level, BooleanSupplier haveTime) {
-        TickEvent.LevelTickEvent.Post.BUS.post(new TickEvent.LevelTickEvent.Post(level.isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER, level, haveTime));
+        TickEvent.LevelTickEvent.Post.BUS.post(new TickEvent.LevelTickEvent.Post(level.isClientSide() ? LogicalSide.CLIENT : LogicalSide.SERVER, level, haveTime));
     }
 
     public static void onPreClientTick() {
@@ -960,7 +944,7 @@ public final class ForgeEventFactory {
 
     // TODO: Remove from mod bus - Lex 04222024
     public static void addPackFindersServer(Consumer<RepositorySource> consumer) {
-        postModBus(new AddPackFindersEvent(PackType.SERVER_DATA, consumer));
+        ModLoader.postEvent(new AddPackFindersEvent(PackType.SERVER_DATA, consumer));
     }
 
     public static boolean onEntityJoinLevel(Entity entity, Level level) {

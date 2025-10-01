@@ -11,8 +11,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 
 /**
@@ -29,23 +29,27 @@ import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
  * {@link #ratioX} contains the x ratio of the knock back. <br>
  * {@link #ratioZ} contains the z ratio of the knock back. <br>
  * <br>
- * If this event is canceled, the entity is not knocked back.<br>
- *<br>
- * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
+ * If this event is cancelled, the entity is not knocked back.<br>
  **/
-public class LivingKnockBackEvent extends LivingEvent implements Cancellable {
+public class LivingKnockBackEvent extends MutableEvent implements Cancellable, LivingEvent {
     public static final CancellableEventBus<LivingKnockBackEvent> BUS = CancellableEventBus.create(LivingKnockBackEvent.class);
 
+    private final LivingEntity target;
     protected float strength;
     protected double ratioX, ratioZ;
     protected final float originalStrength;
     protected final double originalRatioX, originalRatioZ;
 
     public LivingKnockBackEvent(LivingEntity target, float strength, double ratioX, double ratioZ) {
-        super(target);
+        this.target = target;
         this.strength = this.originalStrength = strength;
         this.ratioX = this.originalRatioX = ratioX;
         this.ratioZ = this.originalRatioZ = ratioZ;
+    }
+
+    @Override
+    public LivingEntity getEntity() {
+        return target;
     }
 
     public float getStrength() {return this.strength;}

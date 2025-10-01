@@ -49,7 +49,7 @@ public final class ForgeInternalHandler {
                 if (newEntity != null) {
                     entity.discard();
                     @SuppressWarnings("resource")
-                    var executor = LogicalSidedProvider.WORKQUEUE.get(event.getLevel().isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER);
+                    var executor = LogicalSidedProvider.WORKQUEUE.get(event.getLevel().isClientSide() ? LogicalSide.CLIENT : LogicalSide.SERVER);
                     executor.schedule(new TickTask(0, () -> event.getLevel().addFreshEntity(newEntity)));
                     return true;
                 }
@@ -80,7 +80,7 @@ public final class ForgeInternalHandler {
 
     @SubscribeEvent
     static void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        UsernameCache.setUsername(event.getEntity().getUUID(), event.getEntity().getGameProfile().getName());
+        UsernameCache.setUsername(event.getEntity().getUUID(), event.getEntity().getGameProfile().name());
     }
 
     @SubscribeEvent

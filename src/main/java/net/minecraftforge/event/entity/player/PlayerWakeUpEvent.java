@@ -7,23 +7,18 @@ package net.minecraftforge.event.entity.player;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.RecordEvent;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * This event is fired when the player is waking up.<br/>
  * This is merely for purposes of listening for this to happen.<br/>
  * There is nothing that can be manipulated with this event.
  */
-public final class PlayerWakeUpEvent extends PlayerEvent {
+@NullMarked
+public record PlayerWakeUpEvent(Player getEntity, boolean wakeImmediately, boolean updateLevel)
+        implements RecordEvent, PlayerEvent {
     public static final EventBus<PlayerWakeUpEvent> BUS = EventBus.create(PlayerWakeUpEvent.class);
-
-    private final boolean wakeImmediately;
-    private final boolean updateLevel;
-
-    public PlayerWakeUpEvent(Player player, boolean wakeImmediately, boolean updateLevel) {
-        super(player);
-        this.wakeImmediately = wakeImmediately;
-        this.updateLevel = updateLevel;
-    }
 
     /**
      * Used for the 'wake up animation'.

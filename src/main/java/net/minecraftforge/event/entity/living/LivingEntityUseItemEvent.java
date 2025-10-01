@@ -9,19 +9,27 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.InheritableEvent;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
-public sealed abstract class LivingEntityUseItemEvent extends LivingEvent {
+public sealed abstract class LivingEntityUseItemEvent extends MutableEvent implements LivingEvent, InheritableEvent {
     public static final EventBus<LivingEntityUseItemEvent> BUS = EventBus.create(LivingEntityUseItemEvent.class);
 
+    private final LivingEntity entity;
     private final ItemStack item;
     private int duration;
 
     private LivingEntityUseItemEvent(LivingEntity entity, @NotNull ItemStack item, int duration) {
-        super(entity);
+        this.entity = entity;
         this.item = item;
         this.setDuration(duration);
+    }
+
+    @Override
+    public LivingEntity getEntity() {
+        return entity;
     }
 
     @NotNull

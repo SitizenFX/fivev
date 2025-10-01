@@ -7,22 +7,30 @@ package net.minecraftforge.event.entity.player;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Occurs when a player falls, but is able to fly.  Doesn't need to be cancelable, this is mainly for notification purposes.
  * @author Mithion
- *
  */
-public final class PlayerFlyableFallEvent extends PlayerEvent {
+@NullMarked
+public final class PlayerFlyableFallEvent extends MutableEvent implements PlayerEvent {
     public static final EventBus<PlayerFlyableFallEvent> BUS = EventBus.create(PlayerFlyableFallEvent.class);
 
+    private final Player player;
     private float distance;
     private float multiplier;
 
     public PlayerFlyableFallEvent(Player player, float distance, float multiplier) {
-        super(player);
+        this.player = player;
         this.distance = distance;
         this.multiplier = multiplier;
+    }
+
+    @Override
+    public Player getEntity() {
+        return player;
     }
 
     public float getDistance() { return distance;}

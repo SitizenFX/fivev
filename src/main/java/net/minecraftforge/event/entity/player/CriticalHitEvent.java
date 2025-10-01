@@ -5,26 +5,26 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.HasResult;
 import net.minecraftforge.common.util.Result;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 
 /**
  * This event is fired whenever a player attacks an Entity in
  * EntityPlayer#attackTargetEntityWithCurrentItem(Entity).<br>
  * <br>
- * This event is not {@link Cancelable}.<br>
- * <br>
  * This event has a result. {@link HasResult}<br>
  * DEFAULT: means the vanilla logic will determine if this a critical hit.<br>
  * DENY: it will not be a critical hit but the player still will attack<br>
  * ALLOW: this attack is forced to be critical
- * <br>
- * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
-public final class CriticalHitEvent extends PlayerEvent implements HasResult {
+public final class CriticalHitEvent extends MutableEvent implements PlayerEvent, HasResult {
+    public static final EventBus<CriticalHitEvent> BUS = EventBus.create(CriticalHitEvent.class);
+
+    private final Player player;
     private float damageModifier;
     private final float oldDamageModifier;
     private final Entity target;
@@ -32,11 +32,16 @@ public final class CriticalHitEvent extends PlayerEvent implements HasResult {
     private Result result = Result.DEFAULT;
     
     public CriticalHitEvent(Player player, Entity target, float damageModifier, boolean vanillaCritical) {
-        super(player);
+        this.player = player;
         this.target = target;
         this.damageModifier = damageModifier;
         this.oldDamageModifier = damageModifier;
         this.vanillaCritical = vanillaCritical;
+    }
+
+    @Override
+    public Player getEntity() {
+        return player;
     }
     
     /**

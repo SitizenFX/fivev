@@ -76,7 +76,7 @@ public class PreventItemDamageTest extends BaseTestMod {
             firedLivingEntityUseItem.set(true);
             event.setDuration(event.getDuration() - 100);
         });
-        helper.addEventListener(PlayerDestroyItemEvent.BUS, event -> {
+        helper.addRecordListener(PlayerDestroyItemEvent.BUS, event -> {
             if (event.getEntity() != player) return;
 
             helper.assertTrue(event.getOriginal() == shield, () -> "Player destroyed an item, but it's not the fake shield! Check the game test impl.");
@@ -117,7 +117,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         helper.makeFloor();
 
         // setup player
-        var player = helper.makeMockServerPlayer();
+        var player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 
         // setup shield
         var shield = FAKE_SHIELD.get().getDefaultInstance();

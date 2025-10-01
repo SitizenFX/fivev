@@ -102,7 +102,6 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -322,14 +321,14 @@ public final class ForgeHooks {
         if (ItemTossEvent.BUS.post(event))
             return null;
 
-        if (!player.level().isClientSide)
+        if (!player.level().isClientSide())
             player.level().addFreshEntity(event.getEntity());
         return event.getEntity();
     }
 
     @Nullable
     public static Component onServerChatSubmittedEvent(ServerPlayer player, Component message) {
-        var plain = message.getContents() instanceof LiteralContents literalContents ? literalContents.text() : "";
+        var plain = message.getContents() instanceof LiteralContents(String text) ? text : "";
         var event = new ServerChatEvent(player, plain, message);
         return ServerChatEvent.BUS.post(event) ? null : event.getMessage();
     }
@@ -694,10 +693,13 @@ public final class ForgeHooks {
                 var potion = itemStack.get(DataComponents.POTION_CONTENTS).potion().orElse(null);
                 if (potion != null && potion.unwrapKey().isPresent())
                     return potion.unwrapKey().get().location().getNamespace();
-            } else if (item instanceof SpawnEggItem egg) {
-                var resourceLocation = EntityType.getKey(egg.getDefaultType());
-                if (resourceLocation != null)
-                    return resourceLocation.getNamespace();
+            } else if (item instanceof SpawnEggItem) {
+                var data = item.components().get(DataComponents.ENTITY_DATA);
+                if (data != null && data.type() != null) {
+                    var resourceLocation = EntityType.getKey(data.type());
+                    if (resourceLocation != null)
+                        return resourceLocation.getNamespace();
+                }
             }
         }
         return modId;
@@ -788,9 +790,9 @@ public final class ForgeHooks {
 
     @Deprecated
     public static void modifyAttributes() {
-        ModLoader.get().postEvent(new EntityAttributeCreationEvent(FORGE_ATTRIBUTES));
+        ModLoader.postEvent(new EntityAttributeCreationEvent(FORGE_ATTRIBUTES));
         Map<EntityType<? extends LivingEntity>, AttributeSupplier.Builder> finalMap = new HashMap<>();
-        ModLoader.get().postEvent(new EntityAttributeModificationEvent(finalMap));
+        ModLoader.postEvent(new EntityAttributeModificationEvent(finalMap));
 
         finalMap.forEach((k, v) -> {
             AttributeSupplier supplier = DefaultAttributes.getSupplier(k);
@@ -858,7 +860,7 @@ public final class ForgeHooks {
             }
 
             final var mismatchEvent = new ModMismatchEvent(levelDirectory, mismatchedVersions, missingVersions);
-            ModLoader.get().postEvent(mismatchEvent);
+            ModLoader.postEvent(mismatchEvent);
 
             StringBuilder resolved = new StringBuilder("The following mods have version differences that were marked resolved:");
             StringBuilder unresolved = new StringBuilder("The following mods have version differences that were not resolved:");
@@ -1043,7 +1045,7 @@ public final class ForgeHooks {
             }
         }
 
-        if (!isAir && !entity.level().isClientSide && entity.isPassenger() && entity.getVehicle() != null && !entity.getVehicle().canBeRiddenUnderFluidType(entity.getEyeInFluidType(), entity)) {
+        if (!isAir && !entity.level().isClientSide() && entity.isPassenger() && entity.getVehicle() != null && !entity.getVehicle().canBeRiddenUnderFluidType(entity.getEyeInFluidType(), entity)) {
             entity.stopRiding();
         }
     }
@@ -1064,7 +1066,7 @@ public final class ForgeHooks {
             entries.put(stack, vis);
         });
 
-        ModLoader.get().postEvent(new BuildCreativeModeTabContentsEvent(tab, tabKey, params, entries));
+        ModLoader.postEvent(new BuildCreativeModeTabContentsEvent(tab, tabKey, params, entries));
 
         for (var entry : entries)
             output.accept(entry.getKey(), entry.getValue());
