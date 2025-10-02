@@ -33,7 +33,10 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -90,20 +93,20 @@ public final class ForgeEventFactoryClient {
     }
 
     public static boolean onScreenMouseClicked(Screen screen, double mouseX, double mouseY, MouseButtonEvent info, boolean repeate) {
-        var ret = ScreenEvent.MouseButtonPressed.Pre.BUS.post(new ScreenEvent.MouseButtonPressed.Pre(screen, mouseX, mouseY, info.button()));
+        var ret = ScreenEvent.MouseButtonPressed.Pre.BUS.post(new ScreenEvent.MouseButtonPressed.Pre(screen, mouseX, mouseY, info));
         if (!ret)
             ret = screen.mouseClicked(info, repeate);
 
-        var result = ScreenEvent.MouseButtonPressed.Post.BUS.fire(new ScreenEvent.MouseButtonPressed.Post(screen, mouseX, mouseY, info.button(), ret)).getResult();
+        var result = ScreenEvent.MouseButtonPressed.Post.BUS.fire(new ScreenEvent.MouseButtonPressed.Post(screen, mouseX, mouseY, info, ret, new Result.Holder())).getResult();
         return result == Result.DEFAULT ? ret : result == Result.ALLOW;
     }
 
-    public static boolean onMouseButtonPre(int button, int action, int mods) {
-        return InputEvent.MouseButton.Pre.BUS.post(new InputEvent.MouseButton.Pre(button, action, mods));
+    public static boolean onMouseButtonPre(MouseButtonInfo info, int action) {
+        return InputEvent.MouseButton.Pre.BUS.post(new InputEvent.MouseButton.Pre(info, action));
     }
 
-    public static void onMouseButtonPost(int button, int action, int mods) {
-        InputEvent.MouseButton.Post.BUS.post(new InputEvent.MouseButton.Post(button, action, mods));
+    public static void onMouseButtonPost(MouseButtonInfo info, int action) {
+        InputEvent.MouseButton.Post.BUS.post(new InputEvent.MouseButton.Post(info, action));
     }
 
     public static boolean onScreenMouseScrollPre(Screen guiScreen, double mouseX, double mouseY, double deltaX, double deltaY) {
@@ -145,28 +148,28 @@ public final class ForgeEventFactoryClient {
         PlayStreamingSourceEvent.BUS.post(new PlayStreamingSourceEvent(engine, sound, channel));
     }
 
-    public static boolean onScreenKeyPressedPre(Screen screen, int keyCode, int scanCode, int modifiers) {
-        return ScreenEvent.KeyPressed.Pre.BUS.post(new ScreenEvent.KeyPressed.Pre(screen, keyCode, scanCode, modifiers));
+    public static boolean onScreenKeyPressedPre(Screen screen, KeyEvent info) {
+        return ScreenEvent.KeyPressed.Pre.BUS.post(new ScreenEvent.KeyPressed.Pre(screen, info));
     }
 
-    public static boolean onScreenKeyPressedPost(Screen screen, int keyCode, int scanCode, int modifiers) {
-        return ScreenEvent.KeyPressed.Post.BUS.post(new ScreenEvent.KeyPressed.Post(screen, keyCode, scanCode, modifiers));
+    public static boolean onScreenKeyPressedPost(Screen screen, KeyEvent info) {
+        return ScreenEvent.KeyPressed.Post.BUS.post(new ScreenEvent.KeyPressed.Post(screen, info));
     }
 
-    public static boolean onScreenKeyReleasedPre(Screen screen, int keyCode, int scanCode, int modifiers) {
-        return ScreenEvent.KeyReleased.Pre.BUS.post(new ScreenEvent.KeyReleased.Pre(screen, keyCode, scanCode, modifiers));
+    public static boolean onScreenKeyReleasedPre(Screen screen, KeyEvent info) {
+        return ScreenEvent.KeyReleased.Pre.BUS.post(new ScreenEvent.KeyReleased.Pre(screen, info));
     }
 
-    public static boolean onScreenKeyReleasedPost(Screen screen, int keyCode, int scanCode, int modifiers) {
-        return ScreenEvent.KeyReleased.Post.BUS.post(new ScreenEvent.KeyReleased.Post(screen, keyCode, scanCode, modifiers));
+    public static boolean onScreenKeyReleasedPost(Screen screen, KeyEvent info) {
+        return ScreenEvent.KeyReleased.Post.BUS.post(new ScreenEvent.KeyReleased.Post(screen, info));
     }
 
-    public static boolean onScreenCharTypedPre(Screen screen, char codePoint, int modifiers) {
-        return ScreenEvent.CharacterTyped.Pre.BUS.post(new ScreenEvent.CharacterTyped.Pre(screen, codePoint, modifiers));
+    public static boolean onScreenCharTypedPre(Screen screen, CharacterEvent info) {
+        return ScreenEvent.CharacterTyped.Pre.BUS.post(new ScreenEvent.CharacterTyped.Pre(screen, info));
     }
 
-    public static boolean onScreenCharTypedPost(Screen screen, char codePoint, int modifiers) {
-        return ScreenEvent.CharacterTyped.Post.BUS.post(new ScreenEvent.CharacterTyped.Post(screen, codePoint, modifiers));
+    public static boolean onScreenCharTypedPost(Screen screen, CharacterEvent info) {
+        return ScreenEvent.CharacterTyped.Post.BUS.post(new ScreenEvent.CharacterTyped.Post(screen, info));
     }
 
     public static boolean onClickInputPickBlock(KeyMapping keyBinding) {

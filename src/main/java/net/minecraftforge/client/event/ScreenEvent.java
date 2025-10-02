@@ -9,6 +9,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.HasResult;
 import net.minecraftforge.common.util.Result;
@@ -323,12 +326,19 @@ public sealed interface ScreenEvent {
      */
     sealed interface MouseButtonPressed extends MouseInput {
         /**
+         * {@return the MouseButtonEvent object containing information about the mouse button being pressed}
+         */
+        MouseButtonEvent getInfo();
+
+        /**
          * {@return the mouse button's input code}
          *
          * @see GLFW mouse constants starting with 'GLFW_MOUSE_BUTTON_'
          * @see <a href="https://www.glfw.org/docs/latest/group__buttons.html" target="_top">the online GLFW documentation</a>
          */
-        int getButton();
+        default int getButton() {
+            return getInfo().button();
+        }
 
         /**
          * Fired <b>before</b> the mouse click is handled by the screen.
@@ -340,7 +350,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Pre(Screen getScreen, double getMouseX, double getMouseY, int getButton)
+        record Pre(Screen getScreen, double getMouseX, double getMouseY, MouseButtonEvent getInfo)
                 implements Cancellable, MouseButtonPressed, RecordEvent {
             public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
@@ -367,15 +377,14 @@ public sealed interface ScreenEvent {
                 Screen getScreen,
                 double getMouseX,
                 double getMouseY,
-                int getButton,
+                MouseButtonEvent getInfo,
                 boolean wasHandled,
                 Result.Holder resultHolder
         ) implements HasResult.Record, MouseButtonPressed, RecordEvent {
             public static final EventBus<Post> BUS = EventBus.create(Post.class);
 
             @ApiStatus.Internal
-            public Post(Screen screen, double mouseX, double mouseY, int button, boolean handled) {
-                this(screen, mouseX, mouseY, button, handled, new Result.Holder());
+            public Post {
             }
 
             /**
@@ -601,13 +610,21 @@ public sealed interface ScreenEvent {
      */
     sealed interface KeyInput extends ScreenEvent {
         /**
+         * {@return the KeyEvent object containing information about the key being pressed/released}
+         * @see KeyEvent
+         */
+        KeyEvent getInfo();
+
+        /**
          * {@return the {@code GLFW} (platform-agnostic) key code}
          *
          * @see InputConstants input constants starting with {@code KEY_}
          * @see GLFW key constants starting with {@code GLFW_KEY_}
          * @see <a href="https://www.glfw.org/docs/latest/group__keys.html" target="_top">the online GLFW documentation</a>
          */
-        int getKeyCode();
+        default int getKeyCode() {
+            return getInfo().key();
+        }
 
         /**
          * {@return the platform-specific scan code}
@@ -618,7 +635,9 @@ public sealed interface ScreenEvent {
          *
          * @see InputConstants#getKey(int, int)
          */
-        int getScanCode();
+        default int getScanCode() {
+            return getInfo().scancode();
+        }
 
         /**
          * {@return a bit field representing the active modifier keys}
@@ -631,7 +650,9 @@ public sealed interface ScreenEvent {
          * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
          * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
          */
-        int getModifiers();
+        default int getModifiers() {
+            return getInfo().modifiers();
+        }
     }
 
     /**
@@ -652,8 +673,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Pre(Screen getScreen, int getKeyCode, int getScanCode, int getModifiers)
-                implements Cancellable, KeyPressed, RecordEvent {
+        record Pre(Screen getScreen, KeyEvent getInfo) implements Cancellable, KeyPressed, RecordEvent {
             public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
             @ApiStatus.Internal
@@ -670,8 +690,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Post(Screen getScreen, int getKeyCode, int getScanCode, int getModifiers)
-                implements Cancellable, KeyPressed, RecordEvent {
+        record Post(Screen getScreen, KeyEvent getInfo) implements Cancellable, KeyPressed, RecordEvent {
             public static final CancellableEventBus<Post> BUS = CancellableEventBus.create(Post.class);
 
             @ApiStatus.Internal
@@ -697,8 +716,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Pre(Screen getScreen, int getKeyCode, int getScanCode, int getModifiers)
-                implements Cancellable, KeyReleased, RecordEvent {
+        record Pre(Screen getScreen, KeyEvent getInfo) implements Cancellable, KeyReleased, RecordEvent {
             public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
             @ApiStatus.Internal
@@ -715,8 +733,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Post(Screen getScreen, int getKeyCode, int getScanCode, int getModifiers)
-                implements Cancellable, KeyReleased, RecordEvent {
+        record Post(Screen getScreen, KeyEvent getInfo) implements Cancellable, KeyReleased, RecordEvent {
             public static final CancellableEventBus<Post> BUS = CancellableEventBus.create(Post.class);
 
             @ApiStatus.Internal
@@ -733,10 +750,18 @@ public sealed interface ScreenEvent {
      * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_char" target="_top">the online GLFW documentation</a>
      */
     sealed interface CharacterTyped extends ScreenEvent {
+
+        /**
+         * {@return The CharacterEvent object containing information about the character being typed}
+         */
+        CharacterEvent getInfo();
+
         /**
          * {@return the character code point}
          */
-        char getCodePoint();
+        default char getCodePoint() {
+            return (char)getInfo().codepoint();
+        }
 
         /**
          * {@return a bit field representing the active modifier keys}
@@ -749,7 +774,9 @@ public sealed interface ScreenEvent {
          * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
          * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
          */
-        int getModifiers();
+        default int getModifiers() {
+            return getInfo().modifiers();
+        }
 
         /**
          * Fired <b>before</b> the character input is handled by the screen.
@@ -761,8 +788,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Pre(Screen getScreen, char getCodePoint, int getModifiers)
-                implements Cancellable, CharacterTyped, RecordEvent {
+        record Pre(Screen getScreen, CharacterEvent getInfo) implements Cancellable, CharacterTyped, RecordEvent {
             public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
             @ApiStatus.Internal
@@ -779,7 +805,7 @@ public sealed interface ScreenEvent {
          * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
          * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
          */
-        record Post(Screen getScreen, char getCodePoint, int getModifiers) implements CharacterTyped, RecordEvent {
+        record Post(Screen getScreen, CharacterEvent getInfo) implements CharacterTyped, RecordEvent {
             public static final EventBus<Post> BUS = EventBus.create(Post.class);
 
             @ApiStatus.Internal

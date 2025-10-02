@@ -428,25 +428,25 @@ public class ForgeHooksClient {
     }
 
     public static boolean onScreenKeyPressed(Screen screen, KeyEvent info) {
-        return ForgeEventFactoryClient.onScreenKeyPressedPre(screen, info.key(), info.scancode(), info.modifiers())
+        return ForgeEventFactoryClient.onScreenKeyPressedPre(screen, info)
             || screen.keyPressed(info)
-            || ForgeEventFactoryClient.onScreenKeyPressedPost(screen, info.key(), info.scancode(), info.modifiers());
+            || ForgeEventFactoryClient.onScreenKeyPressedPost(screen, info);
     }
 
     public static boolean onScreenKeyReleased(Screen screen, KeyEvent info) {
-        return ForgeEventFactoryClient.onScreenKeyReleasedPre(screen, info.key(), info.scancode(), info.modifiers())
+        return ForgeEventFactoryClient.onScreenKeyReleasedPre(screen, info)
             || screen.keyReleased(info)
-            || ForgeEventFactoryClient.onScreenKeyReleasedPost(screen, info.key(), info.scancode(), info.modifiers());
+            || ForgeEventFactoryClient.onScreenKeyReleasedPost(screen, info);
     }
 
     public static boolean onScreenCharTyped(Screen screen, CharacterEvent info) {
-        return ForgeEventFactoryClient.onScreenCharTypedPre(screen, (char)info.codepoint(), info.modifiers())
+        return ForgeEventFactoryClient.onScreenCharTypedPre(screen, info)
             || screen.charTyped(info)
-            || ForgeEventFactoryClient.onScreenCharTypedPost(screen, (char)info.codepoint(), info.modifiers());
+            || ForgeEventFactoryClient.onScreenCharTypedPost(screen, info);
     }
 
     public static void onKeyInput(KeyEvent info, int action) {
-        InputEvent.Key.BUS.post(new InputEvent.Key(info.key(), info.scancode(), action, info.modifiers()));
+        InputEvent.Key.BUS.post(new InputEvent.Key(info, action));
     }
 
     public static boolean isNameplateInRenderDistance(Entity entity, double squareDistance) {

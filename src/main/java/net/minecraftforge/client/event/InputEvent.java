@@ -7,6 +7,8 @@ package net.minecraftforge.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.world.InteractionHand;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
@@ -38,12 +40,20 @@ public sealed interface InputEvent {
      */
     sealed interface MouseButton extends InputEvent {
         /**
+         * {@return the MouseButtonInfo object containing information about the mouse button state}
+         * @see MouseButtonInfo
+         */
+        MouseButtonInfo getInfo();
+
+        /**
          * {@return the mouse button's input code}
          *
          * @see GLFW mouse constants starting with 'GLFW_MOUSE_BUTTON_'
          * @see <a href="https://www.glfw.org/docs/latest/group__buttons.html" target="_top">the online GLFW documentation</a>
          */
-        int getButton();
+        default int getButton() {
+            return getInfo().button();
+        }
 
         /**
          * {@return the mouse button's action}
@@ -64,7 +74,9 @@ public sealed interface InputEvent {
          * @see GLFW#GLFW_KEY_NUM_LOCK NUM LOCK modifier key bit
          * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
          */
-        int getModifiers();
+        default int getModifiers() {
+            return getInfo().modifiers();
+        }
 
         /**
          * Fired when a mouse button is pressed/released, <b>before</b> being processed by vanilla.
@@ -75,7 +87,7 @@ public sealed interface InputEvent {
          *
          * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_mouse_button" target="_top">the online GLFW documentation</a>
          */
-        record Pre(int getButton, int getAction, int getModifiers) implements Cancellable, MouseButton, RecordEvent {
+        record Pre(MouseButtonInfo getInfo, int getAction) implements Cancellable, MouseButton, RecordEvent {
             public static final CancellableEventBus<Pre> BUS = CancellableEventBus.create(Pre.class);
 
             @ApiStatus.Internal
@@ -89,7 +101,7 @@ public sealed interface InputEvent {
          *
          * @see <a href="https://www.glfw.org/docs/latest/input_guide.html#input_mouse_button" target="_top">the online GLFW documentation</a>
          */
-        record Post(int getButton, int getAction, int getModifiers) implements MouseButton, RecordEvent {
+        record Post(MouseButtonInfo getInfo, int getAction) implements MouseButton, RecordEvent {
             public static final EventBus<Post> BUS = EventBus.create(Post.class);
 
             @ApiStatus.Internal
@@ -135,11 +147,19 @@ public sealed interface InputEvent {
      *
      * <p>This event is fired only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
      */
-    record Key(int getKey, int getScanCode, int getAction, int getModifiers) implements RecordEvent, InputEvent {
+    record Key(KeyEvent getInfo, int getAction) implements RecordEvent, InputEvent {
         public static final EventBus<Key> BUS = EventBus.create(Key.class);
 
         @ApiStatus.Internal
         public Key {}
+
+        /**
+         * {@return the KeyEvent object containing information about the key being pressed/released}
+         * @see KeyEvent
+         */
+        public KeyEvent getInfo() {
+            return getInfo;
+        }
 
         /**
          * {@return the {@code GLFW} (platform-agnostic) key code}
@@ -149,7 +169,7 @@ public sealed interface InputEvent {
          * @see <a href="https://www.glfw.org/docs/latest/group__keys.html" target="_top">the online GLFW documentation</a>
          */
         public int getKey() {
-            return getKey;
+            return getInfo().key();
         }
 
         /**
@@ -162,7 +182,7 @@ public sealed interface InputEvent {
          * @see InputConstants#getKey(int, int)
          */
         public int getScanCode() {
-            return getScanCode;
+            return getInfo().scancode();
         }
 
         /**
@@ -188,7 +208,7 @@ public sealed interface InputEvent {
          * @see <a href="https://www.glfw.org/docs/latest/group__mods.html" target="_top">the online GLFW documentation</a>
          */
         public int getModifiers() {
-            return getModifiers;
+            return getInfo().modifiers();
         }
     }
 
