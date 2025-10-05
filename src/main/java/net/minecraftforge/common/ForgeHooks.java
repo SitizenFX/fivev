@@ -790,9 +790,9 @@ public final class ForgeHooks {
 
     @Deprecated
     public static void modifyAttributes() {
-        ModLoader.postEvent(new EntityAttributeCreationEvent(FORGE_ATTRIBUTES));
+        EntityAttributeCreationEvent.BUS.post(new EntityAttributeCreationEvent(FORGE_ATTRIBUTES));
         Map<EntityType<? extends LivingEntity>, AttributeSupplier.Builder> finalMap = new HashMap<>();
-        ModLoader.postEvent(new EntityAttributeModificationEvent(finalMap));
+        EntityAttributeModificationEvent.BUS.post(new EntityAttributeModificationEvent(finalMap));
 
         finalMap.forEach((k, v) -> {
             AttributeSupplier supplier = DefaultAttributes.getSupplier(k);
@@ -1066,7 +1066,7 @@ public final class ForgeHooks {
             entries.put(stack, vis);
         });
 
-        ModLoader.postEvent(new BuildCreativeModeTabContentsEvent(tab, tabKey, params, entries));
+        BuildCreativeModeTabContentsEvent.BUS.post(new BuildCreativeModeTabContentsEvent(tab, tabKey, params, entries));
 
         for (var entry : entries)
             output.accept(entry.getKey(), entry.getValue());

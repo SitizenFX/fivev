@@ -269,11 +269,11 @@ public class ForgeHooksClient {
     }
 
     public static void onTextureStitchedPost(TextureAtlas map) {
-        ModLoader.postEvent(new TextureStitchEvent.Post(map));
+        TextureStitchEvent.Post.BUS.post(new TextureStitchEvent.Post(map));
     }
 
     public static void onBlockColorsInit(BlockColors blockColors) {
-        ModLoader.postEvent(new RegisterColorHandlersEvent.Block(blockColors));
+        RegisterColorHandlersEvent.Block.BUS.post(new RegisterColorHandlersEvent.Block(blockColors));
     }
 
     public static Model getArmorModel(HumanoidRenderState state, ItemStack itemStack, EquipmentSlot slot, HumanoidModel<?> _default) {
@@ -359,11 +359,11 @@ public class ForgeHooksClient {
     }
 
     public static void onModifyBakingResult(ModelBakery modelBakery, ModelBakery.BakingResult results) {
-        ModLoader.postEvent(new ModelEvent.ModifyBakingResult(modelBakery, results));
+        ModelEvent.ModifyBakingResult.BUS.post(new ModelEvent.ModifyBakingResult(modelBakery, results));
     }
 
     public static void onModelBake(ModelManager modelManager, ModelBakery modelBakery) {
-        ModLoader.postEvent(new ModelEvent.BakingCompleted(modelManager, modelBakery));
+        ModelEvent.BakingCompleted.BUS.post(new ModelEvent.BakingCompleted(modelManager, modelBakery));
     }
 
     public static TextureAtlasSprite[] getFluidSprites(BlockAndTintGetter level, BlockPos pos, FluidState fluidStateIn) {
@@ -615,11 +615,11 @@ public class ForgeHooksClient {
     }
 
     public static void onRegisterParticleProviders(ParticleResources particles) {
-        ModLoader.postEvent(new RegisterParticleProvidersEvent(particles));
+        RegisterParticleProvidersEvent.BUS.post(new RegisterParticleProvidersEvent(particles));
     }
 
     public static void onRegisterKeyMappings(Options options) {
-        ModLoader.postEvent(new RegisterKeyMappingsEvent(options));
+        RegisterKeyMappingsEvent.BUS.post(new RegisterKeyMappingsEvent(options));
     }
 
     public static void onRegisterPictureInPictureRenderers(List<PictureInPictureRenderer<?>> renderers,
@@ -799,9 +799,9 @@ public class ForgeHooksClient {
             throw new IllegalStateException("Client hooks initialized more than once");
         initializedClientHooks = true;
 
-        ModLoader.postEvent(new RegisterClientReloadListenersEvent(resourceManager));
-        ModLoader.postEvent(new EntityRenderersEvent.RegisterLayerDefinitions());
-        ModLoader.postEvent(new EntityRenderersEvent.RegisterRenderers());
+        RegisterClientReloadListenersEvent.BUS.post(new RegisterClientReloadListenersEvent(resourceManager));
+        EntityRenderersEvent.RegisterLayerDefinitions.BUS.post(new EntityRenderersEvent.RegisterLayerDefinitions());
+        EntityRenderersEvent.RegisterRenderers.BUS.post(new EntityRenderersEvent.RegisterRenderers());
         TextureAtlasSpriteLoaderManager.init();
         ClientTooltipComponentManager.init();
         EntitySpectatorShaderManager.init();
