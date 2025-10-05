@@ -42,7 +42,7 @@ public sealed interface CustomizeGuiOverlayEvent {
      * <p>This event is fired on the {@linkplain MinecraftForge#EVENT_BUS main Forge event bus},
      * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
      */
-    final class BossEventProgress implements Cancellable, CustomizeGuiOverlayEvent, RecordEvent {
+    final class BossEventProgress extends MutableEvent implements Cancellable, CustomizeGuiOverlayEvent {
         public static final CancellableEventBus<BossEventProgress> BUS = CancellableEventBus.create(BossEventProgress.class);
 
         private final Window window;
