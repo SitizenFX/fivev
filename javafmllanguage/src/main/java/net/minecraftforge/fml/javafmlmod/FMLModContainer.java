@@ -193,6 +193,6 @@ public class FMLModContainer extends ModContainer {
 
     @Override
     public String toString() {
-        return "FMLModContainer[" + this.getModInfo().getModId() + ", " + this.getClass().getName() + "]";
+        return "FMLModContainer[" + this.getModInfo().getModId() + ", " + this.getClass().getName() + ']';
     }
 }

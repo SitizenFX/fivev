@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import org.jspecify.annotations.NullMarked;
 import org.objectweb.asm.Type;
 
 import net.minecraftforge.fml.event.IModBusEvent;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.event.IModBusEvent;
  * @deprecated Use {@link AutoRegisterCapability} annotation on your class.
  */
 @Deprecated(forRemoval = true, since = "1.21")
+@NullMarked
 public final class RegisterCapabilitiesEvent implements IModBusEvent {
     public static EventBus<RegisterCapabilitiesEvent> getBus(BusGroup modBusGroup) {
         return IModBusEvent.getBus(modBusGroup, RegisterCapabilitiesEvent.class);

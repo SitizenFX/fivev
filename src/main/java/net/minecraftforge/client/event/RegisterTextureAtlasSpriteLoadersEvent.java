@@ -39,12 +39,22 @@ public final class RegisterTextureAtlasSpriteLoadersEvent implements SelfDestruc
 
     /**
      * Registers a custom {@link ITextureAtlasSpriteLoader sprite loader}.
+     * @param resourceLocation The namespace should match your mod's namespace, such as your mod ID
      */
+    public void register(ResourceLocation resourceLocation, ITextureAtlasSpriteLoader loader) {
+        Preconditions.checkArgument(!loaders.containsKey(resourceLocation), "Sprite loader already registered: " + resourceLocation);
+        Preconditions.checkArgument(!loaders.containsValue(loader), "Sprite loader already registered as " + loaders.inverse().get(loader));
+        loaders.put(resourceLocation, loader);
+    }
+
+    /**
+     * Registers a custom {@link ITextureAtlasSpriteLoader sprite loader}.
+     * @deprecated Use {@link #register(ResourceLocation, ITextureAtlasSpriteLoader)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.21.9") // removed in 1.21.9
     public void register(String name, ITextureAtlasSpriteLoader loader) {
         @SuppressWarnings("removal")
         var key = ResourceLocation.fromNamespaceAndPath(ModLoadingContext.get().getActiveNamespace(), name);
-        Preconditions.checkArgument(!loaders.containsKey(key), "Sprite loader already registered: " + key);
-        Preconditions.checkArgument(!loaders.containsValue(loader), "Sprite loader already registered as " + loaders.inverse().get(loader));
-        loaders.put(key, loader);
+        register(key, loader);
     }
 }

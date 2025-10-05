@@ -155,8 +155,6 @@ public abstract sealed class ModelEvent {
     /**
      * Allows users to register their own {@link IGeometryLoader geometry loaders} for use in block/item models.
      *
-     * <p>This event is not {@linkplain Cancelable cancellable}, and does not {@linkplain HasResult have a result}.</p>
-     *
      * <p>This event is fired on the {@linkplain FMLJavaModLoadingContext#getModEventBus() mod-specific event bus},
      * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
      */
@@ -174,13 +172,23 @@ public abstract sealed class ModelEvent {
 
         /**
          * Registers a new geometry loader.
+         * @param resourceLocation The namespace should match your mod's namespace, such as your mod ID
          */
+        public void register(ResourceLocation resourceLocation, IGeometryLoader loader) {
+            Preconditions.checkArgument(!loaders.containsKey(resourceLocation), "Geometry loader already registered: " + resourceLocation);
+            loaders.put(resourceLocation, loader);
+        }
+
+        /**
+         * Registers a new geometry loader.
+         * @deprecated Use {@link #register(ResourceLocation, IGeometryLoader)} instead.
+         */
+        @Deprecated(forRemoval = true, since = "1.21.9") // removed in 1.21.9
         public void register(String name, IGeometryLoader loader) {
             @SuppressWarnings("removal")
             var namespace = ModLoadingContext.get().getActiveNamespace();
             var key = ResourceLocation.fromNamespaceAndPath(namespace, name);
-            Preconditions.checkArgument(!loaders.containsKey(key), "Geometry loader already registered: " + key);
-            loaders.put(key, loader);
+            register(key, loader);
         }
     }
 }

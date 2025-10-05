@@ -103,7 +103,7 @@ public abstract class BaseTestMod {
     }
 
 
-    private final class LookupHelper {
+    private static final class LookupHelper {
         private static final Lookup INSTANCE;
         static {
             try {
