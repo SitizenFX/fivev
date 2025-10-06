@@ -1,82 +1,81 @@
-Forge – Standalone Fork by SitizenFX
-====================================
+Minecraft Forge – Standalone Fork by SitizenFX
+===============================================
 
-This standalone fork of Minecraft Forge is maintained by:
-SitizenFX / Elijah Siita (VidllQ Authority)
+This standalone fork of Minecraft Forge is maintained by SitizenFX / Elijah Siita (VidllQ Authority). 
+Forge is a set of tools and modifications to the Minecraft base game code to assist mod developers 
+in creating new and exciting content. It has been in development for several years, but we would 
+like to take this time to thank a few people and projects who have made this possible.
 
-It is a set of tools and modifications to the Minecraft base game code designed to assist
-mod developers in creating new and exciting content.
+First, the people who originally created the Forge projects way back in Minecraft alpha: 
+Eloraam of RedPower and SpaceToad of Buildcraft. Without their acceptance of LexManos taking over 
+the project, who knows what Minecraft modding would be today.
 
----
+Secondly, cpw, who developed Forge Mod Loader (FML) and some of the core features that allow 
+modding to be as functional and simple as it is today. This includes stabilizing the client and 
+server modding ecosystem as well as the base loading system that allows us to modify Minecraft's 
+code efficiently.
 
-Original Contributors
----------------------
-- Eloraam (RedPower) and SpaceToad (Buildcraft)
-  Original mod creators whose projects inspired Forge.
+Mezz, who has stepped up as the issue and pull request manager, keeping the project organized 
+and helping guide the community into creating better additions to Forge.
 
-- cpw
-  Developer of Forge Mod Loader (FML) and core systems for client/server modding.
+Searge, Bspks, Fesh0r, ProfMobius, and the rest of the MCP team, for creating some of the core 
+tools needed to make Minecraft modding possible and as stable as it can be. 
 
-- Mezz
-  Issue and pull request manager, guiding the community and keeping the project stable.
+On that note, here is some specific information about the MCP data we use:
 
-- MCP Team (Searge, Bspks, Fesh0r, ProfMobius, et al.)
-  Developers of the Minecraft Coder Pack (MCP), providing decompilation and modding tools.
+    * Minecraft Coder Pack (MCP) *
+      Forge Mod Loader and Minecraft Forge have permission to distribute and automatically 
+      download components of MCP and MCP data files. This permission is not transitive; anyone 
+      wishing to redistribute the source independently should seek permission from MCP or remove 
+      MCP data and request their users download MCP separately.
 
-- LexManos
-  Original author of much of the Forge code, FML, runtime patcher, and core systems.
+And lastly, the countless community members who have spent time submitting bug reports, 
+pull requests, and helping the community in general. Thank you.
 
-- Community Contributors
-  All users who submitted bug reports, pull requests, and suggestions.
+--SitizenFX / Elijah Siita
 
----
+=========================================================================
 
-Third-Party Libraries & Tools
-------------------------------
-- Minecraft Coder Pack (MCP)
-  Permission granted to Forge for redistribution. Independent redistribution requires MCP permission.
+This is Forge Mod Loader (FML) – Standalone Fork.
 
-- Risugami ModLoader
-  Early API partially implemented for backward compatibility (support ended after 1.7).
+You can find the original source code at:
+https://github.com/MinecraftForge/MinecraftForge/tree/1.12.x/src/main/java/net/minecraftforge/fml
 
-- Topological Sort
-  Implementation inspired by Keith Schwarz: http://keithschwarz.com/interesting/code/?dir=topological-sort
+This fork is a clean, open-source implementation of a mod loader for Minecraft servers and clients. 
+The code is authored by cpw and includes contributions from the community.
 
-- Apache Maven
-  Used for versioned dependency resolution: http://maven.apache.org/
+It began by partially implementing an API defined by the client-side ModLoader, authored by Risugami:
+https://www.minecraftforum.net/topic/75440- 
+This support was dropped as of Minecraft release 1.7, as Risugami no longer maintains ModLoader.
 
-- javaxdelta
-  BSD-licensed library for generating/applying binary differences. Repackaged for Forge.
+It also contains suggestions and generous code contributions from LexManos, author of MinecraftForge:
+https://minecraftforge.net/
 
-- Monocraft Font
-  Used for early loading display: https://github.com/IdreesInc/Monocraft/
+Additionally, this fork includes:
 
----
+- An implementation of topological sort inspired by:
+  http://keithschwarz.com/interesting/code/?dir=topological-sort
 
-SitizenFX / Elijah Siita Contributions
---------------------------------------
-All modifications, new modules, launcher integrations, scripts, UI, tools, and branding
-added since this fork are the exclusive property of SitizenFX / Elijah Siita (VidllQ Authority).
+- Code from the Apache Maven project for performing versioned dependency resolution:
+  http://maven.apache.org/
 
-This includes:
-- Standalone fork integration
-- Proprietary launcher support
-- Runtime patches and ASM transformer modifications
-- UI and branding enhancements
+- A partial repackaging of the javaxdelta library from:
+  http://sourceforge.net/projects/javaxdelta/
+  Credits to its original authors.
 
-Unauthorized use, redistribution, or tampering with these proprietary components is prohibited.
+- Monocraft font for early loading display:
+  https://github.com/IdreesInc/Monocraft/
 
----
+Forge Mod Loader downloads components from the Minecraft Coder Pack:
+http://mcp.ocean-labs.de/index.php/Main_Page
+with kind permission from the MCP team.
+
+=========================================================================
 
 Standalone Fork Declaration
 ---------------------------
-This repository is a standalone fork of Minecraft Forge and is not linked to the official Forge repository.
+This repository is a standalone fork of Minecraft Forge and is **not linked** to the official Forge repository.
 
-    /*
-     * Standalone Forge Fork
-     * Original Copyright (c) Forge Development LLC and contributors
-     * Licensed under the GNU Lesser General Public License v2.1
-     *
-     * Modifications / additions © 2025 SitizenFX / Elijah Siita
-     * This repository is standalone and not linked to the official Forge repo.
-     */
+All modifications, new modules, launcher integrations, scripts, UI, tools, and branding
+created since this fork are the exclusive property of SitizenFX / Elijah Siita (VidllQ Authority). 
+Unauthorized use, redistribution, or tampering with these proprietary components is prohibited.
