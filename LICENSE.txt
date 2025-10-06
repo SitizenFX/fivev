@@ -1,23 +1,60 @@
-Unless noted below, Minecraft Forge, Forge Mod Loader, and all 
-parts herein are licensed under the terms of the LGPL 2.1 found
-here http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt and 
-copied below.
+fivev – A Custom Fork by SitizenFX
+===================================
 
-Homepage: http://minecraftforge.net/
-          https://github.com/MinecraftForge/MinecraftForge
-          
+Copyright (c) 2025 SitizenFX (Elijah Siita / VidllQ Authority)
 
-A note on authorship:
-All source artifacts are property of their original author, with
-the exclusion of the contents of the patches directory and others
-copied from it from time to time. Authorship of the contents of
-the patches directory is retained by the Minecraft Forge project.
-This is because the patches are partially machine generated
-artifacts, and are changed heavily due to the way forge works.
-Individual attribution within them is impossible.
+Use of this source code is subject to the terms provided on the SitizenFX
+Collective website, currently version 1, available at:
 
-Consent:
-All contributions to Forge must consent to the release of any
+    https://sitizenfx.net/terms
+
+The following files, as long as they are marked as licensed under the
+Forge Project license, are optionally available under the LGPL 2.1 License,
+as in the legacy notice below, as of the time of this writing:
+
+    src/main/java/net/minecraftforge/
+    src/main/java/net/minecraftforge/fml/
+    src/main/java/net/minecraftforge/common/asm/
+    src/main/java/net/minecraftforge/fml/common/patcher/
+
+When using other components, please review the SitizenFX Proprietary License terms.
+
+This project is based on the original Minecraft Forge framework by Forge Development LLC.
+The original permission notice is reproduced below for legacy components.
+Please note that this notice does NOT apply to any modifications made by SitizenFX.
+
+---
+
+LGPL 2.1 License (for original Forge components only)
+====================================================
+
+[Copy the full LGPL 2.1 text here, as in Forge’s original license]
+
+---
+
+SitizenFX Proprietary Notice
+============================
+
+All modifications, new modules, scripts, tools, launcher integrations, UI, and branding
+created since the fork are the exclusive property of SitizenFX / Elijah Siita (VidllQ Authority).
+Unauthorized use, redistribution, or tampering with proprietary components is prohibited
+and protected under international copyright law (including the Berne Convention).
+
+---
+
+Standalone Fork Declaration
+===========================
+
+This repository is a standalone fork of Minecraft Forge and is not linked to the official Forge repository.
+
+    /*
+     * Standalone Forge Fork
+     * Original Copyright (c) Forge Development LLC and contributors
+     * Licensed under the GNU Lesser General Public License v2.1
+     *
+     * Modifications / additions © 2025 SitizenFX / XdllQ
+     * This repository is standalone and not linked to the official Forge repo.
+     */
 patch content to the Forge project.
 
 A note on infectivity:
